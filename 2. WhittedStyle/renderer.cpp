@@ -23,7 +23,23 @@ float3 Renderer::Trace( Ray& ray )
 
 	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
-	/* visualize albedo */ return albedo;
+	/* visualize albedo */ return albedo * DirectIllumination(I, N);
+}
+
+float3 Renderer::DirectIllumination(float3 I, float3 N)
+{
+	float3 lightColor = scene.GetLightColor() / 24 * 3; // adjust intensity manually
+	float3 lightPos = scene.GetLightPos();
+	float3 L = normalize(lightPos - I);
+	Ray shadowRay = Ray(I + (L * FLT_EPSILON), L);
+
+	if (scene.IsOccluded(shadowRay)) return float3(0);
+
+	float d = length(lightPos - I);
+	float distFactor = 1 / (d * d);
+	float angleFactor = max(0.0f, dot(N, L));
+
+	return lightColor * angleFactor * distFactor;
 }
 
 // -----------------------------------------------------------
