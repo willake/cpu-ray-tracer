@@ -9,6 +9,7 @@ public:
 	// game flow methods
 	void Init();
 	float3 Trace( Ray& ray );
+	float3 DirectIllumination(float3 I, float3 N);
 	void Tick( float deltaTime );
 	void UI();
 	void Shutdown() { /* implement if you want to do things on shutdown */ }
