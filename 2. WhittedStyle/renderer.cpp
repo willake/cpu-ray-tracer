@@ -1,5 +1,7 @@
 #include "precomp.h"
 
+#include "helper.h"
+
 // -----------------------------------------------------------
 // Initialize the renderer
 // -----------------------------------------------------------
@@ -22,7 +24,7 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	Material* material = scene.GetMaterial(ray.objIdx);
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo( ray.objIdx, I ) : material->albedo;
 
-	if (depth >= depthLimit) return albedo * DirectIllumination(I, N);
+	if (depth >= depthLimit) return float3(0);
 
 	if (material->type == MaterialType::Light) return scene.GetLightColor();
 
