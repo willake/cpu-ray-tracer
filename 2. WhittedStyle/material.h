@@ -20,11 +20,13 @@ namespace Tmpl8
 			this->isAlbedoOverridden = isAlbedoOverridden;
 			this->reflectivity = 1.0f;
 			this->refractivity = 1.0f;
+			this->absortion = float3(0);
 		}
 		MaterialType type;
 		float3 albedo{};
 		bool isAlbedoOverridden;
 		float reflectivity;
 		float refractivity;
+		float3 absortion;
 	};
 }

@@ -24,6 +24,13 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	Material* material = scene.GetMaterial(ray.objIdx);
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo( ray.objIdx, I ) : material->albedo;
 
+	if (ray.inside)
+	{
+		albedo.x *= exp(-material->absortion.x * ray.t);
+		albedo.y *= exp(-material->absortion.y * ray.t);
+		albedo.z *= exp(-material->absortion.z * ray.t);
+	}
+
 	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 
