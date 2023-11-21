@@ -8,7 +8,7 @@ class Renderer : public TheApp
 public:
 	// game flow methods
 	void Init();
-	float3 Trace( Ray& ray );
+	float3 Trace( Ray& ray , int depth);
 	float3 DirectIllumination(float3 I, float3 N);
 	void Tick( float deltaTime );
 	void UI();
@@ -27,6 +27,7 @@ public:
 	Camera camera;
 	bool animating = false;
 	float anim_time = 0;
+	int depthLimit = 3;
 };
 
 } // namespace Tmpl8

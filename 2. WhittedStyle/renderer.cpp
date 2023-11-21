@@ -13,7 +13,7 @@ void Renderer::Init()
 // -----------------------------------------------------------
 // Evaluate light transport
 // -----------------------------------------------------------
-float3 Renderer::Trace( Ray& ray )
+float3 Renderer::Trace( Ray& ray , int depth)
 {
 	scene.FindNearest( ray );
 	if (ray.objIdx == -1) return 0; // or a fancy sky color
@@ -22,7 +22,16 @@ float3 Renderer::Trace( Ray& ray )
 	Material* material = scene.GetMaterial(ray.objIdx);
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo( ray.objIdx, I ) : material->albedo;
 
+	if (depth >= depthLimit) return albedo * DirectIllumination(I, N);
+
 	if (material->type == MaterialType::Light) return scene.GetLightColor();
+
+	if (material->type == MaterialType::Mirror)
+	{
+		float3 RD = reflect(ray.D, N); // reflect direction
+		auto reflectRay = Ray(I + (RD * 0.0001f), RD);
+		return albedo * Trace(reflectRay, depth + 1);
+	}
 
 	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
@@ -63,7 +72,7 @@ void Renderer::Tick( float deltaTime )
 		// trace a primary ray for each pixel on the line
 		for (int x = 0; x < SCRWIDTH; x++)
 		{
-			float4 pixel = float4( Trace( camera.GetPrimaryRay( (float)x, (float)y ) ), 0 );
+			float4 pixel = float4( Trace( camera.GetPrimaryRay( (float)x, (float)y ), 0), 0 );
 			// translate accumulator contents to rgb32 pixels
 			screen->pixels[x + y * SCRWIDTH] = RGBF32_to_RGB8( &pixel );
 			accumulator[x + y * SCRWIDTH] = pixel;
