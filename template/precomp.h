@@ -366,6 +366,7 @@ public:
 	void Tick() {}
 };
 
+#include "material.h"
 #include "scene.h"
 #include "camera.h"
 #include "renderer.h"

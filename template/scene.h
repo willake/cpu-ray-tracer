@@ -19,7 +19,7 @@
 // -----------------------------------------------------------
 
 #define SPEEDTRIX
-#define FOURLIGHTS
+//#define FOURLIGHTS
 
 #define PLANE_X(o,i) {t=-(ray.O.x+o)*ray.rD.x;if(t<ray.t&&t>0)ray.t=t,ray.objIdx=i;}
 #define PLANE_Y(o,i) {t=-(ray.O.y+o)*ray.rD.y;if(t<ray.t&&t>0)ray.t=t,ray.objIdx=i;}
@@ -599,6 +599,17 @@ public:
 		torus = Torus( 10, 0.8f, 0.25f );						// 10: torus
 		torus.T = mat4::Translate( -0.25f, 0, 2 ) * mat4::RotateX( PI / 4 );
 		torus.invT = torus.T.Inverted();
+		materials[0] = Material(MaterialType::Light); // 0: light source
+		materials[1] = Material(MaterialType::Mirror); // 1: bouncing ball
+		materials[2] = Material(MaterialType::Diffuse); // 2: rounded corners
+		materials[3] = Material(MaterialType::Glass, float3(126 / 255.f, 215 / 255.f, 193 / 255.f)); // 3: cube
+		materials[4] = Material(MaterialType::Diffuse, float3(0), true); // 4: left wall
+		materials[5] = Material(MaterialType::Diffuse, float3(0), true); // 5: right wall
+		materials[6] = Material(MaterialType::Diffuse, float3(0), true); // 6: floor
+		materials[7] = Material(MaterialType::Diffuse, float3(0), true); // 7: ceiling
+		materials[8] = Material(MaterialType::Diffuse, float3(0), true); // 8: front wall
+		materials[9] = Material(MaterialType::Diffuse, float3(0), true); // 9: back wall
+		materials[10] = Material(MaterialType::Diffuse, float3(220 / 255.f, 134 / 255.f, 134 / 255.f)); // 10: torus
 		SetTime( 0 );
 		// Note: once we have triangle support we should get rid of the class
 		// hierarchy: virtuals reduce performance somewhat.
@@ -859,6 +870,10 @@ public:
 		// once we have triangle support, we should pass objIdx and the bary-
 		// centric coordinates of the hit, instead of the intersection location.
 	}
+	Material* GetMaterial(int objIdx)
+	{
+		return &materials[objIdx];
+	}
 	float GetReflectivity( int objIdx, float3 I ) const
 	{
 		if (objIdx == 1 /* ball */) return 1;
@@ -885,6 +900,6 @@ public:
 	Cube cube;
 	Plane plane[6];
 	Torus torus;
+	Material materials[11];
 	};
-
-	}
+}

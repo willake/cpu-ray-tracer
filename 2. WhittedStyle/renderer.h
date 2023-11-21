@@ -25,7 +25,7 @@ public:
 	float4* accumulator;
 	Scene scene;
 	Camera camera;
-	bool animating = true;
+	bool animating = false;
 	float anim_time = 0;
 };
 

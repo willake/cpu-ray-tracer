@@ -19,7 +19,10 @@ float3 Renderer::Trace( Ray& ray )
 	if (ray.objIdx == -1) return 0; // or a fancy sky color
 	float3 I = ray.O + ray.t * ray.D;
 	float3 N = scene.GetNormal( ray.objIdx, I, ray.D );
-	float3 albedo = scene.GetAlbedo( ray.objIdx, I );
+	Material* material = scene.GetMaterial(ray.objIdx);
+	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo( ray.objIdx, I ) : material->albedo;
+
+	if (material->type == MaterialType::Light) return scene.GetLightColor();
 
 	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
@@ -31,7 +34,9 @@ float3 Renderer::DirectIllumination(float3 I, float3 N)
 	float3 lightColor = scene.GetLightColor() / 24 * 3; // adjust intensity manually
 	float3 lightPos = scene.GetLightPos();
 	float3 L = normalize(lightPos - I);
-	Ray shadowRay = Ray(I + (L * FLT_EPSILON), L);
+	auto shadowRay = Ray(I + (L * 0.0001f), L);
+
+	scene.quad.Intersect(shadowRay);
 
 	if (scene.IsOccluded(shadowRay)) return float3(0);
 
