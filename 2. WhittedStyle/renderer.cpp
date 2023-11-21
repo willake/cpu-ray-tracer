@@ -24,9 +24,55 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	Material* material = scene.GetMaterial(ray.objIdx);
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo( ray.objIdx, I ) : material->albedo;
 
+	/* visualize normal */ // return (N + 1) * 0.5f;
+	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
+
 	if (depth >= depthLimit) return float3(0);
 
 	if (material->type == MaterialType::Light) return scene.GetLightColor();
+	
+	if (material->type == MaterialType::Glass)
+	{
+		/* calculate k for refreaction n1 = air index n2 = glass index */
+		float n1 = 1;
+		float n2 = 1.52f;
+		float n1Divn2 = n1 / n2;
+		float cos1 = dot(N, -ray.D);
+		float k = 1 - (n1Divn2 * n1Divn2) * (1 - cos1 * cos1);
+		
+		if (k < -FLT_EPSILON) // k < 0 is total internal reflection while k >= 0 have refraction
+		{
+			float3 RD = reflect(ray.D, N); // reflect direction
+			auto reflectRay = Ray(I + (RD * 0.0001f), RD);
+			return albedo *
+				((material->reflectivity * Trace(reflectRay, depth + 1)) +
+				(1 - material->reflectivity) * DirectIllumination(I, N));
+		}
+		else
+		{
+			float theta1 = acos(cos1);
+			float sin1 = sin(theta1);
+			float cos2 = sqrt(1 - (n1Divn2 * sin1) * (n1Divn2 * sin1));
+			// un-squared reflectance for s-polarized light
+			float uRs = (n1 * cos1 - n2 * cos2) / (n1 * cos1 + n2 * cos2);
+			// un-squared reflectance for p-polarized light
+			float uRp = (n1 * cos2 - n2 * cos1) / (n1 * cos2 - n2 * cos1);
+			float Fr = ((uRs * uRs) + (uRp * uRp)) * 0.5f;
+			float Ft = 1 - Fr;
+			
+			float3 RD = reflect(ray.D, N); // reflect direction
+			auto reflectRay = Ray(I + (RD * 0.0001f), RD);
+			float3 reflection = albedo *
+				((material->reflectivity * Trace(reflectRay, depth + 1)) +
+				(1 - material->reflectivity) * DirectIllumination(I, N));
+
+			float3 RfrD = (n1Divn2 * ray.D) + N * (n1Divn2 * cos1 - sqrt(k)); // refract direction 
+			auto refractRay = Ray(I + (RfrD * 0.0001f), RfrD);
+			float3 refraction = albedo * Trace(refractRay, depth + 1);
+
+			return Fr * reflection + Ft * refraction;
+		}
+	}
 
 	if (material->type == MaterialType::Mirror)
 	{
@@ -37,8 +83,6 @@ float3 Renderer::Trace( Ray& ray , int depth)
 			(1 - material->reflectivity) * DirectIllumination(I, N));
 	}
 
-	/* visualize normal */ // return (N + 1) * 0.5f;
-	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ return albedo * DirectIllumination(I, N);
 }
 
