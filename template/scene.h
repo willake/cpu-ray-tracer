@@ -600,9 +600,9 @@ public:
 		torus.T = mat4::Translate( -0.25f, 0, 2 ) * mat4::RotateX( PI / 4 );
 		torus.invT = torus.T.Inverted();
 		materials[0] = Material(MaterialType::Light); // 0: light source
-		materials[1] = Material(MaterialType::Mirror); // 1: bouncing ball
+		materials[1] = Material(MaterialType::Glass); // 1: bouncing ball
 		materials[2] = Material(MaterialType::Diffuse); // 2: rounded corners
-		materials[3] = Material(MaterialType::Glass); // 3: cube
+		materials[3] = Material(MaterialType::Mirror); // 3: cube
 		materials[3].absortion = float3(0.5f, 0, 0.5f);
 		materials[4] = Material(MaterialType::Diffuse, float3(0), true); // 4: left wall
 		materials[5] = Material(MaterialType::Diffuse, float3(0), true); // 5: right wall

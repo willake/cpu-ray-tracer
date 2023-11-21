@@ -43,9 +43,9 @@ float3 Renderer::Trace( Ray& ray , int depth)
 		/* calculate k for refreaction air index = 1, glass index = 1.52*/
 		float n1 = ray.inside ? 1.52f : 1;
 		float n2 = ray.inside ? 1 : 1.52f;
-		float n1Divn2 = n1 / n2;
+		float n = n1 / n2;
 		float cos1 = dot(N, -ray.D);
-		float k = 1 - (n1Divn2 * n1Divn2) * (1 - cos1 * cos1);
+		float k = 1 - (n * n) * (1 - cos1 * cos1);
 		
 		if (k < 0) // k < 0 is total internal reflection while k >= 0 have refraction
 		{
@@ -57,13 +57,14 @@ float3 Renderer::Trace( Ray& ray , int depth)
 		}
 		else
 		{
-			float theta1 = acos(cos1);
-			float sin1 = sin(theta1);
-			float cos2 = sqrt(1 - (n1Divn2 * sin1) * (n1Divn2 * sin1));
+			//float theta1 = acos(cos1);
+			//float sin1 = sin(theta1);
+			float sin1 = sqrt(1 - cos1 * cos1);
+			float cos2 = sqrt(1 - (n * sin1) * (n * sin1));
 			// un-squared reflectance for s-polarized light
 			float uRs = (n1 * cos1 - n2 * cos2) / (n1 * cos1 + n2 * cos2);
 			// un-squared reflectance for p-polarized light
-			float uRp = (n1 * cos2 - n2 * cos1) / (n1 * cos2 - n2 * cos1);
+			float uRp = (n1 * cos2 - n2 * cos1) / (n1 * cos2 + n2 * cos1);
 			float Fr = ((uRs * uRs) + (uRp * uRp)) * 0.5f;
 			float Ft = 1 - Fr;
 			
@@ -73,7 +74,7 @@ float3 Renderer::Trace( Ray& ray , int depth)
 				((material->reflectivity * Trace(reflectRay, depth + 1)) +
 				(1 - material->reflectivity) * DirectIllumination(I, N));
 
-			float3 RfrD = (n1Divn2 * ray.D) + N * (n1Divn2 * cos1 - sqrt(k)); // refract direction 
+			float3 RfrD = (n * ray.D) + N * (n * cos1 - sqrt(k)); // refract direction 
 			auto refractRay = Ray(I + (RfrD * 0.0001f), RfrD);
 			refractRay.inside = !refractRay.inside;
 			float3 refraction = albedo * Trace(refractRay, depth + 1);
