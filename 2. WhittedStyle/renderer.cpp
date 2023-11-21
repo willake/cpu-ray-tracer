@@ -33,14 +33,14 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	
 	if (material->type == MaterialType::Glass)
 	{
-		/* calculate k for refreaction n1 = air index n2 = glass index */
-		float n1 = 1;
-		float n2 = 1.52f;
+		/* calculate k for refreaction air index = 1, glass index = 1.52*/
+		float n1 = ray.inside ? 1.52f : 1;
+		float n2 = ray.inside ? 1 : 1.52f;
 		float n1Divn2 = n1 / n2;
 		float cos1 = dot(N, -ray.D);
 		float k = 1 - (n1Divn2 * n1Divn2) * (1 - cos1 * cos1);
 		
-		if (k < -FLT_EPSILON) // k < 0 is total internal reflection while k >= 0 have refraction
+		if (k < 0) // k < 0 is total internal reflection while k >= 0 have refraction
 		{
 			float3 RD = reflect(ray.D, N); // reflect direction
 			auto reflectRay = Ray(I + (RD * 0.0001f), RD);
@@ -68,6 +68,7 @@ float3 Renderer::Trace( Ray& ray , int depth)
 
 			float3 RfrD = (n1Divn2 * ray.D) + N * (n1Divn2 * cos1 - sqrt(k)); // refract direction 
 			auto refractRay = Ray(I + (RfrD * 0.0001f), RfrD);
+			refractRay.inside = !refractRay.inside;
 			float3 refraction = albedo * Trace(refractRay, depth + 1);
 
 			return Fr * reflection + Ft * refraction;

@@ -610,7 +610,7 @@ public:
 		materials[7] = Material(MaterialType::Diffuse, float3(0), true); // 7: ceiling
 		materials[8] = Material(MaterialType::Diffuse, float3(0), true); // 8: front wall
 		materials[9] = Material(MaterialType::Diffuse, float3(0), true); // 9: back wall
-		materials[10] = Material(MaterialType::Diffuse, float3(220 / 255.f, 134 / 255.f, 134 / 255.f)); // 10: torus
+		materials[10] = Material(MaterialType::Diffuse); // 10: torus
 		SetTime( 0 );
 		// Note: once we have triangle support we should get rid of the class
 		// hierarchy: virtuals reduce performance somewhat.
