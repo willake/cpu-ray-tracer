@@ -605,7 +605,8 @@ public:
 		materials[3] = Material(MaterialType::Glass, float3(126 / 255.f, 215 / 255.f, 193 / 255.f)); // 3: cube
 		materials[4] = Material(MaterialType::Diffuse, float3(0), true); // 4: left wall
 		materials[5] = Material(MaterialType::Diffuse, float3(0), true); // 5: right wall
-		materials[6] = Material(MaterialType::Diffuse, float3(0), true); // 6: floor
+		materials[6] = Material(MaterialType::Mirror, float3(0), true); // 6: floor
+		materials[6].reflectivity = 0.3f;
 		materials[7] = Material(MaterialType::Diffuse, float3(0), true); // 7: ceiling
 		materials[8] = Material(MaterialType::Diffuse, float3(0), true); // 8: front wall
 		materials[9] = Material(MaterialType::Diffuse, float3(0), true); // 9: back wall

@@ -32,7 +32,9 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	{
 		float3 RD = reflect(ray.D, N); // reflect direction
 		auto reflectRay = Ray(I + (RD * 0.0001f), RD);
-		return albedo * Trace(reflectRay, depth + 1);
+		return albedo *
+			((material->reflectivity * Trace(reflectRay, depth + 1)) +
+			(1 - material->reflectivity) * DirectIllumination(I, N));
 	}
 
 	/* visualize normal */ // return (N + 1) * 0.5f;

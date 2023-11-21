@@ -18,9 +18,13 @@ namespace Tmpl8
 			this->type = type;
 			this->albedo = albedo;
 			this->isAlbedoOverridden = isAlbedoOverridden;
+			this->reflectivity = 1.0f;
+			this->refractivity = 1.0f;
 		}
 		MaterialType type;
 		float3 albedo{};
 		bool isAlbedoOverridden;
+		float reflectivity;
+		float refractivity;
 	};
 }
