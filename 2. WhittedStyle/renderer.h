@@ -22,7 +22,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		Scene scene;
+		BVHScene scene;
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;

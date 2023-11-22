@@ -368,7 +368,10 @@ public:
 
 #include "helper.h"
 #include "material.h"
+#include "ray.h"
 #include "scene.h"
+#include "basic_scene.h"
+#include "bvh_scene.h"
 #include "camera.h"
 #include "renderer.h"
 

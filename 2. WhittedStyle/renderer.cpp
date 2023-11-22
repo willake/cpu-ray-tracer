@@ -24,6 +24,8 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	Material* material = scene.GetMaterial(ray.objIdx);
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo( ray.objIdx, I ) : material->albedo;
 
+	return albedo;
+
 	if (ray.inside)
 	{
 		albedo.x *= exp(-material->absortion.x * ray.t);
@@ -102,7 +104,7 @@ float3 Renderer::DirectIllumination(float3 I, float3 N)
 	float3 L = normalize(lightPos - I);
 	auto shadowRay = Ray(I + (L * 0.0001f), L);
 
-	scene.quad.Intersect(shadowRay);
+	//scene.quad.Intersect(shadowRay);
 
 	if (scene.IsOccluded(shadowRay)) return float3(0);
 
