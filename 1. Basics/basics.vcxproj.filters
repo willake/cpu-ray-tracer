@@ -95,6 +95,9 @@
     <ClInclude Include="..\template\ray.h">
       <Filter>template</Filter>
     </ClInclude>
+    <ClInclude Include="..\template\primitives.h">
+      <Filter>template</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\template\LICENSE">

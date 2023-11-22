@@ -156,9 +156,12 @@
     <ClInclude Include="..\lib\imgui\imstb_truetype.h" />
     <ClInclude Include="..\template\camera.h" />
     <ClInclude Include="..\template\common.h" />
+    <ClInclude Include="..\template\material.h" />
+    <ClInclude Include="..\template\model.h" />
     <ClInclude Include="..\template\opencl.h" />
     <ClInclude Include="..\template\opengl.h" />
     <ClInclude Include="..\template\precomp.h" />
+    <ClInclude Include="..\template\primitives.h" />
     <ClInclude Include="..\template\ray.h" />
     <ClInclude Include="..\template\scene.h" />
     <ClInclude Include="..\template\surface.h" />
@@ -166,7 +169,6 @@
     <ClInclude Include="basic_scene.h" />
     <ClInclude Include="bvh_scene.h" />
     <ClInclude Include="helper.h" />
-    <ClInclude Include="material.h" />
     <ClInclude Include="renderer.h" />
   </ItemGroup>
   <ItemGroup>

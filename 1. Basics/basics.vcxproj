@@ -157,6 +157,7 @@
     <ClInclude Include="..\template\opencl.h" />
     <ClInclude Include="..\template\opengl.h" />
     <ClInclude Include="..\template\precomp.h" />
+    <ClInclude Include="..\template\primitives.h" />
     <ClInclude Include="..\template\ray.h" />
     <ClInclude Include="..\template\scene.h" />
     <ClInclude Include="..\template\surface.h" />

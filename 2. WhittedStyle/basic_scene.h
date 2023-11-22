@@ -1,5 +1,9 @@
 #pragma once
 
+#define SPEEDTRIX
+
+#include "material.h"
+
 namespace Tmpl8
 {
 	class BasicScene

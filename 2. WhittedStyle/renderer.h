@@ -1,5 +1,8 @@
 #pragma once
 
+#include "basic_scene.h"
+#include "bvh_scene.h"
+
 namespace Tmpl8
 {
 	class Renderer : public TheApp
