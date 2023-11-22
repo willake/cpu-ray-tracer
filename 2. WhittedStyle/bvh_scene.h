@@ -40,5 +40,6 @@ namespace Tmpl8
 		Tri tri[NUM_TRI];
 		Material material;
 		Model cube;
+		Model cube2;
 	};
 }

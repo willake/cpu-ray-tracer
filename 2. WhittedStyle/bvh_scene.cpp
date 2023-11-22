@@ -13,6 +13,7 @@ BVHScene::BVHScene()
 	}
 	material = Material(MaterialType::Diffuse);
 	cube = Model("../assets/cube.obj", mat4::Scale(0.3f));
+	cube2 = Model("../assets/cube.obj", mat4::Translate(0.5f, 0, 2) * mat4::Scale(0.3f));
 }
 
 void BVHScene::SetTime(float t)
@@ -87,6 +88,7 @@ void BVHScene::FindNearest(Ray& ray) const
 		IntersectTri(ray, tri[i], i);
 	}*/
 	cube.Intersect(ray);
+	cube2.Intersect(ray);
 }
 
 bool BVHScene::IsOccluded(const Ray& ray) const
