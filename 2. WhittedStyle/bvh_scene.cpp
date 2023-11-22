@@ -82,10 +82,11 @@ void BVHScene::IntersectTri(Ray& ray, const Tri& tri, const int idx) const
 
 void BVHScene::FindNearest(Ray& ray) const
 {
-	for (int i = 0; i < NUM_TRI; i++)
+	/*for (int i = 0; i < NUM_TRI; i++)
 	{
 		IntersectTri(ray, tri[i], i);
-	}
+	}*/
+	cube.Intersect(ray);
 }
 
 bool BVHScene::IsOccluded(const Ray& ray) const

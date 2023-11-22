@@ -67,6 +67,27 @@ namespace Tmpl8
 {
 	class Model
 	{
+    private:
+        void IntersectTri(Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2, const int& idx) const
+        {
+            const float3 edge1 = vertex1.pos - vertex0.pos;
+            const float3 edge2 = vertex2.pos - vertex0.pos;
+            const float3 h = cross(ray.D, edge2);
+            const float a = dot(edge1, h);
+            if (a > -0.0001f && a < 0.0001f) return; // ray parallel to triangle
+            const float f = 1 / a;
+            const float3 s = ray.O - vertex0.pos;
+            const float u = f * dot(s, h);
+            if (u < 0 || u > 1) return;
+            const float3 q = cross(s, edge1);
+            const float v = f * dot(ray.D, q);
+            if (v < 0 || u + v > 1) return;
+            const float t = f * dot(edge2, q);
+            if (t > 0.0001f)
+            {
+                if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = idx;
+            }
+        }
 	public: 
         Model() {}
 		Model(const std::string& path)
@@ -111,6 +132,12 @@ namespace Tmpl8
 		}
         void Intersect(Ray& ray) const
         {
+            for (int i = 0; i < indices.size(); i+=3)
+            {
+                IntersectTri(
+                    ray, 
+                    vertices[indices[i]], vertices[indices[i+1]], vertices[indices[i+2]], i);
+            }
         }
         bool IsOccluded(const Ray& ray) const
         {
