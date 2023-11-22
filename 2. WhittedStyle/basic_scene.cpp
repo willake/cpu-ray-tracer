@@ -1,5 +1,4 @@
 #include "precomp.h"
-#include "basic_scene.h"
 
 BasicScene::BasicScene()
 {

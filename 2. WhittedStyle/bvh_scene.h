@@ -2,8 +2,6 @@
 
 #define NUM_TRI 64
 
-#include "material.h"
-
 namespace Tmpl8
 {
 	struct Tri { float3 vertex0, vertex1, vertex2; float3 centroid; };
@@ -41,5 +39,6 @@ namespace Tmpl8
 		float animTime = 0;
 		Tri tri[NUM_TRI];
 		Material material;
+		Model cube;
 	};
 }

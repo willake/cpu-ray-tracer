@@ -1,7 +1,5 @@
-#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
-// Optional. define TINYOBJLOADER_USE_MAPBOX_EARCUT gives robust trinagulation. Requires C++11
-// #define TINYOBJLOADER_USE_MAPBOX_EARCUT
-#include "tiny_obj_loader.h"
+#pragma once
+
 #include <string>
 #include <unordered_map>
 
@@ -65,13 +63,13 @@ namespace std
         }
     };
 }
-
 namespace Tmpl8
 {
 	class Model
 	{
 	public: 
-		Model(std::string path)
+        Model() {}
+		Model(const std::string& path)
 		{
             tinyobj::attrib_t attrib;
             std::vector<tinyobj::shape_t> shapes;
@@ -111,6 +109,21 @@ namespace Tmpl8
                 }
             }
 		}
+        void Intersect(Ray& ray) const
+        {
+        }
+        bool IsOccluded(const Ray& ray) const
+        {
+            return false;
+        }
+        float3 GetNormal(const float3 I) const
+        {
+            return float3(0);
+        }
+        float3 GetAlbedo(const float3 I) const
+        {
+            return float3(0);
+        }
     public:
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;

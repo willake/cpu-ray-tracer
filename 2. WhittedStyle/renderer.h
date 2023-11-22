@@ -1,5 +1,7 @@
 #pragma once
 
+#include "material.h"
+#include "model.h"
 #include "basic_scene.h"
 #include "bvh_scene.h"
 

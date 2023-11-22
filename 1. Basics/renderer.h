@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scene.h"
+#include "precomp.h"
 
 namespace Tmpl8
 {

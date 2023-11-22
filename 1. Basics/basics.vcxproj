@@ -154,6 +154,7 @@
     <ClInclude Include="..\lib\imgui\imstb_truetype.h" />
     <ClInclude Include="..\template\camera.h" />
     <ClInclude Include="..\template\common.h" />
+    <ClInclude Include="..\template\model.h" />
     <ClInclude Include="..\template\opencl.h" />
     <ClInclude Include="..\template\opengl.h" />
     <ClInclude Include="..\template\precomp.h" />

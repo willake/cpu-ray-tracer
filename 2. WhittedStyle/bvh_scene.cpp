@@ -1,7 +1,4 @@
 #include "precomp.h"
-#include "bvh_scene.h"
-
-#pragma once
 
 BVHScene::BVHScene()
 {
@@ -15,6 +12,7 @@ BVHScene::BVHScene()
 		tri[i].vertex2 = tri[i].vertex0 + r2;
 	}
 	material = Material(MaterialType::Diffuse);
+	cube = Model("../assets/cube.obj");
 }
 
 void BVHScene::SetTime(float t)
