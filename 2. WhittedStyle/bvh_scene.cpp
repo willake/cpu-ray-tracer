@@ -12,7 +12,7 @@ BVHScene::BVHScene()
 		tri[i].vertex2 = tri[i].vertex0 + r2;
 	}
 	material = Material(MaterialType::Diffuse);
-	cube = Model("../assets/cube.obj");
+	cube = Model("../assets/cube.obj", mat4::Scale(0.3f));
 }
 
 void BVHScene::SetTime(float t)

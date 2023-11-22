@@ -70,13 +70,16 @@ namespace Tmpl8
     private:
         void IntersectTri(Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2, const int& idx) const
         {
-            const float3 edge1 = vertex1.pos - vertex0.pos;
-            const float3 edge2 = vertex2.pos - vertex0.pos;
+            const float3 v0 = TransformPosition(vertex0.pos, M);
+            const float3 v1 = TransformPosition(vertex1.pos, M);
+            const float3 v2 = TransformPosition(vertex2.pos, M);
+            const float3 edge1 = v1 - v0;
+            const float3 edge2 = v2 - v0;
             const float3 h = cross(ray.D, edge2);
             const float a = dot(edge1, h);
             if (a > -0.0001f && a < 0.0001f) return; // ray parallel to triangle
             const float f = 1 / a;
-            const float3 s = ray.O - vertex0.pos;
+            const float3 s = ray.O - v0;
             const float u = f * dot(s, h);
             if (u < 0 || u > 1) return;
             const float3 q = cross(s, edge1);
@@ -90,7 +93,7 @@ namespace Tmpl8
         }
 	public: 
         Model() {}
-		Model(const std::string& path)
+		Model(const std::string& path, mat4 transform = mat4::Identity())
 		{
             tinyobj::attrib_t attrib;
             std::vector<tinyobj::shape_t> shapes;
@@ -129,6 +132,8 @@ namespace Tmpl8
                     indices.push_back(uniqueVertices[vertex]);
                 }
             }
+
+            M = transform;
 		}
         void Intersect(Ray& ray) const
         {
@@ -147,12 +152,14 @@ namespace Tmpl8
         {
             return float3(0);
         }
-        float3 GetAlbedo(const float3 I) const
+        Material GetMaterial() const
         {
-            return float3(0);
+            return material;
         }
     public:
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
+        Material material;
+        mat4 M;
 	};
 }
