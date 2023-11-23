@@ -195,9 +195,9 @@ namespace Tmpl8
                 u.x * v.y - u.y * v.x
             );
         }
-        Material GetMaterial() const
+        Material* GetMaterial()
         {
-            return material;
+            return &material;
         }
     public:
         int objIdx = -1;

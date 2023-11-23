@@ -1,6 +1,6 @@
 #pragma once
 
-#define NUM_TRI 64
+#define NUM_CUBE 5
 
 namespace Tmpl8
 {
@@ -37,8 +37,6 @@ namespace Tmpl8
 		float3 GetAbsorption(int objIdx);
 	public:
 		float animTime = 0;
-		Tri tri[NUM_TRI];
-		Material material;
-		Model models[2];
+		Model models[NUM_CUBE];
 	};
 }

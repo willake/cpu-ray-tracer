@@ -2,18 +2,15 @@
 
 BVHScene::BVHScene()
 {
-	for (int i = 0; i < NUM_TRI; i++)
+	for (int i = 0; i < NUM_CUBE; i++)
 	{
-		float3 r0(RandomFloat(), RandomFloat(), RandomFloat());
-		float3 r1(RandomFloat(), RandomFloat(), RandomFloat());
-		float3 r2(RandomFloat(), RandomFloat(), RandomFloat());
-		tri[i].vertex0 = r0 * 9 - float3(5);
-		tri[i].vertex1 = tri[i].vertex0 + r1;
-		tri[i].vertex2 = tri[i].vertex0 + r2;
+		float3 rpos(RandomFloat(), RandomFloat(), RandomFloat());
+		float3 rscale(RandomFloat() * 0.5);
+		mat4 t = mat4::Translate(rpos * 3 - float3(1.5)) * mat4::Scale(rscale);
+		models[i] = Model(i, "../assets/cube.obj", t);
 	}
-	material = Material(MaterialType::Diffuse);
-	models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
-	models[1] = Model(1, "../assets/cube.obj", mat4::Translate(0.5f, 0, 2) * mat4::Scale(0.3f));
+	/*models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
+	models[1] = Model(1, "../assets/cube.obj", mat4::Translate(0.5f, 0, 2) * mat4::Scale(0.3f));*/
 }
 
 void BVHScene::SetTime(float t)
@@ -87,7 +84,7 @@ void BVHScene::FindNearest(Ray& ray) const
 	{
 		IntersectTri(ray, tri[i], i);
 	}*/
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < NUM_CUBE; i++)
 	{
 		models[i].Intersect(ray);
 	}
@@ -95,7 +92,7 @@ void BVHScene::FindNearest(Ray& ray) const
 
 bool BVHScene::IsOccluded(const Ray& ray) const
 {
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < NUM_CUBE; i++)
 	{
 		if (models[i].IsOccluded(ray))
 		{
@@ -115,7 +112,7 @@ float3 BVHScene::GetAlbedo(int objIdx, float3 I) const { return float3(0); }
 
 Material* BVHScene::GetMaterial(int objIdx)
 {
-	return &material;
+	return models[objIdx].GetMaterial();
 }
 
 float BVHScene::GetReflectivity(int objIdx, float3 I) const
