@@ -2,7 +2,10 @@
 
 #include "material.h"
 #include "model.h"
+#include "bvh.h"
 #include "bvh_scene.h"
+
+#define EPSILON	0.0001f
 
 namespace Tmpl8
 {

@@ -21,9 +21,9 @@ BasicScene::BasicScene()
 	torus.T = mat4::Translate(-0.25f, 0, 2) * mat4::RotateX(PI / 4);
 	torus.invT = torus.T.Inverted();
 	materials[0] = Material(MaterialType::Light); // 0: light source
-	materials[1] = Material(MaterialType::Glass); // 1: bouncing ball
+	materials[1] = Material(MaterialType::Mirror); // 1: bouncing ball
 	materials[2] = Material(MaterialType::Diffuse); // 2: rounded corners
-	materials[3] = Material(MaterialType::Mirror); // 3: cube
+	materials[3] = Material(MaterialType::Glass); // 3: cube
 	materials[3].absortion = float3(0.5f, 0, 0.5f);
 	materials[4] = Material(MaterialType::Diffuse, float3(0), true); // 4: left wall
 	materials[5] = Material(MaterialType::Diffuse, float3(0), true); // 5: right wall
@@ -32,7 +32,7 @@ BasicScene::BasicScene()
 	materials[7] = Material(MaterialType::Diffuse, float3(0), true); // 7: ceiling
 	materials[8] = Material(MaterialType::Diffuse, float3(0), true); // 8: front wall
 	materials[9] = Material(MaterialType::Diffuse, float3(0), true); // 9: back wall
-	materials[10] = Material(MaterialType::Diffuse, float3(126 / 255.f, 215 / 255.f, 193 / 255.f)); // 10: torus
+	materials[10] = Material(MaterialType::Glass); // 10: torus
 	SetTime(0);
 	// Note: once we have triangle support we should get rid of the class
 	// hierarchy: virtuals reduce performance somewhat.

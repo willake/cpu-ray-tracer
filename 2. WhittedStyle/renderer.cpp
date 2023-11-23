@@ -18,6 +18,7 @@ float3 Renderer::Trace( Ray& ray , int depth)
 {
 	scene.FindNearest( ray );
 	if (ray.objIdx == -1) return 0; // or a fancy sky color
+	if (depth >= depthLimit) return float3(0);
 	float3 I = ray.O + ray.t * ray.D;
 	float3 N = scene.GetNormal(ray.objIdx, I, ray.D);
 	Material* material = scene.GetMaterial(ray.objIdx);
@@ -26,8 +27,6 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ // return albedo;
-
-	if (depth >= depthLimit) return float3(0);
 
 	// beer's law
 	if (ray.inside)
@@ -42,8 +41,8 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	if (material->type == MaterialType::Glass)
 	{
 		/* calculate k for refreaction air index = 1, glass index = 1.52*/
-		float n1 = ray.inside ? 1.52f : 1;
-		float n2 = ray.inside ? 1 : 1.52f;
+		float n1 = ray.inside ? 1.2f : 1;
+		float n2 = ray.inside ? 1 : 1.2f;
 		float n = n1 / n2;
 		float cos1 = dot(N, -ray.D);
 		float k = 1 - (n * n) * (1 - cos1 * cos1);
@@ -51,7 +50,7 @@ float3 Renderer::Trace( Ray& ray , int depth)
 		if (k < 0) // k < 0 is total internal reflection while k >= 0 have refraction
 		{
 			float3 RD = reflect(ray.D, N); // reflect direction
-			auto reflectRay = Ray(I + (RD * 0.0001f), RD);
+			auto reflectRay = Ray(I + (RD * EPSILON), RD);
 			return albedo *
 				((material->reflectivity * Trace(reflectRay, depth + 1)) +
 				(1 - material->reflectivity) * DirectIllumination(I, N));
@@ -68,13 +67,13 @@ float3 Renderer::Trace( Ray& ray , int depth)
 			float Ft = 1 - Fr;
 			
 			float3 RD = reflect(ray.D, N); // reflect direction
-			auto reflectRay = Ray(I + (RD * 0.0001f), RD);
+			auto reflectRay = Ray(I + (RD * EPSILON), RD);
 			float3 reflection = albedo *
 				((material->reflectivity * Trace(reflectRay, depth + 1)) +
 				(1 - material->reflectivity) * DirectIllumination(I, N));
 
 			float3 RfrD = (n * ray.D) + N * (n * cos1 - sqrt(k)); // refract direction 
-			auto refractRay = Ray(I + (RfrD * 0.0001f), RfrD);
+			auto refractRay = Ray(I + (RfrD * EPSILON), RfrD);
 			refractRay.inside = !refractRay.inside;
 			float3 refraction = albedo * Trace(refractRay, depth + 1);
 
@@ -85,7 +84,7 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	if (material->type == MaterialType::Mirror)
 	{
 		float3 RD = reflect(ray.D, N); // reflect direction
-		auto reflectRay = Ray(I + (RD * 0.0001f), RD);
+		auto reflectRay = Ray(I + RD * EPSILON, RD);
 		return albedo *
 			((material->reflectivity * Trace(reflectRay, depth + 1)) +
 			(1 - material->reflectivity) * DirectIllumination(I, N));
@@ -98,18 +97,21 @@ float3 Renderer::DirectIllumination(float3 I, float3 N)
 {
 	float3 lightColor = scene.GetLightColor() / 24 * 5; // adjust intensity manually
 	float3 lightPos = scene.GetLightPos();
-	float3 L = normalize(lightPos - I);
-	auto shadowRay = Ray(I + (L * 0.0001f), L);
+	float3 L = lightPos - I;
+	float distance = length(L);
+	L = normalize(L);
+	float ndotl = dot(N, L);
 
-	scene.quad.Intersect(shadowRay);
+	if (ndotl < EPSILON) return 0;
+
+	auto shadowRay = Ray(I + L * EPSILON, L, distance - 2 * EPSILON);
 
 	if (scene.IsOccluded(shadowRay)) return float3(0);
 
-	float d = length(lightPos - I);
-	float distFactor = 1 / (d * d);
-	float angleFactor = max(0.0f, dot(N, L));
+	float distFactor = 1 / (distance * distance);
+	float angleFactor = max(0.0f, ndotl);
 
-	return lightColor * angleFactor * distFactor;
+	return lightColor * distFactor * angleFactor;
 }
 
 // -----------------------------------------------------------

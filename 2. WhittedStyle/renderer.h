@@ -3,6 +3,8 @@
 #include "material.h"
 #include "basic_scene.h"
 
+#define EPSILON		0.0001f
+
 namespace Tmpl8
 {
 	class Renderer : public TheApp
@@ -27,7 +29,7 @@ namespace Tmpl8
 		float4* accumulator;
 		BasicScene scene;
 		Camera camera;
-		bool animating = false;
+		bool animating = true;
 		float anim_time = 0;
 		int depthLimit = 3;
 	};
