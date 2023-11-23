@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="..\template\template.cpp">
+      <Filter>template</Filter>
+    </ClCompile>
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="..\lib\imgui\imgui.cpp">
       <Filter>template\imgui</Filter>
@@ -32,16 +35,21 @@
     <ClCompile Include="..\template\surface.cpp">
       <Filter>template</Filter>
     </ClCompile>
-    <ClCompile Include="..\template\template.cpp">
-      <Filter>template</Filter>
-    </ClCompile>
     <ClCompile Include="..\template\tmplmath.cpp">
       <Filter>template</Filter>
     </ClCompile>
-    <ClCompile Include="basic_scene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\template\common.h">
+      <Filter>template</Filter>
+    </ClInclude>
+    <ClInclude Include="..\template\precomp.h">
+      <Filter>template</Filter>
+    </ClInclude>
     <ClInclude Include="renderer.h" />
+    <ClInclude Include="..\lib\imgui\imconfig.h">
+      <Filter>template\imgui</Filter>
+    </ClInclude>
     <ClInclude Include="..\lib\imgui\imgui.h">
       <Filter>template\imgui</Filter>
     </ClInclude>
@@ -66,25 +74,10 @@
     <ClInclude Include="..\lib\imgui\imstb_truetype.h">
       <Filter>template\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\imgui\imconfig.h">
-      <Filter>template\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="..\template\opencl.h">
       <Filter>template</Filter>
     </ClInclude>
     <ClInclude Include="..\template\opengl.h">
-      <Filter>template</Filter>
-    </ClInclude>
-    <ClInclude Include="..\template\precomp.h">
-      <Filter>template</Filter>
-    </ClInclude>
-    <ClInclude Include="..\template\camera.h">
-      <Filter>template</Filter>
-    </ClInclude>
-    <ClInclude Include="..\template\common.h">
-      <Filter>template</Filter>
-    </ClInclude>
-    <ClInclude Include="..\template\scene.h">
       <Filter>template</Filter>
     </ClInclude>
     <ClInclude Include="..\template\surface.h">
@@ -93,32 +86,24 @@
     <ClInclude Include="..\template\tmplmath.h">
       <Filter>template</Filter>
     </ClInclude>
-    <ClInclude Include="helper.h" />
-    <ClInclude Include="..\template\ray.h">
+    <ClInclude Include="..\template\camera.h">
       <Filter>template</Filter>
     </ClInclude>
-    <ClInclude Include="basic_scene.h" />
-    <ClInclude Include="..\template\material.h">
+    <ClInclude Include="..\template\scene.h">
       <Filter>template</Filter>
     </ClInclude>
-    <ClInclude Include="..\template\primitives.h">
-      <Filter>template</Filter>
-    </ClInclude>
-    <ClInclude Include="..\template\model.h">
-      <Filter>template</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="template">
-      <UniqueIdentifier>{ab1e8107-5ecc-459c-b6be-898036a3e059}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="template\imgui">
-      <UniqueIdentifier>{63ed95a2-d26b-4145-a2e0-5fb72e8ef727}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\template\LICENSE">
       <Filter>template</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="template">
+      <UniqueIdentifier>{a7d6e3cb-bfcd-438d-979f-17df241a55b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="template\imgui">
+      <UniqueIdentifier>{b1e7f5d5-23d5-4fa2-8854-9a94fb160820}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

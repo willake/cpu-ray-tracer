@@ -19,13 +19,13 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	scene.FindNearest( ray );
 	if (ray.objIdx == -1) return 0; // or a fancy sky color
 	float3 I = ray.O + ray.t * ray.D;
-	float3 N = scene.GetNormal(ray.objIdx, I, ray.D);
+	float3 N = scene.GetNormal( ray.objIdx, ray.triIdx );
 	Material* material = scene.GetMaterial(ray.objIdx);
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo( ray.objIdx, I ) : material->albedo;
 
 	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
-	/* visualize albedo */ // return albedo;
+	/* visualize albedo */ return albedo * DirectIllumination(I, N);
 
 	if (depth >= depthLimit) return float3(0);
 
@@ -96,12 +96,12 @@ float3 Renderer::Trace( Ray& ray , int depth)
 
 float3 Renderer::DirectIllumination(float3 I, float3 N)
 {
-	float3 lightColor = scene.GetLightColor() / 24 * 5; // adjust intensity manually
+	float3 lightColor = scene.GetLightColor(); // adjust intensity manually
 	float3 lightPos = scene.GetLightPos();
 	float3 L = normalize(lightPos - I);
 	auto shadowRay = Ray(I + (L * 0.0001f), L);
 
-	scene.quad.Intersect(shadowRay);
+	//scene.quad.Intersect(shadowRay);
 
 	if (scene.IsOccluded(shadowRay)) return float3(0);
 

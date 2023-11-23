@@ -1,7 +1,9 @@
 #pragma once
 
 #include "material.h"
+#include "model.h"
 #include "basic_scene.h"
+#include "bvh_scene.h"
 
 namespace Tmpl8
 {
@@ -25,7 +27,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		BasicScene scene;
+		BVHScene scene;
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;

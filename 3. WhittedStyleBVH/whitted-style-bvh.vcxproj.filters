@@ -38,6 +38,7 @@
     <ClCompile Include="..\template\tmplmath.cpp">
       <Filter>template</Filter>
     </ClCompile>
+    <ClCompile Include="bvh_scene.cpp" />
     <ClCompile Include="basic_scene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +95,7 @@
       <Filter>template</Filter>
     </ClInclude>
     <ClInclude Include="helper.h" />
+    <ClInclude Include="bvh_scene.h" />
     <ClInclude Include="..\template\ray.h">
       <Filter>template</Filter>
     </ClInclude>
