@@ -28,6 +28,7 @@ namespace Tmpl8 {
 #endif
 		float t = 1e34f;
 		int objIdx = -1;
+		int triIdx = -1;
 		bool inside = false; // true when in medium
 	};
 }

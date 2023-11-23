@@ -91,6 +91,30 @@ namespace Tmpl8
                 if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = idx;
             }
         }
+        bool IsOccludedTri(Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const
+        {
+            const float3 v0 = TransformPosition(vertex0.pos, M);
+            const float3 v1 = TransformPosition(vertex1.pos, M);
+            const float3 v2 = TransformPosition(vertex2.pos, M);
+            const float3 edge1 = v1 - v0;
+            const float3 edge2 = v2 - v0;
+            const float3 h = cross(ray.D, edge2);
+            const float a = dot(edge1, h);
+            if (a > -0.0001f && a < 0.0001f) return false; // ray parallel to triangle
+            const float f = 1 / a;
+            const float3 s = ray.O - v0;
+            const float u = f * dot(s, h);
+            if (u < 0 || u > 1) return false;
+            const float3 q = cross(s, edge1);
+            const float v = f * dot(ray.D, q);
+            if (v < 0 || u + v > 1) return false;
+            const float t = f * dot(edge2, q);
+            if (t > 0.0001f)
+            {
+                return true;
+            }
+            return false;
+        }
 	public: 
         Model() {}
 		Model(const std::string& path, mat4 transform = mat4::Identity())
@@ -137,20 +161,37 @@ namespace Tmpl8
 		}
         void Intersect(Ray& ray) const
         {
-            for (int i = 0; i < indices.size(); i+=3)
+            for (int i = 0; i < indices.size(); i += 3)
             {
                 IntersectTri(
                     ray, 
-                    vertices[indices[i]], vertices[indices[i+1]], vertices[indices[i+2]], i);
+                    vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]], i);
             }
         }
-        bool IsOccluded(const Ray& ray) const
+        bool IsOccluded(Ray& ray) const
         {
+            for (int i = 0; i < indices.size(); i += 3)
+            {
+                if (IsOccludedTri(ray, vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]))
+                {
+                    return true;
+                }
+            }
             return false;
         }
-        float3 GetNormal(const float3 I) const
+        // https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
+        float3 GetNormal(const int triIdx) const
         {
-            return float3(0);
+            const float3 v0 = TransformPosition(vertices[indices[triIdx]].pos, M);
+            const float3 v1 = TransformPosition(vertices[indices[triIdx + 1]].pos, M);
+            const float3 v2 = TransformPosition(vertices[indices[triIdx + 2]].pos, M);
+            const float3 u = v1 - v0;
+            const float3 v = v2 - v0;
+            return float3(
+                u.y * v.z - u.z * v.y,
+                u.z * v.x - u.x * v.z,
+                u.x * v.y - u.y * v.x
+            );
         }
         Material GetMaterial() const
         {
