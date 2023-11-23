@@ -12,8 +12,8 @@ BVHScene::BVHScene()
 		tri[i].vertex2 = tri[i].vertex0 + r2;
 	}
 	material = Material(MaterialType::Diffuse);
-	cube = Model("../assets/cube.obj", mat4::Scale(0.3f));
-	cube2 = Model("../assets/cube.obj", mat4::Translate(0.5f, 0, 2) * mat4::Scale(0.3f));
+	models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
+	models[1] = Model(1, "../assets/cube.obj", mat4::Translate(0.5f, 0, 2) * mat4::Scale(0.3f));
 }
 
 void BVHScene::SetTime(float t)
@@ -87,18 +87,28 @@ void BVHScene::FindNearest(Ray& ray) const
 	{
 		IntersectTri(ray, tri[i], i);
 	}*/
-	cube.Intersect(ray);
-	cube2.Intersect(ray);
+	for (int i = 0; i < 2; i++)
+	{
+		models[i].Intersect(ray);
+	}
 }
 
 bool BVHScene::IsOccluded(const Ray& ray) const
 {
+	for (int i = 0; i < 2; i++)
+	{
+		if (models[i].IsOccluded(ray))
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
-float3 BVHScene::GetNormal(const int objIdx, const float3 I, const float3 wo) const
+float3 BVHScene::GetNormal(const int objIdx, const int triIdx) const
 {
-	return float3(0);
+	return models[objIdx].GetNormal(triIdx);
+	//return float3(0);
 }
 
 float3 BVHScene::GetAlbedo(int objIdx, float3 I) const { return float3(0); }

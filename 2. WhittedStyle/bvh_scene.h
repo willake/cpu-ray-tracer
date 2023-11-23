@@ -29,7 +29,7 @@ namespace Tmpl8
 		void IntersectTri(Ray& ray, const Tri& tri, const int idx) const;
 		void FindNearest(Ray& ray) const;
 		bool IsOccluded(const Ray& ray) const;
-		float3 GetNormal(const int objIdx, const float3 I, const float3 wo) const;
+		float3 GetNormal(const int objIdx, const int triIdx) const;
 		float3 GetAlbedo(int objIdx, float3 I) const;
 		Material* GetMaterial(int objIdx);
 		float GetReflectivity(int objIdx, float3 I) const;
@@ -39,7 +39,6 @@ namespace Tmpl8
 		float animTime = 0;
 		Tri tri[NUM_TRI];
 		Material material;
-		Model cube;
-		Model cube2;
+		Model models[2];
 	};
 }

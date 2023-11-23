@@ -19,21 +19,21 @@ float3 Renderer::Trace( Ray& ray , int depth)
 	scene.FindNearest( ray );
 	if (ray.objIdx == -1) return 0; // or a fancy sky color
 	float3 I = ray.O + ray.t * ray.D;
-	float3 N = scene.GetNormal( ray.objIdx, I, ray.D );
+	float3 N = scene.GetNormal( ray.objIdx, ray.triIdx );
 	Material* material = scene.GetMaterial(ray.objIdx);
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo( ray.objIdx, I ) : material->albedo;
 
-	return albedo;
+	/* visualize normal */ // return (N + 1) * 0.5f;
+	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
+	/* visualize albedo */ return albedo;
 
+	// beer's law
 	if (ray.inside)
 	{
 		albedo.x *= exp(-material->absortion.x * ray.t);
 		albedo.y *= exp(-material->absortion.y * ray.t);
 		albedo.z *= exp(-material->absortion.z * ray.t);
 	}
-
-	/* visualize normal */ // return (N + 1) * 0.5f;
-	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 
 	if (depth >= depthLimit) return float3(0);
 
@@ -58,8 +58,6 @@ float3 Renderer::Trace( Ray& ray , int depth)
 		}
 		else
 		{
-			//float theta1 = acos(cos1);
-			//float sin1 = sin(theta1);
 			float sin1 = sqrt(1 - cos1 * cos1);
 			float cos2 = sqrt(1 - (n * sin1) * (n * sin1));
 			// un-squared reflectance for s-polarized light

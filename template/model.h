@@ -88,10 +88,10 @@ namespace Tmpl8
             const float t = f * dot(edge2, q);
             if (t > 0.0001f)
             {
-                if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = idx;
+                if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = objIdx, ray.triIdx = idx;
             }
         }
-        bool IsOccludedTri(Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const
+        bool IsOccludedTri(const Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const
         {
             const float3 v0 = TransformPosition(vertex0.pos, M);
             const float3 v1 = TransformPosition(vertex1.pos, M);
@@ -117,7 +117,7 @@ namespace Tmpl8
         }
 	public: 
         Model() {}
-		Model(const std::string& path, mat4 transform = mat4::Identity())
+		Model(const int idx, const std::string& path, mat4 transform = mat4::Identity())
 		{
             tinyobj::attrib_t attrib;
             std::vector<tinyobj::shape_t> shapes;
@@ -158,6 +158,8 @@ namespace Tmpl8
             }
 
             M = transform;
+
+            objIdx = idx;
 		}
         void Intersect(Ray& ray) const
         {
@@ -168,7 +170,7 @@ namespace Tmpl8
                     vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]], i);
             }
         }
-        bool IsOccluded(Ray& ray) const
+        bool IsOccluded(const Ray& ray) const
         {
             for (int i = 0; i < indices.size(); i += 3)
             {
@@ -198,6 +200,7 @@ namespace Tmpl8
             return material;
         }
     public:
+        int objIdx = -1;
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
         Material material;
