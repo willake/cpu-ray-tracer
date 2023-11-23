@@ -23,7 +23,7 @@ void BVHScene::SetTime(float t)
 
 float3 BVHScene::GetLightPos() const
 {
-	return float3(0);
+	return float3(2, 1, -1);
 }
 
 float3 BVHScene::RandomPointOnLight(const float r0, const float r1) const
@@ -42,7 +42,7 @@ void BVHScene::GetLightQuad(float3& v0, float3& v1, float3& v2, float3& v3, cons
 
 float3 BVHScene::GetLightColor() const
 {
-	return float3(0);
+	return float3(24, 24, 22);
 }
 
 float3 BVHScene::GetAreaLightColor() const
