@@ -5,7 +5,7 @@ BVHScene::BVHScene()
 	for (int i = 0; i < NUM_CUBE; i++)
 	{
 		float3 rpos(RandomFloat(), RandomFloat(), RandomFloat());
-		float3 rscale(RandomFloat() * 0.5);
+		float3 rscale(RandomFloat() * 0.3);
 		mat4 t = mat4::Translate(rpos * 3 - float3(1.5)) * mat4::Scale(rscale);
 		models[i] = Model(i, "../assets/cube.obj", t);
 	}
