@@ -16,6 +16,7 @@ namespace Tmpl8
 	public:
 		BVHScene();
 		void SetTime(float t);
+		float3 GetSkyColor(const Ray& ray) const;
 		float3 GetLightPos() const;
 		float3 RandomPointOnLight(const float r0, const float r1) const;
 		float3 RandomPointOnLight(uint& seed) const;
@@ -32,6 +33,7 @@ namespace Tmpl8
 	public:
 		float animTime = 0;
 		Model models[NUM_CUBE];
+		Texture skydome;
 		BVH sceneBVH;
 	};
 }

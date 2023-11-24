@@ -17,7 +17,7 @@ void Renderer::Init()
 float3 Renderer::Trace(Ray& ray, int depth)
 {
 	scene.FindNearest(ray);
-	if (ray.objIdx == -1) return 0; // or a fancy sky color
+	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
 	if (depth >= depthLimit) return float3(0);
 	float3 I = ray.O + ray.t * ray.D;
 	float3 N = scene.GetNormal(ray.objIdx, ray.triIdx);

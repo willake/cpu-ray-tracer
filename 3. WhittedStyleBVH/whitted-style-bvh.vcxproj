@@ -170,6 +170,7 @@
     <ClInclude Include="..\template\ray.h" />
     <ClInclude Include="..\template\scene.h" />
     <ClInclude Include="..\template\surface.h" />
+    <ClInclude Include="..\template\texture.h" />
     <ClInclude Include="..\template\tmplmath.h" />
     <ClInclude Include="bvh.h" />
     <ClInclude Include="bvh_scene.h" />

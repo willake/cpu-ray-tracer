@@ -12,6 +12,7 @@ BVHScene::BVHScene()
 	}
 
 	sceneBVH.BuildBVH();
+	skydome = Texture("../assets/industrial_sunset_puresky_2k.hdr");
 	/*models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
 	models[1] = Model(1, "../assets/cube.obj", mat4::Translate(0.5f, 0, 2) * mat4::Scale(0.3f));*/
 }
@@ -19,6 +20,22 @@ BVHScene::BVHScene()
 void BVHScene::SetTime(float t)
 {
 
+}
+
+float3 BVHScene::GetSkyColor(const Ray& ray) const
+{
+	// Convert ray direction to texture coordinates
+	float theta = acos(ray.D.y);  // Assuming a spherical skydome
+	float phi = atan2(ray.D.z, ray.D.x);
+
+	// Normalize to[0, 1]
+	float u = phi / (2 * PI);
+	float v = 1.0 - (theta / PI);
+
+	// Sample the HDR skydome texture
+	float3 color = skydome.Sample(u, v);
+
+	return color;
 }
 
 float3 BVHScene::GetLightPos() const
