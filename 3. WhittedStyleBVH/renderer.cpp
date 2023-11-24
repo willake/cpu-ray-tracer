@@ -18,7 +18,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 {
 	scene.FindNearest(ray);
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
-	if (depth >= depthLimit) return float3(0);
+	if (depth >= depthLimit) return scene.GetSkyColor(ray);
 	float3 I = ray.O + ray.t * ray.D;
 	float3 N = scene.GetNormal(ray.objIdx, ray.triIdx);
 	Material* material = scene.GetMaterial(ray.objIdx);
@@ -72,7 +72,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 				((material->reflectivity * Trace(reflectRay, depth + 1)) +
 					(1 - material->reflectivity) * DirectIllumination(I, N));
 
-			float3 RfrD = (n * ray.D) + N * (n * cos1 - sqrt(k)); // refract direction 
+			float3 RfrD = normalize((n * ray.D) + N * (n * cos1 - sqrt(k))); // refract direction 
 			auto refractRay = Ray(I + (RfrD * EPSILON), RfrD);
 			refractRay.inside = !refractRay.inside;
 			float3 refraction = albedo * Trace(refractRay, depth + 1);

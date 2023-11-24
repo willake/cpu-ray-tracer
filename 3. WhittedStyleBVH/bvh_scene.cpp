@@ -10,6 +10,8 @@ BVHScene::BVHScene()
 		models[i] = Model(i, "../assets/cube.obj", t);
 		models[i].AppendTriangles(sceneBVH.triangles);
 	}
+	models[0].material = Material(MaterialType::Mirror);
+	models[3].material = Material(MaterialType::Glass);
 
 	sceneBVH.BuildBVH();
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
