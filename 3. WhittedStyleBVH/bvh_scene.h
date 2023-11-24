@@ -1,11 +1,9 @@
 #pragma once
 
-#define NUM_CUBE 5
+#define NUM_CUBE 10
 
 namespace Tmpl8
 {
-	struct Tri { float3 vertex0, vertex1, vertex2; float3 centroid; };
-
 	// -----------------------------------------------------------
 	// Scene class
 	// We intersect this. The query is internally forwarded to the
@@ -26,17 +24,14 @@ namespace Tmpl8
 		float3 GetAreaLightColor() const;
 		float GetLightArea() const;
 		constexpr float GetLightCount() const;
-		void IntersectTri(Ray& ray, const Tri& tri, const int idx) const;
-		void FindNearest(Ray& ray) const;
-		bool IsOccluded(const Ray& ray) const;
+		void FindNearest(Ray& ray);
+		bool IsOccluded(const Ray& ray);
 		float3 GetNormal(const int objIdx, const int triIdx) const;
 		float3 GetAlbedo(int objIdx, float3 I) const;
 		Material* GetMaterial(int objIdx);
-		float GetReflectivity(int objIdx, float3 I) const;
-		float GetRefractivity(int objIdx, float3 I) const;
-		float3 GetAbsorption(int objIdx);
 	public:
 		float animTime = 0;
 		Model models[NUM_CUBE];
+		BVH sceneBVH;
 	};
 }

@@ -39,6 +39,10 @@
       <Filter>template</Filter>
     </ClCompile>
     <ClCompile Include="bvh_scene.cpp" />
+    <ClCompile Include="bvh.cpp" />
+    <ClCompile Include="..\template\model.cpp">
+      <Filter>template</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -107,6 +111,7 @@
     <ClInclude Include="..\template\model.h">
       <Filter>template</Filter>
     </ClInclude>
+    <ClInclude Include="bvh.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">
