@@ -12,7 +12,7 @@ BVHScene::BVHScene()
 	}
 
 	sceneBVH.BuildBVH();
-	skydome = Texture("../assets/industrial_sunset_puresky_2k.hdr");
+	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	/*models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
 	models[1] = Model(1, "../assets/cube.obj", mat4::Translate(0.5f, 0, 2) * mat4::Scale(0.3f));*/
 }

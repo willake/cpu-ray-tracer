@@ -26,7 +26,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 
 	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
-	/* visualize albedo */ return albedo;
+	/* visualize albedo */ // return albedo;
 
 	// beer's law
 	if (ray.inside)
