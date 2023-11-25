@@ -20,7 +20,7 @@ BVHScene::BVHScene()
 	}*/
 	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::RotateY(PI) * mat4::Scale(0.3f);
 	spaceShip = Model(1, "../assets/wok.obj", t);
-	spaceShip.material.textureDiffuse = std::make_shared<Texture>("../assets/textures/Defuse_wok.png");
+	spaceShip.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	spaceShip.AppendTriangles(sceneBVH.triangles);
 	printf("Triangle count: %d", sceneBVH.GetTriangleCounts());
 	sceneBVH.BuildBVH();

@@ -38,7 +38,7 @@ namespace Tmpl8
 		float reflectivity;
 		float refractivity;
 		float3 absortion;
-		std::shared_ptr<Texture> textureDiffuse;
+		std::unique_ptr<Texture> textureDiffuse;
 		/*Texture textureMetallic;
 		Texture textuteRoughness;*/
 	};
