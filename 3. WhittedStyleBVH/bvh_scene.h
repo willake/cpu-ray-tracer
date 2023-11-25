@@ -1,11 +1,13 @@
 #pragma once
 
-#define NUM_CUBE 5
+#define NUM_CUBE 10
+#include "model.h"
+#include "texture.h"
+#include "material.h"
+#include "bvh.h"
 
 namespace Tmpl8
 {
-	struct Tri { float3 vertex0, vertex1, vertex2; float3 centroid; };
-
 	// -----------------------------------------------------------
 	// Scene class
 	// We intersect this. The query is internally forwarded to the
@@ -18,6 +20,7 @@ namespace Tmpl8
 	public:
 		BVHScene();
 		void SetTime(float t);
+		float3 GetSkyColor(const Ray& ray) const;
 		float3 GetLightPos() const;
 		float3 RandomPointOnLight(const float r0, const float r1) const;
 		float3 RandomPointOnLight(uint& seed) const;
@@ -26,17 +29,20 @@ namespace Tmpl8
 		float3 GetAreaLightColor() const;
 		float GetLightArea() const;
 		constexpr float GetLightCount() const;
-		void IntersectTri(Ray& ray, const Tri& tri, const int idx) const;
-		void FindNearest(Ray& ray) const;
-		bool IsOccluded(const Ray& ray) const;
-		float3 GetNormal(const int objIdx, const int triIdx) const;
+		void FindNearest(Ray& ray);
+		bool IsOccluded(const Ray& ray);
+		float3 GetNormal(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const;
 		float3 GetAlbedo(int objIdx, float3 I) const;
 		Material* GetMaterial(int objIdx);
-		float GetReflectivity(int objIdx, float3 I) const;
-		float GetRefractivity(int objIdx, float3 I) const;
-		float3 GetAbsorption(int objIdx);
 	public:
 		float animTime = 0;
-		Model models[NUM_CUBE];
+		Model spaceShip;
+		//Model models[NUM_CUBE];
+		Texture skydome;
+		BVH sceneBVH;
+		Plane floor;
+		Sphere sphere;
+		Material errorMaterial = Material(MaterialType::Diffuse, float3(255, 192, 203) / 255.f);
+		Material materials[2];
 	};
 }

@@ -27,6 +27,7 @@ namespace Tmpl8 {
 		union { struct { float3 rD; float d2; }; __m128 rD4; };
 #endif
 		float t = 1e34f;
+		float2 barycentric = float2(0);
 		int objIdx = -1;
 		int triIdx = -1;
 		bool inside = false; // true when in medium

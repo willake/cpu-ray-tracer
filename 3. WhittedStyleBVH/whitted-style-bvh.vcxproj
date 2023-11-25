@@ -136,6 +136,7 @@
     <ClCompile Include="..\lib\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\lib\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\lib\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\template\model.cpp" />
     <ClCompile Include="..\template\opencl.cpp" />
     <ClCompile Include="..\template\opengl.cpp" />
     <ClCompile Include="..\template\surface.cpp" />
@@ -144,6 +145,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\template\tmplmath.cpp" />
+    <ClCompile Include="bvh.cpp" />
     <ClCompile Include="bvh_scene.cpp" />
     <ClCompile Include="renderer.cpp" />
   </ItemGroup>
@@ -168,7 +170,9 @@
     <ClInclude Include="..\template\ray.h" />
     <ClInclude Include="..\template\scene.h" />
     <ClInclude Include="..\template\surface.h" />
+    <ClInclude Include="..\template\texture.h" />
     <ClInclude Include="..\template\tmplmath.h" />
+    <ClInclude Include="bvh.h" />
     <ClInclude Include="bvh_scene.h" />
     <ClInclude Include="helper.h" />
     <ClInclude Include="renderer.h" />

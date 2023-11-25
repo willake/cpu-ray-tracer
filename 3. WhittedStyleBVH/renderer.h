@@ -1,8 +1,12 @@
 #pragma once
 
+#include "texture.h"
 #include "material.h"
 #include "model.h"
+#include "bvh.h"
 #include "bvh_scene.h"
+
+#define EPSILON	0.0001f
 
 namespace Tmpl8
 {
@@ -30,6 +34,6 @@ namespace Tmpl8
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;
-		int depthLimit = 3;
+		int depthLimit = 4;
 	};
 } // namespace Tmpl8
