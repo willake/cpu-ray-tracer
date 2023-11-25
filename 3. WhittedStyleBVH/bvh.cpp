@@ -115,7 +115,7 @@ void BVH::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
     const float t = f * dot(edge2, q);
     if (t > 0.0001f)
     {
-        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = tri.objIdx, ray.triIdx = triIdx;
+        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = tri.objIdx, ray.triIdx = triIdx, ray.barycentric = float2(u, v);
     }
 }
 
@@ -138,12 +138,21 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
     }
 }
 
+int BVH::GetTriangleCounts() const
+{
+    return triangles.size();
+}
+
 void BVH::Intersect(Ray& ray)
 {
     IntersectBVH(ray, rootNodeIdx);
 }
 
-float3 BVH::GetNormal(const uint triIdx) const
+float3 BVH::GetNormal(const uint triIdx, const float2 barycentric) const
 {
-    return normals[triIdx];
+    float3 n0 = triangles[triIdx].normal0;
+    float3 n1 = triangles[triIdx].normal1;
+    float3 n2 = triangles[triIdx].normal2;
+    return (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
+    //return normals[triIdx];
 }

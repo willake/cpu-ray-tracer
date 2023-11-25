@@ -21,7 +21,8 @@ namespace Tmpl8
 	public:
 		void BuildBVH();
 		void Intersect(Ray& ray);
-		float3 GetNormal(const uint triIdx) const;
+		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
+		int GetTriangleCounts() const;
 		std::vector<Tri> triangles;
 		std::vector<float3> normals;
 		std::vector<uint> triangleIndices;

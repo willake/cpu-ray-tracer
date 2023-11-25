@@ -1,6 +1,10 @@
 #pragma once
 
 #define NUM_CUBE 10
+#include "model.h"
+#include "texture.h"
+#include "material.h"
+#include "bvh.h"
 
 namespace Tmpl8
 {
@@ -27,15 +31,18 @@ namespace Tmpl8
 		constexpr float GetLightCount() const;
 		void FindNearest(Ray& ray);
 		bool IsOccluded(const Ray& ray);
-		float3 GetNormal(const float3 I, const int objIdx, const int triIdx) const;
+		float3 GetNormal(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const;
 		float3 GetAlbedo(int objIdx, float3 I) const;
 		Material* GetMaterial(int objIdx);
 	public:
 		float animTime = 0;
-		Model models[NUM_CUBE];
+		Model spaceShip;
+		//Model models[NUM_CUBE];
 		Texture skydome;
 		BVH sceneBVH;
+		Plane floor;
 		Sphere sphere;
-		Material materialSphere;
+		Material errorMaterial = Material(MaterialType::Diffuse, float3(255, 192, 203) / 255.f);
+		Material materials[2];
 	};
 }

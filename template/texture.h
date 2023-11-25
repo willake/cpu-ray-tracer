@@ -12,7 +12,7 @@ namespace Tmpl8
     class Texture
     {
     private:
-        void LoadFromFile(const string file)
+        void LoadFromFile(const std::string& file)
         {
             int n;
             unsigned char* data = stbi_load(file.c_str(), &width, &height, &n, 0);
@@ -39,7 +39,7 @@ namespace Tmpl8
         }
     public:
         Texture() = default;
-        Texture(const string file) : pixels(0), width(0), height(0)
+        Texture(const std::string& file) : pixels(0), width(0), height(0)
         {
             FILE* f = fopen(file.c_str(), "rb");
             if (!f) FatalError("File not found: %s", file);
@@ -60,8 +60,11 @@ namespace Tmpl8
                 return float3(0);
             }
             // Clamp texture coordinates to [0, 1]
-            u = fmod(u, 1.0f);
-            v = fmod(v, 1.0f);
+            //u = fmod(u, 1.0f);
+            //v = fmod(v, 1.0f);
+
+            u = clamp(u, 0.0f, 1.0f);
+            v = 1 - clamp(v, 0.0f, 1.0f);
 
             // Calculate pixel coordinates
             int x = static_cast<int>(u * width);
@@ -77,9 +80,10 @@ namespace Tmpl8
             uint pixel = pixels[index];
 
             // Sample color from the texture
-            float r = ((pixel >> 16) & 0xFF) / 255.f;
-            float g = ((pixel >> 8) & 0xFF) / 255.f;
-            float b = (pixel & 0xFF) / 255.f;
+            float rgbScale = 1 / 255.0f;
+            float r = ((pixel >> 16) & 0xFF) * rgbScale;
+            float g = ((pixel >> 8) & 0xFF) * rgbScale;
+            float b = (pixel & 0xFF) * rgbScale;
 
             return float3(r, g, b);
         }

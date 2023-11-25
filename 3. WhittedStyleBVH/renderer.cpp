@@ -1,5 +1,6 @@
 #include "precomp.h"
 #include "helper.h"
+#include "renderer.h"
 
 // -----------------------------------------------------------
 // Initialize the renderer
@@ -17,10 +18,13 @@ void Renderer::Init()
 float3 Renderer::Trace(Ray& ray, int depth)
 {
 	scene.FindNearest(ray);
+	//if (ray.objIdx == -1) return float3(0);
+	//if (depth >= depthLimit) return float3(0);
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
-	if (depth >= depthLimit) return scene.GetSkyColor(ray);
+	if (depth >= depthLimit) return float3(0);
+	//if (depth >= depthLimit) return scene.GetSkyColor(ray);
 	float3 I = ray.O + ray.t * ray.D;
-	float3 N = scene.GetNormal(I, ray.objIdx, ray.triIdx);
+	float3 N = scene.GetNormal(I, ray.barycentric, ray.objIdx, ray.triIdx);
 	Material* material = scene.GetMaterial(ray.objIdx);
 
 	if (material->type == MaterialType::Light) return scene.GetLightColor();

@@ -1,20 +1,27 @@
 #include "precomp.h"
+#include "bvh_scene.h"
+#include "material.h"
+#include "model.h"
+#include "texture.h"
 
 BVHScene::BVHScene()
 {
-	sphere = Sphere(100, float3(0), 0.6f);
-	materialSphere = Material(MaterialType::Glass);
-	for (int i = 0; i < NUM_CUBE; i++)
+	floor = Plane(100, float3(0, 1, 0), 1);
+	sphere = Sphere(101, float3(0), 0.6f);
+	materials[0] = Material(MaterialType::Diffuse, float3(0), true);
+	materials[1] = Material(MaterialType::Mirror);
+	/*or (int i = 0; i < NUM_CUBE; i++)
 	{
 		float3 rpos(RandomFloat(), RandomFloat(), RandomFloat());
-		float3 rscale(RandomFloat() * 0.3);
-		mat4 t = mat4::Translate(rpos * 3 - float3(1.5)) * mat4::Scale(rscale);
+		float3 rscale(RandomFloat() * 0.3f);
+		mat4 t = mat4::Translate(rpos * 3 - float3(1.5f)) * mat4::Scale(rscale);
 		models[i] = Model(i, "../assets/cube.obj", t);
 		models[i].AppendTriangles(sceneBVH.triangles);
-	}
-	models[0].material = Material(MaterialType::Glass);
-	models[2].material = Material(MaterialType::Mirror);
-
+	}*/
+	mat4 t = mat4::Translate(float3(2, -0.4f, 0)) * mat4::Scale(1.f);
+	spaceShip = Model(1, "../assets/bunny.obj", t);
+	spaceShip.AppendTriangles(sceneBVH.triangles);
+	printf("Triangle count: %d", sceneBVH.GetTriangleCounts());
 	sceneBVH.BuildBVH();
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	/*models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
@@ -27,7 +34,7 @@ void BVHScene::SetTime(float t)
 	animTime = t;
 	// sphere animation: bounce
 	float tm = 1 - sqrf(fmodf(animTime, 2.0f) - 1);
-	sphere.pos = float3(-1.8f, -0.4f + tm, 1);
+	sphere.pos = float3(-1.8f, 0.4f + tm, 1);
 }
 
 float3 BVHScene::GetSkyColor(const Ray& ray) const
@@ -38,7 +45,7 @@ float3 BVHScene::GetSkyColor(const Ray& ray) const
 
 	// Normalize to[0, 1]
 	float u = phi / (2 * PI);
-	float v = 1.0 - (theta / PI);
+	float v = 1.0f - (theta / PI);
 
 	// Sample the HDR skydome texture
 	float3 color = skydome.Sample(u, v);
@@ -48,7 +55,7 @@ float3 BVHScene::GetSkyColor(const Ray& ray) const
 
 float3 BVHScene::GetLightPos() const
 {
-	return float3(2, 1, -1);
+	return float3(0, 2, 0);
 }
 
 float3 BVHScene::RandomPointOnLight(const float r0, const float r1) const
@@ -91,8 +98,9 @@ void BVHScene::FindNearest(Ray& ray)
 	{
 		models[i].Intersect(ray);
 	}*/
+	floor.Intersect(ray);
 	sphere.Intersect(ray);
-	//sceneBVH.Intersect(ray);
+	sceneBVH.Intersect(ray);
 }
 
 bool BVHScene::IsOccluded(const Ray& ray)
@@ -108,23 +116,30 @@ bool BVHScene::IsOccluded(const Ray& ray)
 	if (sphere.IsOccluded(ray)) return true;
 	Ray shadow = ray;
 	shadow.t = 1e34f;
-	//sceneBVH.Intersect(shadow);
+	sceneBVH.Intersect(shadow);
 	if (shadow.objIdx > -1) return true;
+	// skip planes
 	return false;
 }
 
-float3 BVHScene::GetNormal(const float3 I, const int objIdx, const int triIdx) const
+float3 BVHScene::GetNormal(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const
 {
 	//return models[objIdx].GetNormal(triIdx);
-	if (objIdx == 100) return sphere.GetNormal(I);
-	return sceneBVH.GetNormal(triIdx);
+	if (objIdx == 100) return floor.GetNormal(I);
+	if (objIdx == 101) return sphere.GetNormal(I);
+	return sceneBVH.GetNormal(triIdx, barycentric);
 	//return float3(0);
 }
 
-float3 BVHScene::GetAlbedo(int objIdx, float3 I) const { return float3(0); }
+float3 BVHScene::GetAlbedo(int objIdx, float3 I) const 
+{ 
+	if (objIdx == 100) return floor.GetAlbedo(I);
+	return float3(0); 
+}
 
 Material* BVHScene::GetMaterial(int objIdx)
 {
-	if (objIdx == 100) return &materialSphere;
-	return models[objIdx].GetMaterial();
+	if (objIdx == 1) return spaceShip.GetMaterial();
+	if (objIdx > 99) return &materials[objIdx - 100];
+	return &errorMaterial;
 }

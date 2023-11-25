@@ -8,23 +8,24 @@
 struct Tri
 {
     Tri() {};
-    Tri(float3 v0, float3 v1, float3 v2, float3 c, int idx)
-        : vertex0(v0), vertex1(v1), vertex2(v2), centroid(c), objIdx(idx)
+    Tri(float3 v0, float3 v1, float3 v2, float3 n0, float3 n1, float3 n2, float3 c, int idx)
+        : vertex0(v0), vertex1(v1), vertex2(v2), normal0(n0), normal1(n1), normal2(n2), centroid(c), objIdx(idx)
     {};
     float3 vertex0, vertex1, vertex2;
+    float3 normal0, normal1, normal2;
     float3 centroid;
     int objIdx;
 };
 
 struct Vertex
 {
-    float3 pos;
-    float3 color;
-    float2 texCoord;
+    float3 position{};
+    float3 normal{};
+    float2 uv{};
 
     bool operator==(const Vertex& other) const
     {
-        return pos == other.pos && color == other.color && texCoord == other.texCoord;
+        return position == other.position && normal == other.normal && uv == other.uv;
     }
 };
 
@@ -67,10 +68,10 @@ namespace std
     {
         size_t operator()(Vertex const& vertex) const
         {
-            return ((hash<float3>()(vertex.pos) ^
-                (hash<float3>()(vertex.color) << 1)) >>
+            return ((hash<float3>()(vertex.position) ^
+                (hash<float3>()(vertex.normal) << 1)) >>
                 1) ^
-                (hash<float2>()(vertex.texCoord) << 1);
+                (hash<float2>()(vertex.uv) << 1);
         }
     };
 }
@@ -95,6 +96,6 @@ namespace Tmpl8
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
         Material material;
-        mat4 M;
+        mat4 T, invT;
 	};
 }

@@ -20,16 +20,28 @@ Model::Model(const int idx, const std::string& path, mat4 transform = mat4::Iden
         {
             Vertex vertex{};
 
-            vertex.pos = {
-                attrib.vertices[3 * index.vertex_index + 0],
-                attrib.vertices[3 * index.vertex_index + 1],
-                attrib.vertices[3 * index.vertex_index + 2] };
+            if (index.vertex_index >= 0) 
+            {
+                vertex.position = {
+                    attrib.vertices[3 * index.vertex_index + 0],
+                    attrib.vertices[3 * index.vertex_index + 1],
+                    attrib.vertices[3 * index.vertex_index + 2] };
+            }
 
-            vertex.texCoord = {
-                attrib.texcoords[2 * index.texcoord_index + 0],
-                attrib.texcoords[2 * index.texcoord_index + 1] };
+            if (index.normal_index >= 0)
+            {
+                vertex.normal = {
+                    attrib.normals[3 * index.normal_index + 0],
+                    attrib.normals[3 * index.normal_index + 1],
+                    attrib.normals[3 * index.normal_index + 2] };
+            }
 
-            vertex.color = { 1.0f, 1.0f, 1.0f };
+            if (index.texcoord_index >= 0)
+            {
+                vertex.uv = {
+                    attrib.texcoords[2 * index.texcoord_index + 0],
+                    attrib.texcoords[2 * index.texcoord_index + 1] };
+            }
 
             if (uniqueVertices.count(vertex) == 0)
             {
@@ -40,16 +52,17 @@ Model::Model(const int idx, const std::string& path, mat4 transform = mat4::Iden
         }
     }
 
-    M = transform;
+    T = transform;
+    invT = transform.FastInvertedTransformNoScale();
 
     objIdx = idx;
 }
 
 void Model::IntersectTri(Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2, const int& idx) const
 {
-    const float3 v0 = TransformPosition(vertex0.pos, M);
-    const float3 v1 = TransformPosition(vertex1.pos, M);
-    const float3 v2 = TransformPosition(vertex2.pos, M);
+    const float3 v0 = TransformPosition(vertex0.position, T);
+    const float3 v1 = TransformPosition(vertex1.position, T);
+    const float3 v2 = TransformPosition(vertex2.position, T);
     const float3 edge1 = v1 - v0;
     const float3 edge2 = v2 - v0;
     const float3 h = cross(ray.D, edge2);
@@ -71,9 +84,9 @@ void Model::IntersectTri(Ray& ray, const Vertex& vertex0, const Vertex& vertex1,
 
 bool Model::IsOccludedTri(const Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const
 {
-    const float3 v0 = TransformPosition(vertex0.pos, M);
-    const float3 v1 = TransformPosition(vertex1.pos, M);
-    const float3 v2 = TransformPosition(vertex2.pos, M);
+    const float3 v0 = TransformPosition(vertex0.position, T);
+    const float3 v1 = TransformPosition(vertex1.position, T);
+    const float3 v2 = TransformPosition(vertex2.position, T);
     const float3 edge1 = v1 - v0;
     const float3 edge2 = v2 - v0;
     const float3 h = cross(ray.D, edge2);
@@ -118,9 +131,9 @@ bool Model::IsOccluded(const Ray& ray) const
 
 float3 Model::GetNormal(const int triIdx) const
 {
-    const float3 v0 = TransformPosition(vertices[indices[triIdx]].pos, M);
-    const float3 v1 = TransformPosition(vertices[indices[triIdx + 1]].pos, M);
-    const float3 v2 = TransformPosition(vertices[indices[triIdx + 2]].pos, M);
+    const float3 v0 = TransformPosition(vertices[indices[triIdx]].position, T);
+    const float3 v1 = TransformPosition(vertices[indices[triIdx + 1]].position, T);
+    const float3 v2 = TransformPosition(vertices[indices[triIdx + 2]].position, T);
     const float3 u = v1 - v0;
     const float3 v = v2 - v0;
     return float3(
@@ -140,9 +153,12 @@ void Model::AppendTriangles(std::vector<Tri>& triangles)
     for (int i = 0; i < indices.size(); i += 3)
     {
         Tri tri(
-            TransformPosition(vertices[indices[i]].pos, M),
-            TransformPosition(vertices[indices[i + 1]].pos, M),
-            TransformPosition(vertices[indices[i + 2]].pos, M),
+            TransformPosition(vertices[indices[i]].position, T),
+            TransformPosition(vertices[indices[i + 1]].position, T),
+            TransformPosition(vertices[indices[i + 2]].position, T),
+            TransformVector(vertices[indices[i]].normal, invT),
+            TransformVector(vertices[indices[i + 1]].normal, invT),
+            TransformVector(vertices[indices[i + 2]].normal, invT),
             float3(0), objIdx);
         tri.centroid = (tri.vertex0 + tri.vertex1 + tri.vertex2) * 0.3333f;
         triangles.push_back(tri);
