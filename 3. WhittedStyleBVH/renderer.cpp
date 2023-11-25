@@ -20,11 +20,14 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
 	if (depth >= depthLimit) return scene.GetSkyColor(ray);
 	float3 I = ray.O + ray.t * ray.D;
-	float3 N = scene.GetNormal(ray.objIdx, ray.triIdx);
+	float3 N = scene.GetNormal(I, ray.objIdx, ray.triIdx);
 	Material* material = scene.GetMaterial(ray.objIdx);
+
+	if (material->type == MaterialType::Light) return scene.GetLightColor();
+
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo(ray.objIdx, I) : material->albedo;
 
-	/* visualize normal */ // return (N + 1) * 0.5f;
+	/* visualize normal */  // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ // return albedo;
 
@@ -36,7 +39,14 @@ float3 Renderer::Trace(Ray& ray, int depth)
 		albedo.z *= exp(-material->absortion.z * ray.t);
 	}
 
-	if (material->type == MaterialType::Light) return scene.GetLightColor();
+	if (material->type == MaterialType::Mirror)
+	{
+		float3 RD = reflect(ray.D, N); // reflect direction
+		auto reflectRay = Ray(I + RD * EPSILON, RD);
+		return albedo *
+			((material->reflectivity * Trace(reflectRay, depth + 1)) +
+				(1 - material->reflectivity) * DirectIllumination(I, N));
+	}
 
 	if (material->type == MaterialType::Glass)
 	{
@@ -79,15 +89,6 @@ float3 Renderer::Trace(Ray& ray, int depth)
 
 			return Fr * reflection + Ft * refraction;
 		}
-	}
-
-	if (material->type == MaterialType::Mirror)
-	{
-		float3 RD = reflect(ray.D, N); // reflect direction
-		auto reflectRay = Ray(I + RD * EPSILON, RD);
-		return albedo *
-			((material->reflectivity * Trace(reflectRay, depth + 1)) +
-				(1 - material->reflectivity) * DirectIllumination(I, N));
 	}
 
 	/* visualize albedo */ return albedo * DirectIllumination(I, N);

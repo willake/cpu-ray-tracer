@@ -35,7 +35,7 @@ namespace Tmpl8 {
 			pos(p), r2(r* r), invr(1 / r), objIdx(idx) {}
 		void Intersect(Ray& ray) const
 		{
-#if 1
+#if 0
 			const __m128 oc = _mm_sub_ps(ray.O4, _mm_set_ps(1, 1, this->pos.y, -1.8f));
 			const float b = _mm_dp_ps(oc, ray.D4, 0xFF).m128_f32[0];
 			const float c = _mm_dp_ps(oc, oc, 0xFF).m128_f32[0];
@@ -59,7 +59,7 @@ namespace Tmpl8 {
 		}
 		bool IsOccluded(const Ray& ray) const
 		{
-#if 1
+#if 0
 			const __m128 oc = _mm_sub_ps(ray.O4, _mm_set_ps(1, 1, this->pos.y, -1.8f));
 			const float b = _mm_dp_ps(oc, ray.D4, 0xFF).m128_f32[0];
 			const float c = _mm_dp_ps(oc, oc, 0xFF).m128_f32[0];

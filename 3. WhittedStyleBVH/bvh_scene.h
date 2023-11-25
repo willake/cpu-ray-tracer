@@ -27,7 +27,7 @@ namespace Tmpl8
 		constexpr float GetLightCount() const;
 		void FindNearest(Ray& ray);
 		bool IsOccluded(const Ray& ray);
-		float3 GetNormal(const int objIdx, const int triIdx) const;
+		float3 GetNormal(const float3 I, const int objIdx, const int triIdx) const;
 		float3 GetAlbedo(int objIdx, float3 I) const;
 		Material* GetMaterial(int objIdx);
 	public:
@@ -35,5 +35,7 @@ namespace Tmpl8
 		Model models[NUM_CUBE];
 		Texture skydome;
 		BVH sceneBVH;
+		Sphere sphere;
+		Material materialSphere;
 	};
 }
