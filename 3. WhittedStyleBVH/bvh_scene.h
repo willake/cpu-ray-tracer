@@ -32,6 +32,7 @@ namespace Tmpl8
 		void FindNearest(Ray& ray);
 		bool IsOccluded(const Ray& ray);
 		float3 GetNormal(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const;
+		float2 GetUV(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const;
 		float3 GetAlbedo(int objIdx, float3 I) const;
 		Material* GetMaterial(int objIdx);
 	public:

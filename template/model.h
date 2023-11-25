@@ -8,11 +8,12 @@
 struct Tri
 {
     Tri() {};
-    Tri(float3 v0, float3 v1, float3 v2, float3 n0, float3 n1, float3 n2, float3 c, int idx)
-        : vertex0(v0), vertex1(v1), vertex2(v2), normal0(n0), normal1(n1), normal2(n2), centroid(c), objIdx(idx)
+    Tri(float3 v0, float3 v1, float3 v2, float3 n0, float3 n1, float3 n2, float2 u0, float2 u1, float2 u2, float3 c, int idx)
+        : vertex0(v0), vertex1(v1), vertex2(v2), normal0(n0), normal1(n1), normal2(n2), uv0(u0), uv1(u1), uv2(u2), centroid(c), objIdx(idx)
     {};
     float3 vertex0, vertex1, vertex2;
     float3 normal0, normal1, normal2;
+    float2 uv0, uv1, uv2;
     float3 centroid;
     int objIdx;
 };
@@ -84,7 +85,8 @@ namespace Tmpl8
         bool IsOccludedTri(const Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const;
 	public: 
         Model() {}
-        Model(const int idx, const std::string& path, mat4 transform);
+        //Model(const int idx, const std::string& path, mat4 transform);
+        Model(const int idx, const std::string& modelPath, mat4 transform);
         void Intersect(Ray& ray) const;
         bool IsOccluded(const Ray& ray) const;
         // https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
@@ -96,6 +98,9 @@ namespace Tmpl8
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
         Material material;
+        //Texture textureDiffuse;
+        /*Texture textureMetallic;
+        Texture textuteRoughness;*/
         mat4 T, invT;
 	};
 }
