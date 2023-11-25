@@ -18,8 +18,8 @@ BVHScene::BVHScene()
 		models[i] = Model(i, "../assets/cube.obj", t);
 		models[i].AppendTriangles(sceneBVH.triangles);
 	}*/
-	mat4 t = mat4::Translate(float3(2, -0.4f, 0)) * mat4::Scale(1.f);
-	spaceShip = Model(1, "../assets/bunny.obj", t);
+	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::RotateY(PI) * mat4::Scale(0.3f);
+	spaceShip = Model(1, "../assets/Intergalactic_Spaceship-(Wavefront).obj", t);
 	spaceShip.AppendTriangles(sceneBVH.triangles);
 	printf("Triangle count: %d", sceneBVH.GetTriangleCounts());
 	sceneBVH.BuildBVH();

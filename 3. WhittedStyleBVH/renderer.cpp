@@ -94,8 +94,8 @@ float3 Renderer::Trace(Ray& ray, int depth)
 			return Fr * reflection + Ft * refraction;
 		}
 	}
-
-	/* visualize albedo */ return albedo * DirectIllumination(I, N);
+	float3 ambient = float3(0.1f);
+	/* visualize albedo */ return albedo * (DirectIllumination(I, N) + ambient);
 }
 
 float3 Renderer::DirectIllumination(float3 I, float3 N)
