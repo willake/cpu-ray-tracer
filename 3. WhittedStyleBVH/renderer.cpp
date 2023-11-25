@@ -21,15 +21,15 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	//if (ray.objIdx == -1) return float3(0);
 	//if (depth >= depthLimit) return float3(0);
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
-	if (depth >= depthLimit) return float3(0);
-	//if (depth >= depthLimit) return scene.GetSkyColor(ray);
+	if (depth >= depthLimit) return scene.GetSkyColor(ray);
 	float3 I = ray.O + ray.t * ray.D;
 	float3 N = scene.GetNormal(I, ray.barycentric, ray.objIdx, ray.triIdx);
+	float2 uv = scene.GetUV(I, ray.barycentric, ray.objIdx, ray.triIdx);
 	Material* material = scene.GetMaterial(ray.objIdx);
 
 	if (material->type == MaterialType::Light) return scene.GetLightColor();
 
-	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo(ray.objIdx, I) : material->albedo;
+	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo(ray.objIdx, I) : material->GetAlbedo(uv);
 
 	/* visualize normal */  // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );

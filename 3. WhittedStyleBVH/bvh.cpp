@@ -156,3 +156,11 @@ float3 BVH::GetNormal(const uint triIdx, const float2 barycentric) const
     return (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
     //return normals[triIdx];
 }
+
+float2 BVH::GetUV(const uint triIdx, const float2 barycentric) const
+{
+    float2 uv0 = triangles[triIdx].uv0;
+    float2 uv1 = triangles[triIdx].uv1;
+    float2 uv2 = triangles[triIdx].uv2;
+    return (1 - barycentric.x - barycentric.y) * uv0 + barycentric.x * uv1 + barycentric.y * uv2;
+}

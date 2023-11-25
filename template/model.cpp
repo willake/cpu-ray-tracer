@@ -1,13 +1,14 @@
+#include "model.h"
 #include "precomp.h"
 
-Model::Model(const int idx, const std::string& path, mat4 transform = mat4::Identity())
+Model::Model(const int idx, const std::string& modelPath, mat4 transform)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str()))
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
     {
         throw std::runtime_error(warn + err);
     }
@@ -20,7 +21,7 @@ Model::Model(const int idx, const std::string& path, mat4 transform = mat4::Iden
         {
             Vertex vertex{};
 
-            if (index.vertex_index >= 0) 
+            if (index.vertex_index >= 0)
             {
                 vertex.position = {
                     attrib.vertices[3 * index.vertex_index + 0],
@@ -51,6 +52,22 @@ Model::Model(const int idx, const std::string& path, mat4 transform = mat4::Iden
             indices.push_back(uniqueVertices[vertex]);
         }
     }
+
+    //if (materials.size() > 0)
+    //{
+    //    /*if (materials[0].diffuse_texname.length() > 0)
+    //    {
+    //        material.textureDiffuse = &Texture(materials[0].diffuse_texname);
+    //    }*/
+    //    /*if (materials[0].reflection_texname.length() > 0)
+    //    {
+    //        textureDiffuse = Texture(materials[0].reflection_texname);
+    //    }
+    //    if (materials[0].specular_highlight_texname.length() > 0)
+    //    {
+    //        textureDiffuse = Texture(materials[0].specular_highlight_texname);
+    //    }*/
+    //}
 
     T = transform;
     invT = transform.FastInvertedTransformNoScale();
@@ -159,6 +176,9 @@ void Model::AppendTriangles(std::vector<Tri>& triangles)
             TransformVector(vertices[indices[i]].normal, invT),
             TransformVector(vertices[indices[i + 1]].normal, invT),
             TransformVector(vertices[indices[i + 2]].normal, invT),
+            vertices[indices[i]].uv,
+            vertices[indices[i + 1]].uv,
+            vertices[indices[i + 2]].uv,
             float3(0), objIdx);
         tri.centroid = (tri.vertex0 + tri.vertex1 + tri.vertex2) * 0.3333f;
         triangles.push_back(tri);

@@ -19,7 +19,8 @@ BVHScene::BVHScene()
 		models[i].AppendTriangles(sceneBVH.triangles);
 	}*/
 	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::RotateY(PI) * mat4::Scale(0.3f);
-	spaceShip = Model(1, "../assets/Intergalactic_Spaceship-(Wavefront).obj", t);
+	spaceShip = Model(1, "../assets/wok.obj", t);
+	spaceShip.material.textureDiffuse = std::make_shared<Texture>("../assets/textures/Defuse_wok.png");
 	spaceShip.AppendTriangles(sceneBVH.triangles);
 	printf("Triangle count: %d", sceneBVH.GetTriangleCounts());
 	sceneBVH.BuildBVH();
@@ -128,6 +129,15 @@ float3 BVHScene::GetNormal(const float3 I, const float2 barycentric, const int o
 	if (objIdx == 100) return floor.GetNormal(I);
 	if (objIdx == 101) return sphere.GetNormal(I);
 	return sceneBVH.GetNormal(triIdx, barycentric);
+	//return float3(0);
+}
+
+float2 BVHScene::GetUV(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const
+{
+	//return models[objIdx].GetNormal(triIdx);
+	if (objIdx == 100) return float2(0);
+	if (objIdx == 101) return float2(0);
+	return sceneBVH.GetUV(triIdx, barycentric);
 	//return float3(0);
 }
 

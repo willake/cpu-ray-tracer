@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 namespace Tmpl8
 {
@@ -22,11 +23,23 @@ namespace Tmpl8
 			this->refractivity = 1.0f;
 			this->absortion = float3(0);
 		}
+		float3 GetAlbedo(float2 uv)
+		{
+			if (textureDiffuse.get() == nullptr)
+			{
+				return albedo;
+			}
+			return textureDiffuse->Sample(uv.x, uv.y);
+		}
+	public:
 		MaterialType type;
 		float3 albedo{};
 		bool isAlbedoOverridden;
 		float reflectivity;
 		float refractivity;
 		float3 absortion;
+		std::shared_ptr<Texture> textureDiffuse;
+		/*Texture textureMetallic;
+		Texture textuteRoughness;*/
 	};
 }
