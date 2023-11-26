@@ -18,8 +18,8 @@ void BVH::BuildBVH()
     // assign all triangles to root node
     bvhNodes.resize(triangles.size() * 2 - 1);
     BVHNode& root = bvhNodes[rootNodeIdx];
-    root.leftNode = 0;
-    root.firstTriIdx = 0, root.triCount = triangles.size();
+    root.leftFirst = 0;
+    root.triCount = triangles.size();
     UpdateNodeBounds(rootNodeIdx);
     // subdivide recursively
     Subdivide(rootNodeIdx);
@@ -30,7 +30,7 @@ void BVH::UpdateNodeBounds(uint nodeIdx)
     BVHNode& node = bvhNodes[nodeIdx];
     node.aabbMin = float3(1e30f);
     node.aabbMax = float3(-1e30f);
-    for (uint first = node.firstTriIdx, i = 0; i < node.triCount; i++)
+    for (uint first = node.leftFirst, i = 0; i < node.triCount; i++)
     {
         uint leafTriIdx = triangleIndices[first + i];
         Tri& leafTri = triangles[leafTriIdx];
@@ -49,15 +49,36 @@ void BVH::Subdivide(uint nodeIdx)
     BVHNode& node = bvhNodes[nodeIdx];
     if (node.triCount <= 2) return;
 
+#ifdef SAH
+    // determine split axis using SAH
+    int bestAxis = -1;
+    float bestPos = 0, bestCost = 1e30f;
+    for (int axis = 0; axis < 3; axis++) for (uint i = 0; i < node.triCount; i++)
+    {
+        Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
+        float candidatePos = triangle.centroid[axis];
+        float cost = EvaluateSAH(node, axis, candidatePos);
+        if (cost < bestCost)
+            bestPos = candidatePos, bestAxis = axis, bestCost = cost;
+    }
+    int axis = bestAxis;
+    float splitPos = bestPos;
+
+    float3 e = node.aabbMax - node.aabbMin; // extent of parent
+    float parentArea = e.x * e.y + e.y * e.z + e.z * e.x;
+    float parentCost = node.triCount * parentArea;
+
+    if (bestCost >= parentCost) return;
+#else
     // split plane axis and position
     float3 extent = node.aabbMax - node.aabbMin;
     int axis = 0;
     if (extent.y > extent.x) axis = 1;
     if (extent.z > extent[axis]) axis = 2;
     float splitPos = node.aabbMin[axis] + extent[axis] * 0.5f;
-    
+#endif
     // split the group in two halves
-    int i = node.firstTriIdx;
+    int i = node.leftFirst;
     int j = i + node.triCount - 1;
     while (i <= j)
     {
@@ -68,23 +89,50 @@ void BVH::Subdivide(uint nodeIdx)
     }
 
     // creating child nodes for each half
-    int leftCount = i - node.firstTriIdx;
+    int leftCount = i - node.leftFirst;
     if (leftCount == 0 || leftCount == node.triCount) return;
     // create child nodes
     int leftChildIdx = nodesUsed++;
     int rightChildIdx = nodesUsed++;
 
-    bvhNodes[leftChildIdx].firstTriIdx = node.firstTriIdx;
+    bvhNodes[leftChildIdx].leftFirst = node.leftFirst;
     bvhNodes[leftChildIdx].triCount = leftCount;
-    bvhNodes[rightChildIdx].firstTriIdx = i;
+    bvhNodes[rightChildIdx].leftFirst = i;
     bvhNodes[rightChildIdx].triCount = node.triCount - leftCount;
-    node.leftNode = leftChildIdx;
+    node.leftFirst = leftChildIdx;
     node.triCount = 0;
     UpdateNodeBounds(leftChildIdx);
     UpdateNodeBounds(rightChildIdx);
     // recurse
     Subdivide(leftChildIdx);
     Subdivide(rightChildIdx);
+}
+
+float BVH::EvaluateSAH(BVHNode& node, int axis, float pos)
+{
+    // determine triangle counts and bounds for this split candidate
+    aabb leftBox, rightBox;
+    int leftCount = 0, rightCount = 0;
+    for (uint i = 0; i < node.triCount; i++)
+    {
+        Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
+        if (triangle.centroid[axis] < pos)
+        {
+            leftCount++;
+            leftBox.Grow(triangle.vertex0);
+            leftBox.Grow(triangle.vertex1);
+            leftBox.Grow(triangle.vertex2);
+        }
+        else
+        {
+            rightCount++;
+            rightBox.Grow(triangle.vertex0);
+            rightBox.Grow(triangle.vertex1);
+            rightBox.Grow(triangle.vertex2);
+        }
+    }
+    float cost = leftCount * leftBox.Area() + rightCount * rightBox.Area();
+    return cost > 0 ? cost : 1e30f;
 }
 
 bool BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
@@ -127,14 +175,14 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
     {
         for (uint i = 0; i < node.triCount; i++)
         {
-            uint triIdx = triangleIndices[node.firstTriIdx + i];
+            uint triIdx = triangleIndices[node.leftFirst + i];
             IntersectTri(ray, triangles[triIdx], triIdx);
         }
     }
     else
     {
-        IntersectBVH(ray, node.leftNode);
-        IntersectBVH(ray, node.leftNode + 1);
+        IntersectBVH(ray, node.leftFirst);
+        IntersectBVH(ray, node.leftFirst + 1);
     }
 }
 
