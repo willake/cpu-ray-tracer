@@ -147,6 +147,8 @@
     <ClCompile Include="..\template\tmplmath.cpp" />
     <ClCompile Include="bvh.cpp" />
     <ClCompile Include="bvh_scene.cpp" />
+    <ClCompile Include="grid.cpp" />
+    <ClCompile Include="grid_scene.cpp" />
     <ClCompile Include="renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +176,8 @@
     <ClInclude Include="..\template\tmplmath.h" />
     <ClInclude Include="bvh.h" />
     <ClInclude Include="bvh_scene.h" />
+    <ClInclude Include="grid.h" />
+    <ClInclude Include="grid_scene.h" />
     <ClInclude Include="helper.h" />
     <ClInclude Include="renderer.h" />
   </ItemGroup>
