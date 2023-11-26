@@ -189,7 +189,10 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
         if (node->isLeaf())
         {
             for (uint i = 0; i < node->triCount; i++)
-                IntersectTri(ray, triangles[triangleIndices[node->leftFirst + i]], i);
+            {
+                uint triIdx = triangleIndices[node->leftFirst + i];
+                IntersectTri(ray, triangles[triIdx], triIdx);
+            }
             if (stackPtr == 0) break; else node = stack[--stackPtr];
 
             continue;
