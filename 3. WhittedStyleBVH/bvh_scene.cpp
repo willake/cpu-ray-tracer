@@ -18,11 +18,11 @@ BVHScene::BVHScene()
 		models[i] = Model(i, "../assets/cube.obj", t);
 		models[i].AppendTriangles(sceneBVH.triangles);
 	}*/
-	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::RotateY(PI) * mat4::Scale(0.3f);
+	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.3f);
 	spaceShip = Model(1, "../assets/wok.obj", t);
 	spaceShip.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	spaceShip.AppendTriangles(sceneBVH.triangles);
-	printf("Triangle count: %d", sceneBVH.GetTriangleCounts());
+	printf("Triangle count: %d\n", sceneBVH.GetTriangleCounts());
 	sceneBVH.BuildBVH();
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	/*models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
