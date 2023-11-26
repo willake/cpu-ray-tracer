@@ -12,6 +12,11 @@ namespace Tmpl8
 {
 	class Renderer : public TheApp
 	{
+	private:
+		float m_avg = 10;
+		float m_alpha = 1;
+		float m_fps = 0;
+		float m_rps = 0;
 	public:
 		// game flow methods
 		void Init();
