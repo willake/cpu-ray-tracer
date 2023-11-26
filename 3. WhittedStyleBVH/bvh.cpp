@@ -135,6 +135,18 @@ float BVH::EvaluateSAH(BVHNode& node, int axis, float pos)
     return cost > 0 ? cost : 1e30f;
 }
 
+#ifdef FASTER_RAY
+float BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
+{
+    float tx1 = (bmin.x - ray.O.x) / ray.D.x, tx2 = (bmax.x - ray.O.x) / ray.D.x;
+    float tmin = min(tx1, tx2), tmax = max(tx1, tx2);
+    float ty1 = (bmin.y - ray.O.y) / ray.D.y, ty2 = (bmax.y - ray.O.y) / ray.D.y;
+    tmin = max(tmin, min(ty1, ty2)), tmax = min(tmax, max(ty1, ty2));
+    float tz1 = (bmin.z - ray.O.z) / ray.D.z, tz2 = (bmax.z - ray.O.z) / ray.D.z;
+    tmin = max(tmin, min(tz1, tz2)), tmax = min(tmax, max(tz1, tz2));
+    if (tmax >= tmin && tmin < ray.t && tmax > 0) return tmin; else return 1e30f;
+}
+#else
 bool BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
     float tx1 = (bmin.x - ray.O.x) / ray.D.x, tx2 = (bmax.x - ray.O.x) / ray.D.x;
@@ -145,7 +157,7 @@ bool BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
     tmin = max(tmin, min(tz1, tz2)), tmax = min(tmax, max(tz1, tz2));
     return tmax >= tmin && tmin < ray.t && tmax > 0;
 }
-
+#endif
 void BVH::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
 {
     const float3 edge1 = tri.vertex1 - tri.vertex0;
@@ -169,6 +181,35 @@ void BVH::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
 
 void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
 {
+#ifdef FASTER_RAY
+    BVHNode* node = &bvhNodes[rootNodeIdx], * stack[64];
+    uint stackPtr = 0;
+    while (1)
+    {
+        if (node->isLeaf())
+        {
+            for (uint i = 0; i < node->triCount; i++)
+                IntersectTri(ray, triangles[triangleIndices[node->leftFirst + i]], i);
+            if (stackPtr == 0) break; else node = stack[--stackPtr];
+
+            continue;
+        }
+        BVHNode* child1 = &bvhNodes[node->leftFirst];
+        BVHNode* child2 = &bvhNodes[node->leftFirst + 1];
+        float dist1 = IntersectAABB(ray, child1->aabbMin, child1->aabbMax);
+        float dist2 = IntersectAABB(ray, child2->aabbMin, child2->aabbMax);
+        if (dist1 > dist2) { swap(dist1, dist2); swap(child1, child2); }
+        if (dist1 == 1e30f)
+        {
+            if (stackPtr == 0) break; else node = stack[--stackPtr];
+        }
+        else
+        {
+            node = child1;
+            if (dist2 != 1e30f) stack[stackPtr++] = child2;
+        }
+    }
+#else
     BVHNode& node = bvhNodes[nodeIdx];
     if (!IntersectAABB(ray, node.aabbMin, node.aabbMax)) return;
     if (node.isLeaf())
@@ -184,6 +225,7 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
         IntersectBVH(ray, node.leftFirst);
         IntersectBVH(ray, node.leftFirst + 1);
     }
+#endif
 }
 
 int BVH::GetTriangleCounts() const

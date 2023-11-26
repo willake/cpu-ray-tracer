@@ -1,6 +1,7 @@
 #pragma once
 
 #define SAH
+#define FASTER_RAY
 
 // reference: https://jacco.ompf2.com/2022/04/13/how-to-build-a-bvh-part-1-basics/
 
@@ -20,7 +21,11 @@ namespace Tmpl8
 	private:
 		void UpdateNodeBounds(uint nodeIdx);
 		void Subdivide(uint nodeIdx);
+#ifdef FASTER_RAY
+		float IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
+#else
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
+#endif
 		void IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
 		void IntersectBVH(Ray& ray, const uint nodeIdx);
 		float EvaluateSAH(BVHNode& node, int axis, float pos);
