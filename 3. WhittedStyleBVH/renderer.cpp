@@ -142,11 +142,15 @@ void Renderer::Tick(float deltaTime)
 		}
 	}
 	// performance report - running average - ms, MRays/s
-	static float avg = 10, alpha = 1;
+	/*static float avg = 10, alpha = 1;
 	avg = (1 - alpha) * avg + alpha * t.elapsed() * 1000;
 	if (alpha > 0.05f) alpha *= 0.5f;
 	float fps = 1000.0f / avg, rps = (SCRWIDTH * SCRHEIGHT) / avg;
-	printf("%5.2fms (%.1ffps) - %.1fMrays/s\n", avg, fps, rps / 1000);
+	printf("%5.2fms (%.1ffps) - %.1fMrays/s\n", avg, fps, rps / 1000);*/
+	m_avg = (1 - m_alpha) * m_avg + m_alpha * t.elapsed() * 1000;
+	if (m_alpha > 0.05f) m_alpha *= 0.5f;
+	m_fps = 1000.0f / m_avg, m_rps = (SCRWIDTH * SCRHEIGHT) / m_avg;
+	printf("%5.2fms (%.1ffps) - %.1fMrays/s\n", m_avg, m_fps, m_rps / 1000);
 	// handle user input
 	camera.HandleInput(deltaTime);
 }
@@ -159,6 +163,9 @@ void Renderer::UI()
 	// animation toggle
 	ImGui::Checkbox("Animate scene", &animating);
 	// ray query on mouse
+	ImGui::Text("Time per frame: %5.2fms", m_avg);
+	ImGui::Text("FPS: %.1ffps", m_fps);
+	ImGui::Text("RPS: %.1fMrays/s", m_rps);
 	Ray r = camera.GetPrimaryRay((float)mousePos.x, (float)mousePos.y);
 	scene.FindNearest(r);
 	ImGui::Text("Object id: %i", r.objIdx);
