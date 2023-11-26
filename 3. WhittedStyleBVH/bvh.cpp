@@ -138,22 +138,22 @@ float BVH::EvaluateSAH(BVHNode& node, int axis, float pos)
 #ifdef FASTER_RAY
 float BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
-    float tx1 = (bmin.x - ray.O.x) / ray.D.x, tx2 = (bmax.x - ray.O.x) / ray.D.x;
+    float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
     float tmin = min(tx1, tx2), tmax = max(tx1, tx2);
-    float ty1 = (bmin.y - ray.O.y) / ray.D.y, ty2 = (bmax.y - ray.O.y) / ray.D.y;
+    float ty1 = (bmin.y - ray.O.y) * ray.rD.y, ty2 = (bmax.y - ray.O.y) * ray.rD.y;
     tmin = max(tmin, min(ty1, ty2)), tmax = min(tmax, max(ty1, ty2));
-    float tz1 = (bmin.z - ray.O.z) / ray.D.z, tz2 = (bmax.z - ray.O.z) / ray.D.z;
+    float tz1 = (bmin.z - ray.O.z) * ray.rD.z, tz2 = (bmax.z - ray.O.z) * ray.rD.z;
     tmin = max(tmin, min(tz1, tz2)), tmax = min(tmax, max(tz1, tz2));
     if (tmax >= tmin && tmin < ray.t && tmax > 0) return tmin; else return 1e30f;
 }
 #else
 bool BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
-    float tx1 = (bmin.x - ray.O.x) / ray.D.x, tx2 = (bmax.x - ray.O.x) / ray.D.x;
+    float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
     float tmin = min(tx1, tx2), tmax = max(tx1, tx2);
-    float ty1 = (bmin.y - ray.O.y) / ray.D.y, ty2 = (bmax.y - ray.O.y) / ray.D.y;
+    float ty1 = (bmin.y - ray.O.y) * ray.rD.y, ty2 = (bmax.y - ray.O.y) * ray.rD.y;
     tmin = max(tmin, min(ty1, ty2)), tmax = min(tmax, max(ty1, ty2));
-    float tz1 = (bmin.z - ray.O.z) / ray.D.z, tz2 = (bmax.z - ray.O.z) / ray.D.z;
+    float tz1 = (bmin.z - ray.O.z) * ray.rD.z, tz2 = (bmax.z - ray.O.z) * ray.rD.z;
     tmin = max(tmin, min(tz1, tz2)), tmax = min(tmax, max(tz1, tz2));
     return tmax >= tmin && tmin < ray.t && tmax > 0;
 }
