@@ -39,6 +39,6 @@ namespace Tmpl8
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;
-		int depthLimit = 4;
+		int depthLimit = 7;
 	};
 } // namespace Tmpl8

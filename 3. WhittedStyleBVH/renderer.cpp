@@ -19,9 +19,8 @@ float3 Renderer::Trace(Ray& ray, int depth)
 {
 	scene.FindNearest(ray);
 	//if (ray.objIdx == -1) return float3(0);
-	//if (depth >= depthLimit) return float3(0);
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
-	if (depth >= depthLimit) return scene.GetSkyColor(ray);
+	if (depth >= depthLimit) return float3(0);
 	float3 I = ray.O + ray.t * ray.D;
 	float3 N = scene.GetNormal(I, ray.barycentric, ray.objIdx, ray.triIdx);
 	float2 uv = scene.GetUV(I, ray.barycentric, ray.objIdx, ray.triIdx);
@@ -95,7 +94,8 @@ float3 Renderer::Trace(Ray& ray, int depth)
 		}
 	}
 	float3 ambient = float3(0.1f);
-	/* visualize albedo */ return albedo * (DirectIllumination(I, N) + ambient);
+	float3 brdf = albedo * INVPI;
+	/* visualize albedo */ return brdf * (DirectIllumination(I, N) + ambient);
 }
 
 float3 Renderer::DirectIllumination(float3 I, float3 N)

@@ -1,7 +1,6 @@
 #pragma once
 
-#define SAH
-// reference: https://jacco.ompf2.com/2022/04/13/how-to-build-a-bvh-part-1-basics/
+// reference: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-acceleration-structure/grid.html
 
 namespace Tmpl8
 {

@@ -9,7 +9,7 @@ BVHScene::BVHScene()
 	floor = Plane(100, float3(0, 1, 0), 1);
 	sphere = Sphere(101, float3(0), 0.6f);
 	materials[0] = Material(MaterialType::Diffuse, float3(0), true);
-	materials[1] = Material(MaterialType::Mirror);
+	materials[1] = Material(MaterialType::Glass);
 	/*or (int i = 0; i < NUM_CUBE; i++)
 	{
 		float3 rpos(RandomFloat(), RandomFloat(), RandomFloat());
