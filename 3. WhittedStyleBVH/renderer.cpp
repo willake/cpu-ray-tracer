@@ -22,9 +22,10 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
 	if (depth >= depthLimit) return float3(0);
 	float3 I = ray.O + ray.t * ray.D;
-	float3 N = scene.GetNormal(I, ray.barycentric, ray.objIdx, ray.triIdx);
-	float2 uv = scene.GetUV(I, ray.barycentric, ray.objIdx, ray.triIdx);
-	Material* material = scene.GetMaterial(ray.objIdx);
+	HitInfo hitInfo = scene.GetHitInfo(I, ray.barycentric, ray.objIdx, ray.triIdx);
+	float3 N = hitInfo.normal;
+	float2 uv = hitInfo.uv;
+	Material* material = hitInfo.material;
 
 	if (material->type == MaterialType::Light) return scene.GetLightColor();
 
@@ -100,7 +101,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 
 float3 Renderer::DirectIllumination(float3 I, float3 N)
 {
-	float3 lightColor = scene.GetLightColor() / 24 * 5; // adjust intensity manually
+	float3 lightColor = scene.GetLightColor(); // adjust intensity manually
 	float3 lightPos = scene.GetLightPos();
 	float3 L = lightPos - I;
 	float distance = length(L);

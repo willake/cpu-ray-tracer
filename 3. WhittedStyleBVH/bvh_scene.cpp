@@ -9,7 +9,7 @@ BVHScene::BVHScene()
 	floor = Plane(100, float3(0, 1, 0), 1);
 	sphere = Sphere(101, float3(0), 0.6f);
 	materials[0] = Material(MaterialType::Diffuse, float3(0), true);
-	materials[1] = Material(MaterialType::Glass);
+	materials[1] = Material(MaterialType::Mirror);
 	/*or (int i = 0; i < NUM_CUBE; i++)
 	{
 		float3 rpos(RandomFloat(), RandomFloat(), RandomFloat());
@@ -121,6 +121,23 @@ bool BVHScene::IsOccluded(const Ray& ray)
 	if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
+}
+
+HitInfo BVHScene::GetHitInfo(const float3 I, const float2 barycentric, const int objIdx, const int triIdx)  
+{
+	if (objIdx == 100)
+	{
+		return HitInfo(floor.GetNormal(I), float2(0), &materials[objIdx - 100]);
+	}
+	if (objIdx == 101)
+	{
+		return HitInfo(sphere.GetNormal(I), float2(0), &materials[objIdx - 100]);
+	}
+	return HitInfo(
+		sceneBVH.GetNormal(triIdx, barycentric),
+		sceneBVH.GetUV(triIdx, barycentric),
+		objIdx == 1 ? spaceShip.GetMaterial() : &errorMaterial
+	);
 }
 
 float3 BVHScene::GetNormal(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const

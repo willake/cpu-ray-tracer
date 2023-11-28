@@ -179,6 +179,7 @@
     <ClInclude Include="grid.h" />
     <ClInclude Include="grid_scene.h" />
     <ClInclude Include="helper.h" />
+    <ClInclude Include="hit_info.h" />
     <ClInclude Include="renderer.h" />
   </ItemGroup>
   <ItemGroup>

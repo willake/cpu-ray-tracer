@@ -3,6 +3,7 @@
 #include "texture.h"
 #include "material.h"
 #include "model.h"
+#include "hit_info.h"
 #include "bvh.h"
 #include "bvh_scene.h"
 
