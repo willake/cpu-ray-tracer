@@ -135,6 +135,7 @@
     <ClInclude Include="grid_scene.h">
       <Filter>grid</Filter>
     </ClInclude>
+    <ClInclude Include="hit_info.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">
