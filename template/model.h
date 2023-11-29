@@ -16,6 +16,15 @@ struct Tri
     float2 uv0, uv1, uv2;
     float3 centroid;
     int objIdx;
+
+    aabb GetBounds()
+    {
+        aabb bounds;
+        bounds.Grow(vertex0);
+        bounds.Grow(vertex1);
+        bounds.Grow(vertex2);
+        return bounds;
+    }
 };
 
 struct Vertex

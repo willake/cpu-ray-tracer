@@ -12,8 +12,6 @@ namespace Tmpl8
 	class Grid
 	{
 	private:
-		aabb CalculateBounds(Tri& tri);
-		void UpdateGridBounds(Tri& tri);
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
 		bool IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
 		void GetRayCellIndicies(const Ray& ray, int& minX, int& minY, int& minZ, int& maxX, int& maxY, int& maxZ);

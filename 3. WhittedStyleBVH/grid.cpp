@@ -6,7 +6,7 @@ void Grid::BuildGrid()
     // Determine scene bound
     for (size_t i = 0; i < triangles.size(); i++)
     {
-        UpdateGridBounds(triangles[i]);
+        gridBounds.Grow(triangles[i].GetBounds());
     }
 
     float3 gridSize = gridBounds.bmax3 - gridBounds.bmin3;
@@ -26,7 +26,7 @@ void Grid::BuildGrid()
     // Put triangles into grids
     for (size_t triIdx = 0; triIdx < triangles.size(); triIdx++)
     {
-        aabb bounds = CalculateBounds(triangles[triIdx]);
+        aabb bounds = triangles[triIdx].GetBounds();
 
         // Determine grid cell range for the object
         int minX = clamp(static_cast<int>((bounds.bmin3.x - gridBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
@@ -46,22 +46,6 @@ void Grid::BuildGrid()
             }
         }
     }
-}
-
-void Grid::UpdateGridBounds(Tri& tri)
-{
-    gridBounds.Grow(tri.vertex0);
-    gridBounds.Grow(tri.vertex1);
-    gridBounds.Grow(tri.vertex2);
-}
-
-aabb Grid::CalculateBounds(Tri& tri)
-{
-    aabb bounds;
-    bounds.Grow(tri.vertex0);
-    bounds.Grow(tri.vertex1);
-    bounds.Grow(tri.vertex2);
-    return bounds;
 }
 
 bool Grid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
