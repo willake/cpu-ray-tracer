@@ -23,7 +23,7 @@ GridScene::GridScene()
 	spaceShip.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	spaceShip.AppendTriangles(sceneGrid.triangles);
 	printf("Triangle count: %d\n", sceneGrid.GetTriangleCounts());
-	sceneGrid.BuildGrid();
+	sceneGrid.BuildGrid(int3(20, 20, 27));
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	/*models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
 	models[1] = Model(1, "../assets/cube.obj", mat4::Translate(0.5f, 0, 2) * mat4::Scale(0.3f));*/
@@ -121,6 +121,23 @@ bool GridScene::IsOccluded(const Ray& ray)
 	if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
+}
+
+HitInfo GridScene::GetHitInfo(const float3 I, const float2 barycentric, const int objIdx, const int triIdx)
+{
+	if (objIdx == 100)
+	{
+		return HitInfo(floor.GetNormal(I), float2(0), &materials[objIdx - 100]);
+	}
+	if (objIdx == 101)
+	{
+		return HitInfo(sphere.GetNormal(I), float2(0), &materials[objIdx - 100]);
+	}
+	return HitInfo(
+		sceneGrid.GetNormal(triIdx, barycentric),
+		sceneGrid.GetUV(triIdx, barycentric),
+		objIdx == 1 ? spaceShip.GetMaterial() : &errorMaterial
+	);
 }
 
 float3 GridScene::GetNormal(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const

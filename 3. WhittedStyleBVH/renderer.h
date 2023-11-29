@@ -6,6 +6,7 @@
 #include "hit_info.h"
 #include "bvh.h"
 #include "bvh_scene.h"
+#include "grid_scene.h"
 
 #define EPSILON	0.0001f
 
@@ -36,7 +37,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		BVHScene scene;
+		GridScene scene;
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;
