@@ -12,7 +12,7 @@ void Grid::BuildGrid()
     float3 gridSize = gridBounds.bmax3 - gridBounds.bmin3;
 
     // dynamically calculate resolution
-    float cubeRoot = powf(5 * GetTriangleCounts() / (gridSize.x * gridSize.y * gridSize.z), 1 / 3.f);
+    float cubeRoot = powf(5 * GetTriangleCount() / (gridSize.x * gridSize.y * gridSize.z), 1 / 3.f);
     for (int i = 0; i < 3; i++)
     {
         resolution[i] = static_cast<int>(floor(gridSize[i] * cubeRoot));
@@ -82,7 +82,7 @@ bool Grid::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
     return false;
 }
 
-int Grid::GetTriangleCounts() const
+int Grid::GetTriangleCount() const
 {
     return triangles.size();
 }
@@ -134,7 +134,7 @@ void Grid::Intersect(Ray& ray)
     // Determine the cell indices that the ray traverses
     int3 exit, step, cell;
     float3 deltaT, nextCrossingT;
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; ++i)
     {
         float rayOrigCell = (ray.O[i] + ray.D[i] * tmin) - gridBounds.bmin3[i];
         cell[i] = clamp(static_cast<int>(std::floor(rayOrigCell / cellSize[i])), 0, resolution[i] - 1);

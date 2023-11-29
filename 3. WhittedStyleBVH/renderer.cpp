@@ -167,7 +167,7 @@ void Renderer::UI()
 	Ray r = camera.GetPrimaryRay((float)mousePos.x, (float)mousePos.y);
 	scene.FindNearest(r);
 	ImGui::Text("Object id: %i", r.objIdx);
-	ImGui::Text("Triangle count: %i", scene.sceneGrid.GetTriangleCounts());
+	ImGui::Text("Triangle count: %i", scene.GetTriangleCount());
 	ImGui::Text("Frame: %5.2f ms (%.1ffps)", m_avg, m_fps);
 	//ImGui::Text("FPS: %.1ffps", m_fps);
 	ImGui::Text("RPS: %.1f Mrays/s", m_rps);

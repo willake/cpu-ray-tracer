@@ -19,10 +19,10 @@ GridScene::GridScene()
 		models[i].AppendTriangles(sceneBVH.triangles);
 	}*/
 	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.3f);
-	spaceShip = Model(1, "../assets/wok.obj", t);
-	spaceShip.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	spaceShip = Model(1, "../assets/cube.obj", t);
+	//spaceShip.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	spaceShip.AppendTriangles(sceneGrid.triangles);
-	printf("Triangle count: %d\n", sceneGrid.GetTriangleCounts());
+	printf("Triangle count: %d\n", sceneGrid.GetTriangleCount());
 	sceneGrid.BuildGrid();
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	/*models[0] = Model(0, "../assets/cube.obj", mat4::Scale(0.3f));
@@ -169,4 +169,9 @@ Material* GridScene::GetMaterial(int objIdx)
 	if (objIdx == 1) return spaceShip.GetMaterial();
 	if (objIdx > 99) return &materials[objIdx - 100];
 	return &errorMaterial;
+}
+
+int GridScene::GetTriangleCount() const
+{
+	return sceneGrid.GetTriangleCount();
 }

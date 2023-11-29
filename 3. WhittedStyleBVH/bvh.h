@@ -34,7 +34,7 @@ namespace Tmpl8
 		void Intersect(Ray& ray);
 		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
-		int GetTriangleCounts() const;
+		int GetTriangleCount() const;
 		std::vector<Tri> triangles;
 		std::vector<float3> normals;
 		std::vector<uint> triangleIndices;
