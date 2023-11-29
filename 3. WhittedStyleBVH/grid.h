@@ -18,7 +18,7 @@ namespace Tmpl8
 		bool IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
 		void GetRayCellIndicies(const Ray& ray, int& minX, int& minY, int& minZ, int& maxX, int& maxY, int& maxZ);
 	public:
-		void BuildGrid(int3 resolution);
+		void BuildGrid();
 		void Intersect(Ray& ray);
 		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;

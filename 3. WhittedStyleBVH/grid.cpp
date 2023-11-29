@@ -1,19 +1,27 @@
 #include "precomp.h"
 #include "grid.h"
 
-void Grid::BuildGrid(int3 res)
+void Grid::BuildGrid()
 {
-    resolution = res;
-    gridCells.resize(resolution.x * resolution.y * resolution.z);
-
     // Determine scene bound
     for (size_t i = 0; i < triangles.size(); i++)
     {
         UpdateGridBounds(triangles[i]);
     }
 
-    float3 gridArea = gridBounds.bmax3 - gridBounds.bmin3;
-    cellSize = float3(gridArea.x / resolution.x, gridArea.y / resolution.y, gridArea.z / resolution.z);
+    float3 gridSize = gridBounds.bmax3 - gridBounds.bmin3;
+
+    // dynamically calculate resolution
+    float cubeRoot = powf(5 * GetTriangleCounts() / (gridSize.x * gridSize.y * gridSize.z), 1 / 3.f);
+    for (int i = 0; i < 3; i++)
+    {
+        resolution[i] = static_cast<int>(floor(gridSize[i] * cubeRoot));
+        resolution[i] = max(1, min(resolution[i], 128));
+    }
+
+    gridCells.resize(resolution.x * resolution.y * resolution.z);
+
+    cellSize = float3(gridSize.x / resolution.x, gridSize.y / resolution.y, gridSize.z / resolution.z);
 
     // Put triangles into grids
     for (size_t triIdx = 0; triIdx < triangles.size(); triIdx++)
@@ -21,12 +29,12 @@ void Grid::BuildGrid(int3 res)
         aabb bounds = CalculateBounds(triangles[triIdx]);
 
         // Determine grid cell range for the object
-        int minX = clamp(static_cast<int>((bounds.bmin3.x - gridBounds.bmin3.x) / gridArea.x * resolution.x), 0, resolution.x - 1);
-        int minY = clamp(static_cast<int>((bounds.bmin3.y - gridBounds.bmin3.y) / gridArea.y * resolution.y), 0, resolution.y - 1);
-        int minZ = clamp(static_cast<int>((bounds.bmin3.z - gridBounds.bmin3.z) / gridArea.z * resolution.z), 0, resolution.z - 1);
-        int maxX = clamp(static_cast<int>((bounds.bmax3.x - gridBounds.bmin3.x) / gridArea.x * resolution.x), 0, resolution.x - 1);
-        int maxY = clamp(static_cast<int>((bounds.bmax3.y - gridBounds.bmin3.y) / gridArea.y * resolution.y), 0, resolution.y - 1);
-        int maxZ = clamp(static_cast<int>((bounds.bmax3.z - gridBounds.bmin3.z) / gridArea.z * resolution.z), 0, resolution.z - 1);
+        int minX = clamp(static_cast<int>((bounds.bmin3.x - gridBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
+        int minY = clamp(static_cast<int>((bounds.bmin3.y - gridBounds.bmin3.y) / cellSize.y), 0, resolution.y - 1);
+        int minZ = clamp(static_cast<int>((bounds.bmin3.z - gridBounds.bmin3.z) / cellSize.z), 0, resolution.z - 1);
+        int maxX = clamp(static_cast<int>((bounds.bmax3.x - gridBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
+        int maxY = clamp(static_cast<int>((bounds.bmax3.y - gridBounds.bmin3.y) / cellSize.y), 0, resolution.y - 1);
+        int maxZ = clamp(static_cast<int>((bounds.bmax3.z - gridBounds.bmin3.z) / cellSize.z), 0, resolution.z - 1);
 
         // Assign the object to the corresponding grid cells
         for (int iz = minZ; iz <= maxZ; ++iz) {
