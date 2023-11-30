@@ -50,14 +50,19 @@ void BVHScene::SetTime(float t)
 float3 BVHScene::GetSkyColor(const Ray& ray) const
 {
 	// Convert ray direction to texture coordinates
-	float theta = acos(ray.D.y);  // Assuming a spherical skydome
-	float phi = atan2(ray.D.z, ray.D.x);
+	//float theta = acos(ray.D.y);  // Assuming a spherical skydome
+	//float phi = atan2(ray.D.z, ray.D.x);
 
-	// Normalize to[0, 1]
-	float u = phi / (2 * PI);
-	float v = 1.0f - (theta / PI);
+	//// Normalize to[0, 1]
+	//float u = phi / (2 * PI);
+	//float v = 1.0f - (theta / PI);
 
-	// Sample the HDR skydome texture
+	float phi = atan2(-ray.D.z, ray.D.x) + PI;
+	float theta = acos(-ray.D.y);
+	float u = phi * INV2PI;
+	float v = theta * INVPI;
+
+	//// Sample the HDR skydome texture
 	float3 color = skydome.Sample(u, v);
 
 	return color;
