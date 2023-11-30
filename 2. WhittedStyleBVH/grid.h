@@ -1,6 +1,7 @@
 #pragma once
 
 // reference: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-acceleration-structure/grid.html
+// reference: https://cs184.eecs.berkeley.edu/sp19/lecture/9-44/raytracing
 
 namespace Tmpl8
 {

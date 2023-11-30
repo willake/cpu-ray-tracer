@@ -159,7 +159,6 @@ float3 Model::GetNormal(const uint idx, const float2 barycentric) const
     float3 n1 = vertices[indices[idx + 1]].normal;
     float3 n2 = vertices[indices[idx + 2]].normal;
     return (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
-    //return normals[triIdx];
 }
 
 float2 Model::GetUV(const uint idx, const float2 barycentric) const
