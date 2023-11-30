@@ -94,7 +94,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 			return Fr * reflection + Ft * refraction;
 		}
 	}
-	float3 ambient = float3(0.1f);
+	float3 ambient = float3(0.2f);
 	float3 brdf = albedo * INVPI;
 	/* visualize albedo */ return brdf * (DirectIllumination(I, N) + ambient);
 }

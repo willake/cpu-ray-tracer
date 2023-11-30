@@ -31,21 +31,19 @@ namespace Tmpl8
 		constexpr float GetLightCount() const;
 		void FindNearest(Ray& ray);
 		bool IsOccluded(const Ray& ray);
-		float3 GetNormal(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const;
-		float2 GetUV(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const;
 		float3 GetAlbedo(int objIdx, float3 I) const;
 		HitInfo GetHitInfo(const float3 I, const float2 barycentric, const int objIdx, const int triIdx);
-		Material* GetMaterial(int objIdx);
 		int GetTriangleCount() const;
 	public:
 		float animTime = 0;
-		Model spaceShip;
+		Model wok;
 		//Model models[NUM_CUBE];
 		Texture skydome;
 		Grid sceneGrid;
+		Quad light;
 		Plane floor;
 		Sphere sphere;
 		Material errorMaterial = Material(MaterialType::Diffuse, float3(255, 192, 203) / 255.f);
-		Material materials[2];
+		Material materials[3];
 	};
 }
