@@ -24,7 +24,7 @@ BasicScene::BasicScene()
 	materials[1] = Material(MaterialType::Mirror); // 1: bouncing ball
 	materials[2] = Material(MaterialType::Diffuse); // 2: rounded corners
 	materials[3] = Material(MaterialType::Glass); // 3: cube
-	materials[3].absortion = float3(0.5f, 0, 0.5f);
+	materials[3].absorption = float3(0.5f, 0, 0.5f);
 	materials[4] = Material(MaterialType::Diffuse, float3(0), true); // 4: left wall
 	materials[5] = Material(MaterialType::Diffuse, float3(0), true); // 5: right wall
 	materials[6] = Material(MaterialType::Mirror, float3(0), true); // 6: floor

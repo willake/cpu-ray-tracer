@@ -1,6 +1,7 @@
 #pragma once
 
 // reference: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-acceleration-structure/grid.html
+// reference: https://cs184.eecs.berkeley.edu/sp19/lecture/9-44/raytracing
 
 namespace Tmpl8
 {
@@ -14,7 +15,6 @@ namespace Tmpl8
 	private:
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
 		bool IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
-		void GetRayCellIndicies(const Ray& ray, int& minX, int& minY, int& minZ, int& maxX, int& maxY, int& maxZ);
 	public:
 		void BuildGrid();
 		void Intersect(Ray& ray);

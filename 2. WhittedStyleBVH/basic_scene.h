@@ -1,6 +1,6 @@
 #pragma once
 
-#define SPEEDTRIX
+//#define SPEEDTRIX
 
 namespace Tmpl8
 {
