@@ -37,6 +37,7 @@ namespace Tmpl8
 	public:
 		float animTime = 0;
 		Model wok;
+		Model wok2;
 		//Model models[NUM_CUBE];
 		Texture skydome;
 		BVH sceneBVH;

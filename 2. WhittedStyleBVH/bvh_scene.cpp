@@ -11,11 +11,15 @@ BVHScene::BVHScene()
 	sphere = Sphere(2, float3(0), 0.6f);
 	materials[0] = Material(MaterialType::Light);
 	materials[1] = Material(MaterialType::Diffuse, float3(0), true);
-	materials[2] = Material(MaterialType::Glass);
+	materials[2] = Material(MaterialType::Mirror);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.5);
 	wok = Model(3, "../assets/wok.obj", t);
 	wok.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	wok.AppendTriangles(sceneBVH.triangles);
+	mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);
+	wok2 = Model(4, "../assets/wok.obj", t2);
+	wok2.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	wok2.AppendTriangles(sceneBVH.triangles);
 	/*or (int i = 0; i < NUM_CUBE; i++)
 	{
 		float3 rpos(RandomFloat(), RandomFloat(), RandomFloat());
@@ -153,6 +157,11 @@ HitInfo BVHScene::GetHitInfo(const Ray& ray, const float3 I)
 			hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
 			hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
 			hitInfo.material = &wok.material;
+			break;
+		case 4:
+			hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
+			hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
+			hitInfo.material = &wok2.material;
 			break;
 		default:
 			break;
