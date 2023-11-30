@@ -4,7 +4,7 @@
 #include "model.h"
 #include "texture.h"
 #include "material.h"
-#include "grid.h"
+#include "bvh.h"
 
 namespace Tmpl8
 {
@@ -15,10 +15,10 @@ namespace Tmpl8
 	// For this hit (distance, obj id), we can query the normal and
 	// albedo.
 	// -----------------------------------------------------------
-	class GridScene
+	class BVHScene
 	{
 	public:
-		GridScene();
+		BVHScene();
 		void SetTime(float t);
 		float3 GetSkyColor(const Ray& ray) const;
 		float3 GetLightPos() const;
@@ -31,19 +31,19 @@ namespace Tmpl8
 		constexpr float GetLightCount() const;
 		void FindNearest(Ray& ray);
 		bool IsOccluded(const Ray& ray);
-		float3 GetNormal(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const;
-		float2 GetUV(const float3 I, const float2 barycentric, const int objIdx, const int triIdx) const;
 		float3 GetAlbedo(int objIdx, float3 I) const;
-		Material* GetMaterial(int objIdx);
+		HitInfo GetHitInfo(const Ray& ray, const float3 I);
+		int GetTriangleCount() const;
 	public:
 		float animTime = 0;
-		Model spaceShip;
+		Model wok;
 		//Model models[NUM_CUBE];
 		Texture skydome;
-		Grid sceneGrid;
+		BVH sceneBVH;
 		Plane floor;
 		Sphere sphere;
+		Quad light;
 		Material errorMaterial = Material(MaterialType::Diffuse, float3(255, 192, 203) / 255.f);
-		Material materials[2];
+		Material materials[3];
 	};
 }

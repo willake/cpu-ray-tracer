@@ -9,6 +9,7 @@ namespace Tmpl8
 	public:
 		BasicScene();
 		void SetTime(float t);
+		float3 GetSkyColor(const Ray& ray) const;
 		float3 GetLightPos() const;
 		float3 RandomPointOnLight(const float r0, const float r1) const;
 		float3 RandomPointOnLight(uint& seed) const;
@@ -24,20 +25,19 @@ namespace Tmpl8
 		Material* GetMaterial(int objIdx);
 		float GetReflectivity(int objIdx, float3 I) const;
 		float GetRefractivity(int objIdx, float3 I) const;
+		HitInfo GetHitInfo(const Ray& ray, const float3 I);
 		float3 GetAbsorption(int objIdx);
+		int GetTriangleCount() const;
 	public:
 		__declspec(align(64)) // start a new cacheline here
 			float animTime = 0;
-#ifdef FOURLIGHTS
-		Quad quad[4];
-#else
 		Quad quad, dummyQuad1, dummyQuad2, dummyQuad3;
-#endif
 		Sphere sphere;
 		Sphere sphere2;
 		Cube cube;
 		Plane plane[6];
 		Torus torus;
 		Material materials[11];
+		Material errorMaterial = Material(MaterialType::Diffuse, float3(255, 192, 203) / 255.f);
 	};
 }

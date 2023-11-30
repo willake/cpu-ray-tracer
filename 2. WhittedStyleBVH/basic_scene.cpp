@@ -123,6 +123,11 @@ void BasicScene::GetLightQuad(float3& v0, float3& v1, float3& v2, float3& v3, co
 	v3 = TransformPosition(float3(-size, 0, -size), q.T);
 }
 
+float3 BasicScene::GetSkyColor(const Ray& ray) const
+{
+	return float3(0);
+}
+
 float3 BasicScene::GetLightColor() const
 {
 	return float3(24, 24, 22);
@@ -265,6 +270,41 @@ bool BasicScene::IsOccluded(const Ray& ray) const
 	return false; // skip planes and rounded corners
 }
 
+HitInfo BasicScene::GetHitInfo(const Ray& ray, const float3 I)
+{
+	HitInfo hitInfo = HitInfo(float3(0), float2(0), &errorMaterial);
+	switch (ray.objIdx)
+	{
+	case 0:
+		hitInfo.normal = quad.GetNormal(I);
+		hitInfo.uv = float2(0);
+		break;
+	case 1:
+		hitInfo.normal = sphere.GetNormal(I);
+		hitInfo.uv = float2(0);
+		break;
+	case 2:
+		hitInfo.normal = sphere2.GetNormal(I);
+		hitInfo.uv = float2(0);
+		break;
+	case 3:
+		hitInfo.normal = cube.GetNormal(I);
+		hitInfo.uv = float2(0);
+		break;
+	case 10:
+		hitInfo.normal = torus.GetNormal(I);
+		hitInfo.uv = float2(0);
+		break;
+	default:
+		hitInfo.normal = float3(0);
+		hitInfo.normal[(ray.objIdx - 4) / 2] = 1 - 2 * (float)(ray.objIdx & 1);
+		break;
+	}
+	if (dot(hitInfo.normal, ray.D) > 0) hitInfo.normal = -hitInfo.normal;
+	hitInfo.material = &materials[ray.objIdx];
+	return hitInfo;
+}
+
 float3 BasicScene::GetNormal(const int objIdx, const float3 I, const float3 wo) const
 {
 	// we get the normal after finding the nearest intersection:
@@ -312,19 +352,7 @@ Material* BasicScene::GetMaterial(int objIdx)
 	return &materials[objIdx];
 }
 
-float BasicScene::GetReflectivity(int objIdx, float3 I) const
+int BasicScene::GetTriangleCount() const
 {
-	if (objIdx == 1 /* ball */) return 1;
-	if (objIdx == 6 /* floor */) return 0.3f;
 	return 0;
-}
-
-float BasicScene::GetRefractivity(int objIdx, float3 I) const
-{
-	return (objIdx == 3 || objIdx == 10) ? 1.0f : 0.0f;
-}
-
-float3 BasicScene::GetAbsorption(int objIdx)
-{
-	return objIdx == 3 ? float3(0.5f, 0, 0.5f) : float3(0);
 }

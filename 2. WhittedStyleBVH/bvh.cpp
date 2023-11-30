@@ -231,7 +231,7 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
 #endif
 }
 
-int BVH::GetTriangleCounts() const
+int BVH::GetTriangleCount() const
 {
     return triangles.size();
 }

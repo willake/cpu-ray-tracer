@@ -5,7 +5,9 @@
 #include "model.h"
 #include "hit_info.h"
 #include "bvh.h"
+#include "basic_scene.h"
 #include "bvh_scene.h"
+#include "grid_scene.h"
 
 #define EPSILON	0.0001f
 

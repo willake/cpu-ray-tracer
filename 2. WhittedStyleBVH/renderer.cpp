@@ -22,7 +22,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
 	if (depth >= depthLimit) return float3(0);
 	float3 I = ray.O + ray.t * ray.D;
-	HitInfo hitInfo = scene.GetHitInfo(I, ray.barycentric, ray.objIdx, ray.triIdx);
+	HitInfo hitInfo = scene.GetHitInfo(ray, I);
 	float3 N = hitInfo.normal;
 	float2 uv = hitInfo.uv;
 	Material* material = hitInfo.material;
@@ -58,8 +58,8 @@ float3 Renderer::Trace(Ray& ray, int depth)
 		float n1 = ray.inside ? 1.2f : 1;
 		float n2 = ray.inside ? 1 : 1.2f;
 		float n = n1 / n2;
-		float cos1 = dot(N, -ray.D);
-		float k = 1 - (n * n) * (1 - cos1 * cos1);
+		float cosi = dot(N, -ray.D);
+		float k = 1 - (n * n) * (1 - cosi * cosi);
 
 		if (k < 0) // k < 0 is total internal reflection while k >= 0 have refraction
 		{
@@ -71,12 +71,12 @@ float3 Renderer::Trace(Ray& ray, int depth)
 		}
 		else
 		{
-			float sin1 = sqrt(1 - cos1 * cos1);
-			float cos2 = sqrt(1 - (n * sin1) * (n * sin1));
+			float sini = sqrt(1 - cosi * cosi);
+			float coso = sqrt(1 - (n * sini) * (n * sini));
 			// un-squared reflectance for s-polarized light
-			float uRs = (n1 * cos1 - n2 * cos2) / (n1 * cos1 + n2 * cos2);
+			float uRs = (n1 * cosi - n2 * coso) / (n1 * cosi + n2 * coso);
 			// un-squared reflectance for p-polarized light
-			float uRp = (n1 * cos2 - n2 * cos1) / (n1 * cos2 + n2 * cos1);
+			float uRp = (n1 * coso - n2 * cosi) / (n1 * coso + n2 * cosi);
 			float Fr = ((uRs * uRs) + (uRp * uRp)) * 0.5f;
 			float Ft = 1 - Fr;
 
@@ -86,7 +86,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 				((material->reflectivity * Trace(reflectRay, depth + 1)) +
 					(1 - material->reflectivity) * DirectIllumination(I, N));
 
-			float3 RfrD = normalize((n * ray.D) + N * (n * cos1 - sqrt(k))); // refract direction 
+			float3 RfrD = normalize((n * ray.D) + N * (n * cosi - sqrt(k))); // refract direction 
 			auto refractRay = Ray(I + (RfrD * EPSILON), RfrD);
 			refractRay.inside = !refractRay.inside;
 			float3 refraction = albedo * Trace(refractRay, depth + 1);
@@ -94,7 +94,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 			return Fr * reflection + Ft * refraction;
 		}
 	}
-	float3 ambient = float3(0.1f);
+	float3 ambient = float3(0.2f);
 	float3 brdf = albedo * INVPI;
 	/* visualize albedo */ return brdf * (DirectIllumination(I, N) + ambient);
 }
@@ -167,7 +167,7 @@ void Renderer::UI()
 	Ray r = camera.GetPrimaryRay((float)mousePos.x, (float)mousePos.y);
 	scene.FindNearest(r);
 	ImGui::Text("Object id: %i", r.objIdx);
-	ImGui::Text("Triangle count: %i", scene.sceneBVH.GetTriangleCounts());
+	ImGui::Text("Triangle count: %i", scene.GetTriangleCount());
 	ImGui::Text("Frame: %5.2f ms (%.1ffps)", m_avg, m_fps);
 	//ImGui::Text("FPS: %.1ffps", m_fps);
 	ImGui::Text("RPS: %.1f Mrays/s", m_rps);
