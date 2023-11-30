@@ -52,7 +52,6 @@ Model::Model(const int idx, const std::string& modelPath, mat4 transform)
             indices.push_back(uniqueVertices[vertex]);
         }
     }
-
     //if (materials.size() > 0)
     //{
     //    /*if (materials[0].diffuse_texname.length() > 0)
@@ -75,35 +74,35 @@ Model::Model(const int idx, const std::string& modelPath, mat4 transform)
     objIdx = idx;
 }
 
-void Model::IntersectTri(Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2, const int& idx) const
+void Model::IntersectTri(Ray& ray, const float3 o, const float3 d, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2, const int& idx) const
 {
-    const float3 v0 = TransformPosition(vertex0.position, T);
-    const float3 v1 = TransformPosition(vertex1.position, T);
-    const float3 v2 = TransformPosition(vertex2.position, T);
+    const float3 v0 = vertex0.position;
+    const float3 v1 = vertex1.position;
+    const float3 v2 = vertex2.position;
     const float3 edge1 = v1 - v0;
     const float3 edge2 = v2 - v0;
-    const float3 h = cross(ray.D, edge2);
+    const float3 h = cross(d, edge2);
     const float a = dot(edge1, h);
     if (a > -0.0001f && a < 0.0001f) return; // ray parallel to triangle
     const float f = 1 / a;
-    const float3 s = ray.O - v0;
+    const float3 s = o - v0;
     const float u = f * dot(s, h);
     if (u < 0 || u > 1) return;
     const float3 q = cross(s, edge1);
-    const float v = f * dot(ray.D, q);
+    const float v = f * dot(d, q);
     if (v < 0 || u + v > 1) return;
     const float t = f * dot(edge2, q);
     if (t > 0.0001f)
     {
-        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = objIdx, ray.triIdx = idx;
+        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = objIdx, ray.triIdx = idx, ray.barycentric = float2(u, v);
     }
 }
 
-bool Model::IsOccludedTri(const Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const
+bool Model::IsOccludedTri(const Ray& ray, const float3 o, const float3 d, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const
 {
-    const float3 v0 = TransformPosition(vertex0.position, T);
-    const float3 v1 = TransformPosition(vertex1.position, T);
-    const float3 v2 = TransformPosition(vertex2.position, T);
+    const float3 v0 = vertex0.position;
+    const float3 v1 = vertex1.position;
+    const float3 v2 = vertex2.position;
     const float3 edge1 = v1 - v0;
     const float3 edge2 = v2 - v0;
     const float3 h = cross(ray.D, edge2);
@@ -126,19 +125,27 @@ bool Model::IsOccludedTri(const Ray& ray, const Vertex& vertex0, const Vertex& v
 
 void Model::Intersect(Ray& ray) const
 {
+    float3 o = TransformPosition_SSE(ray.O4, invT);
+    float3 d = TransformVector_SSE(ray.D4, invT);
+
     for (int i = 0; i < indices.size(); i += 3)
     {
         IntersectTri(
-            ray,
+            ray, o, d,
             vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]], i);
     }
 }
 
 bool Model::IsOccluded(const Ray& ray) const
 {
+    float3 o = TransformPosition_SSE(ray.O4, invT);
+    float3 d = TransformVector_SSE(ray.D4, invT);
+
     for (int i = 0; i < indices.size(); i += 3)
     {
-        if (IsOccludedTri(ray, vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]))
+        if (IsOccludedTri(
+            ray, o, d, 
+            vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]))
         {
             return true;
         }
@@ -146,18 +153,21 @@ bool Model::IsOccluded(const Ray& ray) const
     return false;
 }
 
-float3 Model::GetNormal(const int triIdx) const
+float3 Model::GetNormal(const uint idx, const float2 barycentric) const
 {
-    const float3 v0 = TransformPosition(vertices[indices[triIdx]].position, T);
-    const float3 v1 = TransformPosition(vertices[indices[triIdx + 1]].position, T);
-    const float3 v2 = TransformPosition(vertices[indices[triIdx + 2]].position, T);
-    const float3 u = v1 - v0;
-    const float3 v = v2 - v0;
-    return float3(
-        u.y * v.z - u.z * v.y,
-        u.z * v.x - u.x * v.z,
-        u.x * v.y - u.y * v.x
-    );
+    float3 n0 = vertices[indices[idx]].normal;
+    float3 n1 = vertices[indices[idx + 1]].normal;
+    float3 n2 = vertices[indices[idx + 2]].normal;
+    return (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
+    //return normals[triIdx];
+}
+
+float2 Model::GetUV(const uint idx, const float2 barycentric) const
+{
+    float2 uv0 = vertices[indices[idx]].uv;
+    float2 uv1 = vertices[indices[idx + 1]].uv;
+    float2 uv2 = vertices[indices[idx + 2]].uv;
+    return (1 - barycentric.x - barycentric.y) * uv0 + barycentric.x * uv1 + barycentric.y * uv2;
 }
 
 Material* Model::GetMaterial()

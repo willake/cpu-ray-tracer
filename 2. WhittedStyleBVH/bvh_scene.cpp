@@ -14,11 +14,11 @@ BVHScene::BVHScene()
 	materials[1].reflectivity = 0.3f;
 	materials[2] = Material(MaterialType::Glass);
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
-	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.5);
+	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.1);
 	wok = Model(3, "../assets/wok.obj", t);
 	wok.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	wok.AppendTriangles(sceneBVH.triangles);
-	mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);
+	mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.1);
 	wok2 = Model(4, "../assets/wok.obj", t2);
 	wok2.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	wok2.AppendTriangles(sceneBVH.triangles);
@@ -100,7 +100,8 @@ void BVHScene::FindNearest(Ray& ray)
 	light.Intersect(ray);
 	floor.Intersect(ray);
 	sphere.Intersect(ray);
-	//sceneBVH.Intersect(ray);
+	//wok.Intersect(ray);
+	sceneBVH.Intersect(ray);
 }
 
 bool BVHScene::IsOccluded(const Ray& ray)
@@ -110,8 +111,9 @@ bool BVHScene::IsOccluded(const Ray& ray)
 	if (light.IsOccluded(ray)) return true;
 	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
-	//sceneBVH.Intersect(shadow);
+	sceneBVH.Intersect(shadow);
 	if (shadow.objIdx > -1) return true;
+	//if (wok.IsOccluded(ray)) return true;
 	// skip planes
 	return false;
 }

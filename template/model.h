@@ -90,8 +90,8 @@ namespace Tmpl8
 	class Model
 	{
     private:
-        void IntersectTri(Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2, const int& idx) const;
-        bool IsOccludedTri(const Ray& ray, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const;
+        void IntersectTri(Ray& ray, const float3 o, const float3 d, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2, const int& idx) const;
+        bool IsOccludedTri(const Ray& ray, const float3 o, const float3 d, const Vertex& vertex0, const Vertex& vertex1, const Vertex& vertex2) const;
 	public: 
         Model() {}
         //Model(const int idx, const std::string& path, mat4 transform);
@@ -99,7 +99,8 @@ namespace Tmpl8
         void Intersect(Ray& ray) const;
         bool IsOccluded(const Ray& ray) const;
         // https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
-        float3 GetNormal(const int triIdx) const;
+        float3 GetNormal(const uint idx, const float2 barycentric) const;
+        float2 GetUV(const uint idx, const float2 barycentric) const;
         Material* GetMaterial();
         void AppendTriangles(std::vector<Tri>& triangles);
     public:
