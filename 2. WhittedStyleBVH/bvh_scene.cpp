@@ -10,8 +10,10 @@ BVHScene::BVHScene()
 	floor = Plane(1, float3(0, 1, 0), 1);
 	sphere = Sphere(2, float3(0), 0.6f);
 	materials[0] = Material(MaterialType::Light);
-	materials[1] = Material(MaterialType::Diffuse, float3(0), true);
+	materials[1] = Material(MaterialType::Mirror, float3(0), true);
+	materials[1].reflectivity = 0.3f;
 	materials[2] = Material(MaterialType::Glass);
+	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.5);
 	wok = Model(3, "../assets/wok.obj", t);
 	wok.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
@@ -20,14 +22,7 @@ BVHScene::BVHScene()
 	wok2 = Model(4, "../assets/wok.obj", t2);
 	wok2.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	wok2.AppendTriangles(sceneBVH.triangles);
-	/*or (int i = 0; i < NUM_CUBE; i++)
-	{
-		float3 rpos(RandomFloat(), RandomFloat(), RandomFloat());
-		float3 rscale(RandomFloat() * 0.3f);
-		mat4 t = mat4::Translate(rpos * 3 - float3(1.5f)) * mat4::Scale(rscale);
-		models[i] = Model(i, "../assets/cube.obj", t);
-		models[i].AppendTriangles(sceneBVH.triangles);
-	}*/
+
 	printf("Triangle count: %d\n", sceneBVH.GetTriangleCount());
 	sceneBVH.BuildBVH();
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
@@ -49,14 +44,7 @@ void BVHScene::SetTime(float t)
 
 float3 BVHScene::GetSkyColor(const Ray& ray) const
 {
-	// Convert ray direction to texture coordinates
-	//float theta = acos(ray.D.y);  // Assuming a spherical skydome
-	//float phi = atan2(ray.D.z, ray.D.x);
-
-	//// Normalize to[0, 1]
-	//float u = phi / (2 * PI);
-	//float v = 1.0f - (theta / PI);
-
+	// Convert ray direction to texture coordinates, assuming a spherical skydome
 	float phi = atan2(-ray.D.z, ray.D.x) + PI;
 	float theta = acos(-ray.D.y);
 	float u = phi * INV2PI;
@@ -109,30 +97,20 @@ constexpr float BVHScene::GetLightCount() const
 
 void BVHScene::FindNearest(Ray& ray)
 {
-	/*for (int i = 0; i < NUM_CUBE; i++)
-	{
-		models[i].Intersect(ray);
-	}*/
 	light.Intersect(ray);
 	floor.Intersect(ray);
 	sphere.Intersect(ray);
-	sceneBVH.Intersect(ray);
+	//sceneBVH.Intersect(ray);
 }
 
 bool BVHScene::IsOccluded(const Ray& ray)
 {
-	/*for (int i = 0; i < NUM_CUBE; i++)
-	{
-		if (models[i].IsOccluded(ray))
-		{
-			return true;
-		}
-	}*/
 	// from tmpl8rt_IGAD
 	if (sphere.IsOccluded(ray)) return true;
-	Ray shadow = ray;
+	if (light.IsOccluded(ray)) return true;
+	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
-	sceneBVH.Intersect(shadow);
+	//sceneBVH.Intersect(shadow);
 	if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;

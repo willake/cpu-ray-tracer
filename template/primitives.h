@@ -18,7 +18,7 @@
 // if you plan to alter the scene in any way.
 // -----------------------------------------------------------
 
-#define SPEEDTRIX
+//#define SPEEDTRIX
 //#define FOURLIGHTS
 
 namespace Tmpl8 {

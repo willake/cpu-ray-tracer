@@ -37,15 +37,13 @@ void GridScene::SetTime(float t)
 
 float3 GridScene::GetSkyColor(const Ray& ray) const
 {
-	// Convert ray direction to texture coordinates
-	float theta = acos(ray.D.y);  // Assuming a spherical skydome
-	float phi = atan2(ray.D.z, ray.D.x);
+	// Convert ray direction to texture coordinates, assuming a spherical skydome
+	float phi = atan2(-ray.D.z, ray.D.x) + PI;
+	float theta = acos(-ray.D.y);
+	float u = phi * INV2PI;
+	float v = theta * INVPI;
 
-	// Normalize to[0, 1]
-	float u = phi / (2 * PI);
-	float v = 1.0f - (theta / PI);
-
-	// Sample the HDR skydome texture
+	//// Sample the HDR skydome texture
 	float3 color = skydome.Sample(u, v);
 
 	return color;
@@ -92,10 +90,6 @@ constexpr float GridScene::GetLightCount() const
 
 void GridScene::FindNearest(Ray& ray)
 {
-	/*for (int i = 0; i < NUM_CUBE; i++)
-	{
-		models[i].Intersect(ray);
-	}*/
 	light.Intersect(ray);
 	floor.Intersect(ray);
 	sphere.Intersect(ray);
@@ -104,15 +98,9 @@ void GridScene::FindNearest(Ray& ray)
 
 bool GridScene::IsOccluded(const Ray& ray)
 {
-	/*for (int i = 0; i < NUM_CUBE; i++)
-	{
-		if (models[i].IsOccluded(ray))
-		{
-			return true;
-		}
-	}*/
 	// from tmpl8rt_IGAD
 	if (sphere.IsOccluded(ray)) return true;
+	if (light.IsOccluded(ray)) return true;
 	Ray shadow = ray;
 	shadow.t = 1e34f;
 	sceneGrid.Intersect(shadow);
