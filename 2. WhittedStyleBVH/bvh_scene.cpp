@@ -11,7 +11,7 @@ BVHScene::BVHScene()
 	sphere = Sphere(2, float3(0), 0.6f);
 	materials[0] = Material(MaterialType::Light);
 	materials[1] = Material(MaterialType::Diffuse, float3(0), true);
-	materials[2] = Material(MaterialType::Mirror);
+	materials[2] = Material(MaterialType::Glass);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.5);
 	wok = Model(3, "../assets/wok.obj", t);
 	wok.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");

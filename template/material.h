@@ -21,7 +21,7 @@ namespace Tmpl8
 			this->isAlbedoOverridden = isAlbedoOverridden;
 			this->reflectivity = 1.0f;
 			this->refractivity = 1.0f;
-			this->absortion = float3(0);
+			this->absorption = float3(0);
 		}
 		float3 GetAlbedo(float2 uv)
 		{
@@ -37,7 +37,7 @@ namespace Tmpl8
 		bool isAlbedoOverridden;
 		float reflectivity;
 		float refractivity;
-		float3 absortion;
+		float3 absorption;
 		std::unique_ptr<Texture> textureDiffuse;
 		/*Texture textureMetallic;
 		Texture textuteRoughness;*/

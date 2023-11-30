@@ -26,98 +26,85 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	float3 N = hitInfo.normal;
 	float2 uv = hitInfo.uv;
 	Material* material = hitInfo.material;
-
-	if (material->type == MaterialType::Light) return scene.GetLightColor();
-
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo(ray.objIdx, I) : material->GetAlbedo(uv);
 
 	/* visualize normal */  // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ // return albedo;
 
-	// beer's law
-	if (ray.inside)
-	{
-		albedo.x *= exp(-material->absortion.x * ray.t);
-		albedo.y *= exp(-material->absortion.y * ray.t);
-		albedo.z *= exp(-material->absortion.z * ray.t);
-	}
+	if (material->type == MaterialType::Light) return scene.GetLightColor();
+
+	float3 out_radiance(0);
+	float reflectivity = material->type == MaterialType::Mirror ? material->reflectivity : 0;
+	float refractivity = material->type == MaterialType::Glass ? 1 : 0;
+	float diffuseness = 1 - (reflectivity + refractivity);
 
 	if (material->type == MaterialType::Mirror)
 	{
-		float3 RD = reflect(ray.D, N); // reflect direction
-		auto reflectRay = Ray(I + RD * EPSILON, RD);
-		return albedo *
-			((material->reflectivity * Trace(reflectRay, depth + 1)) +
-				(1 - material->reflectivity) * DirectIllumination(I, N));
+		float3 R = reflect(ray.D , N);
+		Ray r(I + R * EPSILON, R);
+		out_radiance += reflectivity * albedo * Trace(r, depth + 1);
 	}
-
-	if (material->type == MaterialType::Glass)
+	else if (material->type == MaterialType::Glass)
 	{
-		/* calculate k for refreaction air index = 1, glass index = 1.52*/
-		float n1 = ray.inside ? 1.2f : 1;
-		float n2 = ray.inside ? 1 : 1.2f;
-		float n = n1 / n2;
-		float cosi = dot(N, -ray.D);
-		float k = 1 - (n * n) * (1 - cosi * cosi);
-
-		if (k < 0) // k < 0 is total internal reflection while k >= 0 have refraction
+		float3 R = reflect(ray.D, N);
+		Ray r(I + R * EPSILON, R);
+		float n1 = ray.inside ? 1.2f : 1, n2 = ray.inside ? 1 : 1.2f;
+		float eta = n1 / n2, cosi = dot(-ray.D, N);
+		float cost2 = 1.0f - eta * eta * (1 - cosi * cosi);
+		float Fr = 1;
+		if (cost2 > 0)
 		{
-			float3 RD = reflect(ray.D, N); // reflect direction
-			auto reflectRay = Ray(I + (RD * EPSILON), RD);
-			return albedo *
-				((material->reflectivity * Trace(reflectRay, depth + 1)) +
-					(1 - material->reflectivity) * DirectIllumination(I, N));
+			float a = n1 - n2, b = n1 + n2, R0 = (a * a) / (b * b), c = 1 - cosi;
+			Fr = R0 + (1 - R0) * (c * c * c * c * c);
+			float3 T = eta * ray.D + ((eta * cosi - sqrtf(fabs(cost2))) * N);
+			Ray t(I + T * EPSILON, T);
+			t.inside = !ray.inside;
+			out_radiance += albedo * (1 - Fr) * Trace(t, depth + 1);
 		}
-		else
-		{
-			float sini = sqrt(1 - cosi * cosi);
-			float coso = sqrt(1 - (n * sini) * (n * sini));
-			// un-squared reflectance for s-polarized light
-			float uRs = (n1 * cosi - n2 * coso) / (n1 * cosi + n2 * coso);
-			// un-squared reflectance for p-polarized light
-			float uRp = (n1 * coso - n2 * cosi) / (n1 * coso + n2 * cosi);
-			float Fr = ((uRs * uRs) + (uRp * uRp)) * 0.5f;
-			float Ft = 1 - Fr;
-
-			float3 RD = reflect(ray.D, N); // reflect direction
-			auto reflectRay = Ray(I + (RD * EPSILON), RD);
-			float3 reflection = albedo *
-				((material->reflectivity * Trace(reflectRay, depth + 1)) +
-					(1 - material->reflectivity) * DirectIllumination(I, N));
-
-			float3 RfrD = normalize((n * ray.D) + N * (n * cosi - sqrt(k))); // refract direction 
-			auto refractRay = Ray(I + (RfrD * EPSILON), RfrD);
-			refractRay.inside = !refractRay.inside;
-			float3 refraction = albedo * Trace(refractRay, depth + 1);
-
-			return Fr * reflection + Ft * refraction;
-		}
+		out_radiance += albedo * Fr * Trace(r, depth + 1);
 	}
-	float3 ambient = float3(0.2f);
-	float3 brdf = albedo * INVPI;
-	/* visualize albedo */ return brdf * (DirectIllumination(I, N) + ambient);
+
+	if (diffuseness > 0)
+	{
+		float3 irradiance = DirectIllumination(I, N);
+		float3 ambient = float3(0.2f, 0.2f, 0.2f);
+		float3 brdf = albedo * INVPI;
+		out_radiance += diffuseness * brdf * (irradiance + ambient);
+	}
+	float3 medium_scale(1);
+	if (ray.inside)
+	{
+		float3 absorption = material->absorption;
+		medium_scale.x = expf(absorption.x * -ray.t);
+		medium_scale.y = expf(absorption.y * -ray.t);
+		medium_scale.z = expf(absorption.z * -ray.t);
+	}
+
+	return medium_scale * out_radiance;
 }
 
 float3 Renderer::DirectIllumination(float3 I, float3 N)
 {
-	float3 lightColor = scene.GetLightColor(); // adjust intensity manually
-	float3 lightPos = scene.GetLightPos();
-	float3 L = lightPos - I;
+	// sum irradiance from light sources
+	float3 irradiance(0);
+	// query the (only) scene light
+	float3 pointOnLight = scene.GetLightPos();
+	float3 L = pointOnLight - I;
 	float distance = length(L);
-	L = normalize(L);
+	L *= 1 / distance;
 	float ndotl = dot(N, L);
-
-	if (ndotl < EPSILON) return 0;
-
-	auto shadowRay = Ray(I + L * EPSILON, L, distance - 2 * EPSILON);
-
-	if (scene.IsOccluded(shadowRay)) return float3(0);
-
-	float distFactor = 1 / (distance * distance);
-	float angleFactor = max(0.0f, ndotl);
-
-	return lightColor * distFactor * angleFactor;
+	if (ndotl < EPSILON) /* we don't face the light */ return 0;
+	// cast a shadow ray
+	Ray s(I + L * EPSILON, L, distance - 2 * EPSILON);
+	if (!scene.IsOccluded(s))
+	{
+		// light is visible; calculate irradiance (= projected radiance)
+		float attenuation = 1 / (distance * distance);
+		float3 in_radiance = scene.GetLightColor() * attenuation;
+		irradiance = in_radiance * dot(N, L);
+	}
+	return irradiance;
 }
 
 // -----------------------------------------------------------
