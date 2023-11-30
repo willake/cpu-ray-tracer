@@ -87,82 +87,40 @@ int Grid::GetTriangleCount() const
     return triangles.size();
 }
 
-void Grid::GetRayCellIndicies(const Ray& ray, int& minX, int& minY, int& minZ, int& maxX, int& maxY, int& maxZ)
-{
-    // Calculate the minimum and maximum cell indices that the ray traverses
-    float tMinX = (gridBounds.bmin3.x - ray.O.x) / ray.D.x;
-    float tMaxX = (gridBounds.bmax3.x - ray.O.x) / ray.D.x;
-    if (ray.D.x < 0.0f) swap(tMinX, tMaxX);
-
-    float tMinY = (gridBounds.bmin3.y - ray.O.y) / ray.D.y;
-    float tMaxY = (gridBounds.bmax3.y - ray.O.y) / ray.D.y;
-    if (ray.D.y < 0.0f) swap(tMinY, tMaxY);
-    
-    float tMinZ = (gridBounds.bmin3.z - ray.O.z) / ray.D.z;
-    float tMaxZ = (gridBounds.bmax3.z - ray.O.z) / ray.D.z;
-    if (ray.D.z < 0.0f) swap(tMinZ, tMaxZ);
-
-    minX = clamp(static_cast<int>(tMinX), 0, resolution.x - 1);
-    minY = clamp(static_cast<int>(tMinY), 0, resolution.y - 1);
-    minZ = clamp(static_cast<int>(tMinZ), 0, resolution.z - 1);
-    maxX = clamp(static_cast<int>(tMaxX), 0, resolution.x - 1);
-    maxY = clamp(static_cast<int>(tMaxY), 0, resolution.y - 1);
-    maxZ = clamp(static_cast<int>(tMaxZ), 0, resolution.z - 1);
-}
-
 void Grid::Intersect(Ray& ray)
 {
     // Calculate tmin and tmax
-    float tmin = 0, tmax = 1e34f;
-    for (int i = 0; i < 3; ++i) {
-        float t0 = (gridBounds.bmin3[i] - ray.O[i]) * ray.rD[i];
-        float t1 = (gridBounds.bmax3[i] - ray.O[i]) * ray.rD[i];
+    if (!IntersectAABB(ray, gridBounds.bmin3, gridBounds.bmax3)) return;
 
-        if (ray.rD[i] < 0.0f) {
-            std::swap(t0, t1);
-        }
-
-        tmin = std::max(t0, tmin);
-        tmax = std::min(t1, tmax);
-
-        if (tmin > tmax) {
-            // No intersection with the bounding box
-            return;
-        }
-    }
-    
     // Determine the cell indices that the ray traverses
     int3 exit, step, cell;
     float3 deltaT, nextCrossingT;
     for (int i = 0; i < 3; ++i)
     {
-        float rayOrigCell = (ray.O[i] + ray.D[i] * tmin) - gridBounds.bmin3[i];
+        float rayOrigCell = ray.O[i] - gridBounds.bmin3[i];
         cell[i] = clamp(static_cast<int>(std::floor(rayOrigCell / cellSize[i])), 0, resolution[i] - 1);
         if (ray.D[i] < 0)
         {
             deltaT[i] = -cellSize[i] * ray.rD[i];
-            nextCrossingT[i] = tmin + (cell[i] * cellSize[i] - rayOrigCell) * ray.rD[i];
+            nextCrossingT[i] = (cell[i] * cellSize[i] - rayOrigCell) * ray.rD[i];
             exit[i] = -1;
             step[i] = -1;
         }
         else
         {
             deltaT[i] = cellSize[i] * ray.rD[i];
-            nextCrossingT[i] = tmin + ((cell[i] + 1) * cellSize[i] - rayOrigCell) * ray.rD[i];
+            nextCrossingT[i] = ((cell[i] + 1) * cellSize[i] - rayOrigCell) * ray.rD[i];
             exit[i] = resolution[i];
             step[i] = 1;
         }
     }
-    bool isIntersect = false;
-    while (!isIntersect)
+
+    while (true)
     {
-        uint index = cell.z * resolution.x * resolution.y + cell.y * resolution.x + cell.x;
+        uint index = cell.x + cell.y * resolution.x + cell.z * resolution.x * resolution.y;
         for (int triIdx : gridCells[index].triIndices)
         {
-            if (IntersectTri(ray, triangles[triIdx], triIdx))
-            {
-                isIntersect = true;
-            }
+            IntersectTri(ray, triangles[triIdx], triIdx);
         }
 
         uint k =

@@ -12,7 +12,7 @@ BVHScene::BVHScene()
 	materials[0] = Material(MaterialType::Light);
 	materials[1] = Material(MaterialType::Mirror, float3(0), true);
 	materials[1].reflectivity = 0.3f;
-	materials[2] = Material(MaterialType::Glass);
+	materials[2] = Material(MaterialType::Mirror);
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.1);
 	wok = Model(3, "../assets/wok.obj", t);

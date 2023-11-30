@@ -28,10 +28,10 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	Material* material = hitInfo.material;
 	float3 albedo = material->isAlbedoOverridden ? scene.GetAlbedo(ray.objIdx, I) : material->GetAlbedo(uv);
 
-	/* visualize edges */ return GetEdgeDebugColor(ray.barycentric);
-	/* visualize normal */  // return (N + 1) * 0.5f;
+	/* visualize edges */ // return GetEdgeDebugColor(ray.barycentric);
+	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
-	/* visualize albedo */ return albedo;
+	/* visualize albedo */ // return albedo;
 
 	if (material->type == MaterialType::Light) return scene.GetLightColor();
 
