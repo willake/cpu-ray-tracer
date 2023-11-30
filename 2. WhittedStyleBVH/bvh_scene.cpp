@@ -18,7 +18,7 @@ BVHScene::BVHScene()
 	wok = Model(3, "../assets/wok.obj", t);
 	wok.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	wok.AppendTriangles(sceneBVH.triangles);
-	mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.1);
+	mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);
 	wok2 = Model(4, "../assets/wok.obj", t2);
 	wok2.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	wok2.AppendTriangles(sceneBVH.triangles);
@@ -99,19 +99,21 @@ void BVHScene::FindNearest(Ray& ray)
 {
 	light.Intersect(ray);
 	floor.Intersect(ray);
-	sphere.Intersect(ray);
+	//sphere.Intersect(ray);
 	//wok.Intersect(ray);
 	sceneBVH.Intersect(ray);
+	//sceneBVH.IntersectDebug(ray);
 }
 
 bool BVHScene::IsOccluded(const Ray& ray)
 {
 	// from tmpl8rt_IGAD
-	if (sphere.IsOccluded(ray)) return true;
+	//if (sphere.IsOccluded(ray)) return true;
 	if (light.IsOccluded(ray)) return true;
 	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
 	sceneBVH.Intersect(shadow);
+	//sceneBVH.IntersectDebug(shadow);
 	if (shadow.objIdx > -1) return true;
 	//if (wok.IsOccluded(ray)) return true;
 	// skip planes

@@ -257,3 +257,84 @@ float2 BVH::GetUV(const uint triIdx, const float2 barycentric) const
     float2 uv2 = triangles[triIdx].uv2;
     return (1 - barycentric.x - barycentric.y) * uv0 + barycentric.x * uv1 + barycentric.y * uv2;
 }
+
+void BVH::IntersectTriDebug(Ray& ray, const Tri& tri, const uint triIdx)
+{
+    const float3 edge1 = tri.vertex1 - tri.vertex0;
+    const float3 edge2 = tri.vertex2 - tri.vertex0;
+    const float3 h = cross(ray.D, edge2);
+    const float a = dot(edge1, h);
+    if (a > -0.0001f && a < 0.0001f) return; // ray parallel to triangle
+    const float f = 1 / a;
+    const float3 s = ray.O - tri.vertex0;
+    const float u = f * dot(s, h);
+    if (u < 0 || u > 1) return;
+    const float3 q = cross(s, edge1);
+    const float v = f * dot(ray.D, q);
+    if (v < 0 || u + v > 1) return;
+    const float t = f * dot(edge2, q);
+
+    if ((u > 0.03f && u < 1 - 0.03f) && (v > 0.03f || v < 1 - 0.03f)) return;
+
+    if (t > 0.0001f)
+    {
+        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = tri.objIdx, ray.triIdx = triIdx, ray.barycentric = float2(u, v);
+    }
+}
+
+void BVH::IntersectBVHDebug(Ray& ray, const uint nodeIdx)
+{
+#ifdef FASTER_RAY
+    BVHNode* node = &bvhNodes[rootNodeIdx], * stack[64];
+    uint stackPtr = 0;
+    while (1)
+    {
+        if (node->isLeaf())
+        {
+            for (uint i = 0; i < node->triCount; i++)
+            {
+                uint triIdx = triangleIndices[node->leftFirst + i];
+                IntersectTriDebug(ray, triangles[triIdx], triIdx);
+            }
+            if (stackPtr == 0) break; else node = stack[--stackPtr];
+
+            continue;
+        }
+        BVHNode* child1 = &bvhNodes[node->leftFirst];
+        BVHNode* child2 = &bvhNodes[node->leftFirst + 1];
+        float dist1 = IntersectAABB(ray, child1->aabbMin, child1->aabbMax);
+        float dist2 = IntersectAABB(ray, child2->aabbMin, child2->aabbMax);
+        if (dist1 > dist2) { swap(dist1, dist2); swap(child1, child2); }
+        if (dist1 == 1e30f)
+        {
+            if (stackPtr == 0) break; else node = stack[--stackPtr];
+        }
+        else
+        {
+            node = child1;
+            if (dist2 != 1e30f) stack[stackPtr++] = child2;
+        }
+    }
+#else
+    BVHNode& node = bvhNodes[nodeIdx];
+    if (!IntersectAABB(ray, node.aabbMin, node.aabbMax)) return;
+    if (node.isLeaf())
+    {
+        for (uint i = 0; i < node.triCount; i++)
+        {
+            uint triIdx = triangleIndices[node.leftFirst + i];
+            IntersectTri(ray, triangles[triIdx], triIdx);
+        }
+    }
+    else
+    {
+        IntersectBVH(ray, node.leftFirst);
+        IntersectBVH(ray, node.leftFirst + 1);
+    }
+#endif
+}
+
+void BVH::IntersectDebug(Ray& ray)
+{
+    IntersectBVHDebug(ray, rootNodeIdx);
+}

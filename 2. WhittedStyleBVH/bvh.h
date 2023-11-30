@@ -28,10 +28,13 @@ namespace Tmpl8
 #endif
 		void IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
 		void IntersectBVH(Ray& ray, const uint nodeIdx);
+		void IntersectTriDebug(Ray& ray, const Tri& tri, const uint triIdx);
+		void IntersectBVHDebug(Ray& ray, const uint nodeIdx);
 		float EvaluateSAH(BVHNode& node, int axis, float pos);
 	public:
 		void BuildBVH();
 		void Intersect(Ray& ray);
+		void IntersectDebug(Ray& ray);
 		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
