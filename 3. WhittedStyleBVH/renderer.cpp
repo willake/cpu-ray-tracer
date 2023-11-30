@@ -58,8 +58,8 @@ float3 Renderer::Trace(Ray& ray, int depth)
 		float n1 = ray.inside ? 1.2f : 1;
 		float n2 = ray.inside ? 1 : 1.2f;
 		float n = n1 / n2;
-		float cos1 = dot(N, -ray.D);
-		float k = 1 - (n * n) * (1 - cos1 * cos1);
+		float cosi = dot(N, -ray.D);
+		float k = 1 - (n * n) * (1 - cosi * cosi);
 
 		if (k < 0) // k < 0 is total internal reflection while k >= 0 have refraction
 		{
@@ -71,12 +71,12 @@ float3 Renderer::Trace(Ray& ray, int depth)
 		}
 		else
 		{
-			float sin1 = sqrt(1 - cos1 * cos1);
-			float cos2 = sqrt(1 - (n * sin1) * (n * sin1));
+			float sini = sqrt(1 - cosi * cosi);
+			float coso = sqrt(1 - (n * sini) * (n * sini));
 			// un-squared reflectance for s-polarized light
-			float uRs = (n1 * cos1 - n2 * cos2) / (n1 * cos1 + n2 * cos2);
+			float uRs = (n1 * cosi - n2 * coso) / (n1 * cosi + n2 * coso);
 			// un-squared reflectance for p-polarized light
-			float uRp = (n1 * cos2 - n2 * cos1) / (n1 * cos2 + n2 * cos1);
+			float uRp = (n1 * coso - n2 * cosi) / (n1 * coso + n2 * cosi);
 			float Fr = ((uRs * uRs) + (uRp * uRp)) * 0.5f;
 			float Ft = 1 - Fr;
 
@@ -86,7 +86,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 				((material->reflectivity * Trace(reflectRay, depth + 1)) +
 					(1 - material->reflectivity) * DirectIllumination(I, N));
 
-			float3 RfrD = normalize((n * ray.D) + N * (n * cos1 - sqrt(k))); // refract direction 
+			float3 RfrD = normalize((n * ray.D) + N * (n * cosi - sqrt(k))); // refract direction 
 			auto refractRay = Ray(I + (RfrD * EPSILON), RfrD);
 			refractRay.inside = !refractRay.inside;
 			float3 refraction = albedo * Trace(refractRay, depth + 1);
