@@ -121,10 +121,10 @@ bool GridScene::IsOccluded(const Ray& ray)
 	return false;
 }
 
-HitInfo GridScene::GetHitInfo(const float3 I, const float2 barycentric, const int objIdx, const int triIdx)
+HitInfo GridScene::GetHitInfo(const Ray& ray, const float3 I)
 {
 	HitInfo hitInfo = HitInfo(float3(0), float2(0), &errorMaterial);
-	switch (objIdx)
+	switch (ray.objIdx)
 	{
 	case 0:
 		hitInfo.normal = light.GetNormal(I);
@@ -142,8 +142,8 @@ HitInfo GridScene::GetHitInfo(const float3 I, const float2 barycentric, const in
 		hitInfo.material = &materials[2];
 		break;
 	case 3:
-		hitInfo.normal = sceneGrid.GetNormal(triIdx, barycentric);
-		hitInfo.uv = sceneGrid.GetUV(triIdx, barycentric);
+		hitInfo.normal = sceneGrid.GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = sceneGrid.GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &wok.material;
 		break;
 	default:

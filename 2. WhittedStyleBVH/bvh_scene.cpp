@@ -129,10 +129,10 @@ bool BVHScene::IsOccluded(const Ray& ray)
 	return false;
 }
 
-HitInfo BVHScene::GetHitInfo(const float3 I, const float2 barycentric, const int objIdx, const int triIdx)  
+HitInfo BVHScene::GetHitInfo(const Ray& ray, const float3 I)
 {
 	HitInfo hitInfo = HitInfo(float3(0), float2(0), &errorMaterial);
-	switch (objIdx)
+	switch (ray.objIdx)
 	{
 		case 0:
 			hitInfo.normal = light.GetNormal(I);
@@ -150,8 +150,8 @@ HitInfo BVHScene::GetHitInfo(const float3 I, const float2 barycentric, const int
 			hitInfo.material = &materials[2];
 			break;
 		case 3:
-			hitInfo.normal = sceneBVH.GetNormal(triIdx, barycentric);
-			hitInfo.uv = sceneBVH.GetUV(triIdx, barycentric);
+			hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
+			hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
 			hitInfo.material = &wok.material;
 			break;
 		default:

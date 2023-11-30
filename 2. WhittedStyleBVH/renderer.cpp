@@ -22,7 +22,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
 	if (depth >= depthLimit) return float3(0);
 	float3 I = ray.O + ray.t * ray.D;
-	HitInfo hitInfo = scene.GetHitInfo(I, ray.barycentric, ray.objIdx, ray.triIdx);
+	HitInfo hitInfo = scene.GetHitInfo(ray, I);
 	float3 N = hitInfo.normal;
 	float2 uv = hitInfo.uv;
 	Material* material = hitInfo.material;

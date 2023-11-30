@@ -1,14 +1,25 @@
 #pragma once
 
+#include "texture.h"
 #include "material.h"
+#include "model.h"
+#include "hit_info.h"
+#include "bvh.h"
 #include "basic_scene.h"
+#include "bvh_scene.h"
+#include "grid_scene.h"
 
-#define EPSILON		0.0001f
+#define EPSILON	0.0001f
 
 namespace Tmpl8
 {
 	class Renderer : public TheApp
 	{
+	private:
+		float m_avg = 10;
+		float m_alpha = 1;
+		float m_fps = 0;
+		float m_rps = 0;
 	public:
 		// game flow methods
 		void Init();
@@ -27,10 +38,10 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		BasicScene scene;
+		BVHScene scene;
 		Camera camera;
-		bool animating = true;
+		bool animating = false;
 		float anim_time = 0;
-		int depthLimit = 3;
+		int depthLimit = 7;
 	};
 } // namespace Tmpl8
