@@ -116,13 +116,44 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
             boundsMax = max(boundsMax, triangle.centroid[a]);
         }
         if (boundsMin == boundsMax) continue;
-        float scale = (boundsMax - boundsMin) / 100;
-        for (uint i = 1; i < 100; i++)
+        // populate the bins
+        Bin bin[BINS];
+        float scale = BINS / (boundsMax - boundsMin);
+        for (uint i = 0; i < node.triCount; i++)
         {
-            float candidatePos = boundsMin + i * scale;
-            float cost = EvaluateSAH(node, a, candidatePos);
-            if (cost < bestCost)
-                splitPos = candidatePos, axis = a, bestCost = cost;
+            Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
+            int binIdx = min(BINS - 1,
+                (int)((triangle.centroid[a] - boundsMin) * scale));
+            bin[binIdx].triCount++;
+            bin[binIdx].bounds.Grow(triangle.vertex0);
+            bin[binIdx].bounds.Grow(triangle.vertex1);
+            bin[binIdx].bounds.Grow(triangle.vertex2);
+        }
+        // gather data for the 7 planes between the 8 bins
+        float leftArea[BINS - 1], rightArea[BINS - 1];
+        int leftCount[BINS - 1], rightCount[BINS - 1];
+        aabb leftBox, rightBox;
+        int leftSum = 0, rightSum = 0;
+        for (int i = 0; i < BINS - 1; i++)
+        {
+            leftSum += bin[i].triCount;
+            leftCount[i] = leftSum;
+            leftBox.Grow(bin[i].bounds);
+            leftArea[i] = leftBox.Area();
+            rightSum += bin[BINS - 1 - i].triCount;
+            rightCount[BINS - 2 - i] = rightSum;
+            rightBox.Grow(bin[BINS - 1 - i].bounds);
+            rightArea[BINS - 2 - i] = rightBox.Area();
+        }
+        // calculate SAH cost for the 7 planes
+        scale = (boundsMax - boundsMin) / BINS;
+        for (int i = 0; i < BINS - 1; i++)
+        {
+            float planeCost =
+                leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
+            if (planeCost < bestCost)
+                axis = a, splitPos = boundsMin + scale * (i + 1),
+                bestCost = planeCost;
         }
     }
     return bestCost;

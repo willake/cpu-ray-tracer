@@ -2,11 +2,14 @@
 
 #define SAH
 #define FASTER_RAY
+#define BINS 8
 
 // reference: https://jacco.ompf2.com/2022/04/13/how-to-build-a-bvh-part-1-basics/
 
 namespace Tmpl8
 {
+	struct Bin { aabb bounds; int triCount = 0; };
+
 	struct BVHNode
 	{
 		float3 aabbMin, aabbMax;     // 24 bytes
