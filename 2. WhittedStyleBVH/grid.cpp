@@ -87,6 +87,11 @@ int Grid::GetTriangleCount() const
     return triangles.size();
 }
 
+void Grid::SetTriangles(std::vector<Tri>& tris)
+{
+    triangles = tris;
+}
+
 void Grid::Intersect(Ray& ray)
 {
     // Calculate tmin and tmax

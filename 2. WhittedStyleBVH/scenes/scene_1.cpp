@@ -11,14 +11,11 @@ Scene1::Scene1()
 	materials[1].reflectivity = 0.3f;
 	materials[2] = Material(MaterialType::Mirror);
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
-	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.1);
-	wok = Model(3, "../assets/wok.obj", t);
-	wok.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	wok.AppendTriangles(sceneBVH.triangles);
-	mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);
-	wok2 = Model(4, "../assets/wok.obj", t2);
-	wok2.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	wok2.AppendTriangles(sceneBVH.triangles);
+	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(1);
+	//mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);
+	//wok2 = Model(4, "../assets/wok.obj", t2);
+	//wok2.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//wok2.AppendTriangles(sceneBVH.triangles);
 
 	printf("Triangle count: %d\n", sceneBVH.GetTriangleCount());
 	sceneBVH.Build();
@@ -109,15 +106,6 @@ HitInfo Scene1::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.uv = float2(0);
 		hitInfo.material = &materials[2];
 		break;
-	case 3:
-		hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &wok.material;
-		break;
-	case 4:
-		hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &wok2.material;
 		break;
 	default:
 		break;

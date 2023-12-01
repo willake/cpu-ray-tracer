@@ -38,9 +38,6 @@
     <ClCompile Include="..\template\tmplmath.cpp">
       <Filter>template</Filter>
     </ClCompile>
-    <ClCompile Include="..\template\model.cpp">
-      <Filter>template</Filter>
-    </ClCompile>
     <ClCompile Include="bvh.cpp">
       <Filter>bvh</Filter>
     </ClCompile>
@@ -56,6 +53,8 @@
     <ClCompile Include="scenes\scene_2.cpp">
       <Filter>scenes</Filter>
     </ClCompile>
+    <ClCompile Include="bvh_model.cpp" />
+    <ClCompile Include="grid_model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -120,9 +119,6 @@
     <ClInclude Include="..\template\primitives.h">
       <Filter>template</Filter>
     </ClInclude>
-    <ClInclude Include="..\template\model.h">
-      <Filter>template</Filter>
-    </ClInclude>
     <ClInclude Include="..\template\texture.h">
       <Filter>template</Filter>
     </ClInclude>
@@ -145,6 +141,8 @@
     <ClInclude Include="scenes\scene_2.h">
       <Filter>scenes</Filter>
     </ClInclude>
+    <ClInclude Include="bvh_model.h" />
+    <ClInclude Include="grid_model.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">

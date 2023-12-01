@@ -3,15 +3,10 @@
 
 void BVH::Build()
 {
-    normals.resize(triangles.size());
     triangleIndices.resize(triangles.size());
     // populate triangle index array
     for (int i = 0; i < triangles.size(); i++)
     {
-        // setup normals
-        float3 edge1 = triangles[i].vertex1 - triangles[i].vertex0;
-        float3 edge2 = triangles[i].vertex2 - triangles[i].vertex0;
-        normals[i] = normalize(cross(edge1, edge2));
         // setup indices
         triangleIndices[i] = i;
     }
@@ -23,6 +18,25 @@ void BVH::Build()
     UpdateNodeBounds(rootNodeIdx);
     // subdivide recursively
     Subdivide(rootNodeIdx);
+}
+
+void BVH::Refit()
+{
+    for (int i = nodesUsed - 1; i >= 0; i--) if (i != 1)
+    {
+        BVHNode& node = bvhNodes[i];
+        if (node.isLeaf())
+        {
+            // leaf node: adjust bounds to contained triangles
+            UpdateNodeBounds(i);
+            continue;
+        }
+        // interior node: adjust bounds to child node bounds
+        BVHNode& leftChild = bvhNodes[node.leftFirst];
+        BVHNode& rightChild = bvhNodes[node.leftFirst + 1];
+        node.aabbMin = fminf(leftChild.aabbMin, rightChild.aabbMin);
+        node.aabbMax = fmaxf(leftChild.aabbMax, rightChild.aabbMax);
+    }
 }
 
 void BVH::UpdateNodeBounds(uint nodeIdx)
@@ -285,6 +299,11 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
 int BVH::GetTriangleCount() const
 {
     return triangles.size();
+}
+
+void BVH::SetTriangles(std::vector<Tri>& tris)
+{
+    triangles = tris;
 }
 
 void BVH::Intersect(Ray& ray)
