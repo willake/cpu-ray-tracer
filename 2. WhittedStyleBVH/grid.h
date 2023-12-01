@@ -16,7 +16,7 @@ namespace Tmpl8
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
 		bool IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
 	public:
-		void BuildGrid();
+		void Build();
 		void Intersect(Ray& ray);
 		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
