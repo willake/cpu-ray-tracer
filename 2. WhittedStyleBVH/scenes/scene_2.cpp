@@ -1,10 +1,7 @@
 #include "precomp.h"
-#include "bvh_scene.h"
-#include "material.h"
-#include "model.h"
-#include "texture.h"
+#include "scene_1.h"
 
-BVHScene::BVHScene()
+Scene2::Scene2()
 {
 	light = Quad(0, 1);
 	floor = Plane(1, float3(0, 1, 0), 1);
@@ -24,12 +21,12 @@ BVHScene::BVHScene()
 	wok2.AppendTriangles(sceneBVH.triangles);
 
 	printf("Triangle count: %d\n", sceneBVH.GetTriangleCount());
-	sceneBVH.BuildBVH();
+	sceneBVH.Build();
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	SetTime(0);
 }
 
-void BVHScene::SetTime(float t)
+void Scene2::SetTime(float t)
 {
 	animTime = t;
 	// sphere animation: bounce
@@ -42,7 +39,7 @@ void BVHScene::SetTime(float t)
 	light.T = M1, light.invT = M1.FastInvertedTransformNoScale();
 }
 
-float3 BVHScene::GetSkyColor(const Ray& ray) const
+float3 Scene2::GetSkyColor(const Ray& ray) const
 {
 	// Convert ray direction to texture coordinates, assuming a spherical skydome
 	float phi = atan2(-ray.D.z, ray.D.x) + PI;
@@ -56,46 +53,18 @@ float3 BVHScene::GetSkyColor(const Ray& ray) const
 	return color;
 }
 
-float3 BVHScene::GetLightPos() const
+float3 Scene2::GetLightPos() const
 {
 	return float3(0, 2, 0);
 }
 
-float3 BVHScene::RandomPointOnLight(const float r0, const float r1) const
-{
-	return float3(0);
-}
-
-float3 BVHScene::RandomPointOnLight(uint& seed) const
-{
-	return float3(0);
-}
-
-void BVHScene::GetLightQuad(float3& v0, float3& v1, float3& v2, float3& v3, const uint idx = 0)
-{
-}
-
-float3 BVHScene::GetLightColor() const
+float3 Scene2::GetLightColor() const
 {
 	return float3(24, 24, 22);
 }
 
-float3 BVHScene::GetAreaLightColor() const
-{
-	return float3(0);
-}
 
-float BVHScene::GetLightArea() const
-{
-	return 0;
-}
-
-constexpr float BVHScene::GetLightCount() const
-{
-	return 1;
-}
-
-void BVHScene::FindNearest(Ray& ray)
+void Scene2::FindNearest(Ray& ray)
 {
 	light.Intersect(ray);
 	floor.Intersect(ray);
@@ -105,7 +74,7 @@ void BVHScene::FindNearest(Ray& ray)
 	//sceneBVH.IntersectDebug(ray);
 }
 
-bool BVHScene::IsOccluded(const Ray& ray)
+bool Scene2::IsOccluded(const Ray& ray)
 {
 	// from tmpl8rt_IGAD
 	//if (sphere.IsOccluded(ray)) return true;
@@ -120,50 +89,50 @@ bool BVHScene::IsOccluded(const Ray& ray)
 	return false;
 }
 
-HitInfo BVHScene::GetHitInfo(const Ray& ray, const float3 I)
+HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 {
 	HitInfo hitInfo = HitInfo(float3(0), float2(0), &errorMaterial);
 	switch (ray.objIdx)
 	{
-		case 0:
-			hitInfo.normal = light.GetNormal(I);
-			hitInfo.uv = float2(0);
-			hitInfo.material = &materials[0];
-			break;
-		case 1:
-			hitInfo.normal = floor.GetNormal(I);
-			hitInfo.uv = float2(0);
-			hitInfo.material = &materials[1];
-			break;
-		case 2:
-			hitInfo.normal = sphere.GetNormal(I);
-			hitInfo.uv = float2(0);
-			hitInfo.material = &materials[2];
-			break;
-		case 3:
-			hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
-			hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
-			hitInfo.material = &wok.material;
-			break;
-		case 4:
-			hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
-			hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
-			hitInfo.material = &wok2.material;
-			break;
-		default:
-			break;
+	case 0:
+		hitInfo.normal = light.GetNormal(I);
+		hitInfo.uv = float2(0);
+		hitInfo.material = &materials[0];
+		break;
+	case 1:
+		hitInfo.normal = floor.GetNormal(I);
+		hitInfo.uv = float2(0);
+		hitInfo.material = &materials[1];
+		break;
+	case 2:
+		hitInfo.normal = sphere.GetNormal(I);
+		hitInfo.uv = float2(0);
+		hitInfo.material = &materials[2];
+		break;
+	case 3:
+		hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &wok.material;
+		break;
+	case 4:
+		hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &wok2.material;
+		break;
+	default:
+		break;
 	}
-	
+
 	return hitInfo;
 }
 
-float3 BVHScene::GetAlbedo(int objIdx, float3 I) const 
-{ 
+float3 Scene2::GetAlbedo(int objIdx, float3 I) const
+{
 	if (objIdx == 1) return floor.GetAlbedo(I);
-	return float3(0); 
+	return float3(0);
 }
 
-int BVHScene::GetTriangleCount() const
+int Scene2::GetTriangleCount() const
 {
 	return sceneBVH.GetTriangleCount();
 }

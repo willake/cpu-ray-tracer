@@ -1,6 +1,7 @@
 #include "precomp.h"
+#include "primitive_scene.h"
 
-BasicScene::BasicScene()
+PrimitiveScene::PrimitiveScene()
 {
 	// we store all primitives in one continuous buffer
 #ifdef FOURLIGHTS
@@ -38,7 +39,7 @@ BasicScene::BasicScene()
 	// hierarchy: virtuals reduce performance somewhat.
 }
 
-void BasicScene::SetTime(float t)
+void PrimitiveScene::SetTime(float t)
 {
 	// default time for the scene is simply 0. Updating/ the time per frame 
 	// enables animation. Updating it per ray can be used for motion blur.
@@ -64,7 +65,7 @@ void BasicScene::SetTime(float t)
 	sphere.pos = float3(-1.8f, -0.4f + tm, 1);
 }
 
-float3 BasicScene::GetLightPos() const
+float3 PrimitiveScene::GetLightPos() const
 {
 #ifndef FOURLIGHTS
 	// light point position is the middle of the swinging quad
@@ -77,90 +78,17 @@ float3 BasicScene::GetLightPos() const
 #endif
 }
 
-float3 BasicScene::RandomPointOnLight(const float r0, const float r1) const
-{
-#ifndef FOURLIGHTS
-	// get a random position on the swinging quad
-	const float size = quad.size;
-	float3 corner1 = TransformPosition(float3(-size, 0, -size), quad.T);
-	float3 corner2 = TransformPosition(float3(size, 0, -size), quad.T);
-	float3 corner3 = TransformPosition(float3(-size, 0, size), quad.T);
-	return corner1 + r0 * (corner2 - corner1) + r1 * (corner3 - corner1);
-#else
-	// select a random light and use that
-	uint lightIdx = (uint)(r0 * 4);
-	const Quad& q = quad[lightIdx];
-	// renormalize r0 for reuse
-	float stratum = lightIdx * 0.25f;
-	float r2 = (r0 - stratum) / (1 - stratum);
-	// get a random position on the selected quad
-	const float size = q.size;
-	float3 corner1 = TransformPosition(float3(-size, 0, -size), q.T);
-	float3 corner2 = TransformPosition(float3(size, 0, -size), q.T);
-	float3 corner3 = TransformPosition(float3(-size, 0, size), q.T);
-	return corner1 + r2 * (corner2 - corner1) + r1 * (corner3 - corner1);
-#endif
-}
-
-float3 BasicScene::RandomPointOnLight(uint& seed) const
-{
-	return RandomPointOnLight(RandomFloat(seed), RandomFloat(seed));
-}
-
-void BasicScene::GetLightQuad(float3& v0, float3& v1, float3& v2, float3& v3, const uint idx = 0)
-{
-#ifndef FOURLIGHTS
-	// return the four corners of the swinging quad, clockwise, for solid angle sampling
-	const Quad& q = quad;
-#else
-	// return four corners of the specified light
-	const Quad& q = quad[idx];
-#endif
-	const float size = q.size;
-	v0 = TransformPosition(float3(-size, 0, size), q.T);
-	v1 = TransformPosition(float3(size, 0, size), q.T);
-	v2 = TransformPosition(float3(size, 0, -size), q.T);
-	v3 = TransformPosition(float3(-size, 0, -size), q.T);
-}
-
-float3 BasicScene::GetSkyColor(const Ray& ray) const
+float3 PrimitiveScene::GetSkyColor(const Ray& ray) const
 {
 	return float3(0);
 }
 
-float3 BasicScene::GetLightColor() const
+float3 PrimitiveScene::GetLightColor() const
 {
 	return float3(24, 24, 22);
 }
 
-float3 BasicScene::GetAreaLightColor() const
-{
-#ifdef FOURLIGHTS
-	return quad[0].GetAlbedo(float3(0)); // they're all the same color
-#else
-	return quad.GetAlbedo(float3(0));
-#endif
-}
-
-float BasicScene::GetLightArea() const
-{
-#ifdef FOURLIGHTS
-	return sqrf(quad[0].size * 2); // all the same size
-#else
-	return sqrf(quad.size * 2);
-#endif
-}
-
-constexpr float BasicScene::GetLightCount() const
-{
-#ifdef FOURLIGHTS
-	return 4; // what did you expect
-#else
-	return 1;
-#endif
-}
-
-void BasicScene::FindNearest(Ray& ray) const
+void PrimitiveScene::FindNearest(Ray& ray)
 {
 	// room walls - ugly shortcut for more speed
 #ifdef SPEEDTRIX
@@ -245,7 +173,7 @@ void BasicScene::FindNearest(Ray& ray) const
 	torus.Intersect(ray);
 }
 
-bool BasicScene::IsOccluded(const Ray& ray) const
+bool PrimitiveScene::IsOccluded(const Ray& ray)
 {
 	if (cube.IsOccluded(ray)) return true;
 #ifdef SPEEDTRIX
@@ -270,7 +198,7 @@ bool BasicScene::IsOccluded(const Ray& ray) const
 	return false; // skip planes and rounded corners
 }
 
-HitInfo BasicScene::GetHitInfo(const Ray& ray, const float3 I)
+HitInfo PrimitiveScene::GetHitInfo(const Ray& ray, const float3 I)
 {
 	HitInfo hitInfo = HitInfo(float3(0), float2(0), &errorMaterial);
 	switch (ray.objIdx)
@@ -304,34 +232,34 @@ HitInfo BasicScene::GetHitInfo(const Ray& ray, const float3 I)
 	hitInfo.material = &materials[ray.objIdx];
 	return hitInfo;
 }
+//
+//float3 PrimitiveScene::GetNormal(const int objIdx, const float3 I, const float3 wo) const
+//{
+//	// we get the normal after finding the nearest intersection:
+//	// this way we prevent calculating it multiple times.
+//	if (objIdx == -1) return float3(0); // or perhaps we should just crash
+//	float3 N;
+//#ifdef FOURLIGHTS
+//	if (objIdx == 0) N = quad[0].GetNormal(I); // they're all oriented the same
+//#else
+//	if (objIdx == 0) N = quad.GetNormal(I);
+//#endif
+//	else if (objIdx == 1) N = sphere.GetNormal(I);
+//	else if (objIdx == 2) N = sphere2.GetNormal(I);
+//	else if (objIdx == 3) N = cube.GetNormal(I);
+//	else if (objIdx == 10) N = torus.GetNormal(I);
+//	else
+//	{
+//		// faster to handle the 6 planes without a call to GetNormal
+//		N = float3(0);
+//		N[(objIdx - 4) / 2] = 1 - 2 * (float)(objIdx & 1);
+//	}
+//	if (dot(N, wo) > 0) N = -N; // hit backside / inside
+//	return N;
+//}
 
-float3 BasicScene::GetNormal(const int objIdx, const float3 I, const float3 wo) const
+float3 PrimitiveScene::GetAlbedo(int objIdx, float3 I) const
 {
-	// we get the normal after finding the nearest intersection:
-	// this way we prevent calculating it multiple times.
-	if (objIdx == -1) return float3(0); // or perhaps we should just crash
-	float3 N;
-#ifdef FOURLIGHTS
-	if (objIdx == 0) N = quad[0].GetNormal(I); // they're all oriented the same
-#else
-	if (objIdx == 0) N = quad.GetNormal(I);
-#endif
-	else if (objIdx == 1) N = sphere.GetNormal(I);
-	else if (objIdx == 2) N = sphere2.GetNormal(I);
-	else if (objIdx == 3) N = cube.GetNormal(I);
-	else if (objIdx == 10) N = torus.GetNormal(I);
-	else
-	{
-		// faster to handle the 6 planes without a call to GetNormal
-		N = float3(0);
-		N[(objIdx - 4) / 2] = 1 - 2 * (float)(objIdx & 1);
-	}
-	if (dot(N, wo) > 0) N = -N; // hit backside / inside
-	return N;
-}
-
-float3 BasicScene::GetAlbedo(int objIdx, float3 I) const
-{ 
 	if (objIdx == -1) return float3(0); // or perhaps we should just crash
 #ifdef FOURLIGHTS
 	if (objIdx == 0) return quad[0].GetAlbedo(I); // they're all the same
@@ -347,12 +275,7 @@ float3 BasicScene::GetAlbedo(int objIdx, float3 I) const
 	// centric coordinates of the hit, instead of the intersection location.
 }
 
-Material* BasicScene::GetMaterial(int objIdx)
-{
-	return &materials[objIdx];
-}
-
-int BasicScene::GetTriangleCount() const
+int PrimitiveScene::GetTriangleCount() const
 {
 	return 0;
 }

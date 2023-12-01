@@ -1,28 +1,32 @@
 #include "precomp.h"
-#include "grid_scene.h"
-#include "material.h"
-#include "model.h"
-#include "texture.h"
+#include "scene_1.h"
 
-GridScene::GridScene()
+Scene1::Scene1()
 {
 	light = Quad(0, 1);
 	floor = Plane(1, float3(0, 1, 0), 1);
 	sphere = Sphere(2, float3(0), 0.6f);
 	materials[0] = Material(MaterialType::Light);
-	materials[1] = Material(MaterialType::Diffuse, float3(0), true);
+	materials[1] = Material(MaterialType::Mirror, float3(0), true);
+	materials[1].reflectivity = 0.3f;
 	materials[2] = Material(MaterialType::Mirror);
-	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.5);
+	materials[2].absorption = float3(0.5f, 0, 0.5f);
+	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.1);
 	wok = Model(3, "../assets/wok.obj", t);
 	wok.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	wok.AppendTriangles(sceneGrid.triangles);
-	printf("Triangle count: %d\n", sceneGrid.GetTriangleCount());
-	sceneGrid.BuildGrid();
+	wok.AppendTriangles(sceneBVH.triangles);
+	mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);
+	wok2 = Model(4, "../assets/wok.obj", t2);
+	wok2.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	wok2.AppendTriangles(sceneBVH.triangles);
+
+	printf("Triangle count: %d\n", sceneBVH.GetTriangleCount());
+	sceneBVH.Build();
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	SetTime(0);
 }
 
-void GridScene::SetTime(float t)
+void Scene1::SetTime(float t)
 {
 	animTime = t;
 	// sphere animation: bounce
@@ -35,7 +39,7 @@ void GridScene::SetTime(float t)
 	light.T = M1, light.invT = M1.FastInvertedTransformNoScale();
 }
 
-float3 GridScene::GetSkyColor(const Ray& ray) const
+float3 Scene1::GetSkyColor(const Ray& ray) const
 {
 	// Convert ray direction to texture coordinates, assuming a spherical skydome
 	float phi = atan2(-ray.D.z, ray.D.x) + PI;
@@ -49,67 +53,43 @@ float3 GridScene::GetSkyColor(const Ray& ray) const
 	return color;
 }
 
-float3 GridScene::GetLightPos() const
+float3 Scene1::GetLightPos() const
 {
 	return float3(0, 2, 0);
 }
 
-float3 GridScene::RandomPointOnLight(const float r0, const float r1) const
-{
-	return float3(0);
-}
-
-float3 GridScene::RandomPointOnLight(uint& seed) const
-{
-	return float3(0);
-}
-
-void GridScene::GetLightQuad(float3& v0, float3& v1, float3& v2, float3& v3, const uint idx = 0)
-{
-}
-
-float3 GridScene::GetLightColor() const
+float3 Scene1::GetLightColor() const
 {
 	return float3(24, 24, 22);
 }
 
-float3 GridScene::GetAreaLightColor() const
-{
-	return float3(0);
-}
 
-float GridScene::GetLightArea() const
-{
-	return 0;
-}
-
-constexpr float GridScene::GetLightCount() const
-{
-	return 1;
-}
-
-void GridScene::FindNearest(Ray& ray)
+void Scene1::FindNearest(Ray& ray)
 {
 	light.Intersect(ray);
 	floor.Intersect(ray);
-	sphere.Intersect(ray);
-	sceneGrid.Intersect(ray);
+	//sphere.Intersect(ray);
+	//wok.Intersect(ray);
+	sceneBVH.Intersect(ray);
+	//sceneBVH.IntersectDebug(ray);
 }
 
-bool GridScene::IsOccluded(const Ray& ray)
+bool Scene1::IsOccluded(const Ray& ray)
 {
 	// from tmpl8rt_IGAD
-	if (sphere.IsOccluded(ray)) return true;
+	//if (sphere.IsOccluded(ray)) return true;
 	if (light.IsOccluded(ray)) return true;
-	Ray shadow = ray;
+	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
-	sceneGrid.Intersect(shadow);
+	sceneBVH.Intersect(shadow);
+	//sceneBVH.IntersectDebug(shadow);
 	if (shadow.objIdx > -1) return true;
+	//if (wok.IsOccluded(ray)) return true;
 	// skip planes
 	return false;
 }
 
-HitInfo GridScene::GetHitInfo(const Ray& ray, const float3 I)
+HitInfo Scene1::GetHitInfo(const Ray& ray, const float3 I)
 {
 	HitInfo hitInfo = HitInfo(float3(0), float2(0), &errorMaterial);
 	switch (ray.objIdx)
@@ -130,23 +110,29 @@ HitInfo GridScene::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.material = &materials[2];
 		break;
 	case 3:
-		hitInfo.normal = sceneGrid.GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = sceneGrid.GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &wok.material;
+		break;
+	case 4:
+		hitInfo.normal = sceneBVH.GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = sceneBVH.GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &wok2.material;
 		break;
 	default:
 		break;
 	}
+
 	return hitInfo;
 }
 
-float3 GridScene::GetAlbedo(int objIdx, float3 I) const
+float3 Scene1::GetAlbedo(int objIdx, float3 I) const
 {
 	if (objIdx == 1) return floor.GetAlbedo(I);
 	return float3(0);
 }
 
-int GridScene::GetTriangleCount() const
+int Scene1::GetTriangleCount() const
 {
-	return sceneGrid.GetTriangleCount();
+	return sceneBVH.GetTriangleCount();
 }

@@ -44,16 +44,18 @@
     <ClCompile Include="bvh.cpp">
       <Filter>bvh</Filter>
     </ClCompile>
-    <ClCompile Include="bvh_scene.cpp">
-      <Filter>bvh</Filter>
-    </ClCompile>
     <ClCompile Include="grid.cpp">
       <Filter>grid</Filter>
     </ClCompile>
-    <ClCompile Include="grid_scene.cpp">
-      <Filter>grid</Filter>
+    <ClCompile Include="scenes\primitive_scene.cpp">
+      <Filter>scenes</Filter>
     </ClCompile>
-    <ClCompile Include="basic_scene.cpp" />
+    <ClCompile Include="scenes\scene_1.cpp">
+      <Filter>scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\scene_2.cpp">
+      <Filter>scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -127,17 +129,22 @@
     <ClInclude Include="bvh.h">
       <Filter>bvh</Filter>
     </ClInclude>
-    <ClInclude Include="bvh_scene.h">
-      <Filter>bvh</Filter>
-    </ClInclude>
     <ClInclude Include="grid.h">
       <Filter>grid</Filter>
     </ClInclude>
-    <ClInclude Include="grid_scene.h">
-      <Filter>grid</Filter>
-    </ClInclude>
     <ClInclude Include="hit_info.h" />
-    <ClInclude Include="basic_scene.h" />
+    <ClInclude Include="scenes\base_scene.h">
+      <Filter>scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\primitive_scene.h">
+      <Filter>scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\scene_1.h">
+      <Filter>scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\scene_2.h">
+      <Filter>scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">
@@ -151,6 +158,9 @@
     </Filter>
     <Filter Include="grid">
       <UniqueIdentifier>{4c5bec9c-0781-48a7-a87c-c599b8772339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scenes">
+      <UniqueIdentifier>{b821885e-8a8d-4e73-8e0c-05f55902b67d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
