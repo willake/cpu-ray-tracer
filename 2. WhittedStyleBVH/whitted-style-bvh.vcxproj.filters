@@ -54,6 +54,7 @@
       <Filter>grid</Filter>
     </ClCompile>
     <ClCompile Include="basic_scene.cpp" />
+    <ClCompile Include="scene_1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -138,6 +139,7 @@
     </ClInclude>
     <ClInclude Include="hit_info.h" />
     <ClInclude Include="basic_scene.h" />
+    <ClInclude Include="scene_1.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">

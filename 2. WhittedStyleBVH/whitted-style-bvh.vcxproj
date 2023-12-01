@@ -151,6 +151,7 @@
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="grid_scene.cpp" />
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="scene_1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\imgui\imconfig.h" />
@@ -183,6 +184,7 @@
     <ClInclude Include="helper.h" />
     <ClInclude Include="hit_info.h" />
     <ClInclude Include="renderer.h" />
+    <ClInclude Include="scene_1.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\template\LICENSE" />
