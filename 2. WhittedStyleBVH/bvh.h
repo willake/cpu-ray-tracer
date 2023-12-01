@@ -46,5 +46,6 @@ namespace Tmpl8
 		std::vector<uint> triangleIndices;
 		std::vector<BVHNode> bvhNodes;
 		uint rootNodeIdx = 0, nodesUsed = 1;
+		aabb bounds;
 	};
 }

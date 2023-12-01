@@ -32,6 +32,9 @@ void Scene2::SetTime(float t)
 	float tm = 1 - sqrf(fmodf(animTime, 2.0f) - 1);
 	sphere.pos = float3(-1.8f, 0.4f + tm, 1);
 
+	mat4 modelT = mat4::Translate(float3(1, -0.4f + tm, 1));
+	models[0].SetTransform(modelT);
+
 	// light source animation: swing
 	mat4 M1base = mat4::Translate(float3(0, 2.6f, 2));
 	mat4 M1 = M1base * mat4::RotateZ(sinf(animTime * 0.6f) * 0.1f) * mat4::Translate(float3(0, -0.9f, 0));
