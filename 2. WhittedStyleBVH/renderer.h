@@ -8,6 +8,7 @@
 #include "primitive_scene.h"
 #include "scene_1.h"
 #include "scene_2.h"
+#include "animable_scene.h"
 
 #define EPSILON	0.0001f
 
@@ -39,7 +40,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		Scene2 scene;
+		AnimableScene scene;
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;

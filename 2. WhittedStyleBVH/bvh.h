@@ -36,6 +36,7 @@ namespace Tmpl8
 		float CalculateNodeCost(BVHNode& node);
 	public:
 		void Build();
+		void Refit();
 		void Intersect(Ray& ray);
 		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;

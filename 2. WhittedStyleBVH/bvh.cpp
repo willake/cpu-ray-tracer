@@ -25,6 +25,25 @@ void BVH::Build()
     Subdivide(rootNodeIdx);
 }
 
+void BVH::Refit()
+{
+    for (int i = nodesUsed - 1; i >= 0; i--) if (i != 1)
+    {
+        BVHNode& node = bvhNodes[i];
+        if (node.isLeaf())
+        {
+            // leaf node: adjust bounds to contained triangles
+            UpdateNodeBounds(i);
+            continue;
+        }
+        // interior node: adjust bounds to child node bounds
+        BVHNode& leftChild = bvhNodes[node.leftFirst];
+        BVHNode& rightChild = bvhNodes[node.leftFirst + 1];
+        node.aabbMin = fminf(leftChild.aabbMin, rightChild.aabbMin);
+        node.aabbMax = fmaxf(leftChild.aabbMax, rightChild.aabbMax);
+    }
+}
+
 void BVH::UpdateNodeBounds(uint nodeIdx)
 {
     BVHNode& node = bvhNodes[nodeIdx];
