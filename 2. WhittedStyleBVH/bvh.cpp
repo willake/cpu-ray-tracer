@@ -51,24 +51,12 @@ void BVH::Subdivide(uint nodeIdx)
 
 #ifdef SAH
     // determine split axis using SAH
-    int bestAxis = -1;
-    float bestPos = 0, bestCost = 1e30f;
-    for (int axis = 0; axis < 3; axis++) for (uint i = 0; i < node.triCount; i++)
-    {
-        Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
-        float candidatePos = triangle.centroid[axis];
-        float cost = EvaluateSAH(node, axis, candidatePos);
-        if (cost < bestCost)
-            bestPos = candidatePos, bestAxis = axis, bestCost = cost;
-    }
-    int axis = bestAxis;
-    float splitPos = bestPos;
+    int axis;
+    float splitPos;
+    float splitCost = FindBestSplitPlane(node, axis, splitPos);
 
-    float3 e = node.aabbMax - node.aabbMin; // extent of parent
-    float parentArea = e.x * e.y + e.y * e.z + e.z * e.x;
-    float parentCost = node.triCount * parentArea;
-
-    if (bestCost >= parentCost) return;
+    float nosplitCost = CalculateNodeCost(node);
+    if (splitCost >= nosplitCost) return;
 #else
     // split plane axis and position
     float3 extent = node.aabbMax - node.aabbMin;
@@ -106,6 +94,29 @@ void BVH::Subdivide(uint nodeIdx)
     // recurse
     Subdivide(leftChildIdx);
     Subdivide(rightChildIdx);
+}
+
+float BVH::CalculateNodeCost(BVHNode& node)
+{
+    float3 e = node.aabbMax - node.aabbMin; // extent of the node
+    float surfaceArea = e.x * e.y + e.y * e.z + e.z * e.x;
+    return node.triCount * surfaceArea;
+}
+
+float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
+{
+    float bestCost = 1e30f;
+    for (int a = 0; a < 3; a++)
+    {
+        for (uint i = 0; i < node.triCount; i++)
+        {
+            Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
+            float candidatePos = triangle.centroid[a];
+            float cost = EvaluateSAH(node, a, candidatePos);
+            if (cost < bestCost) splitPos = candidatePos, axis = a, bestCost = cost;
+        }
+    }
+    return bestCost;
 }
 
 float BVH::EvaluateSAH(BVHNode& node, int axis, float pos)

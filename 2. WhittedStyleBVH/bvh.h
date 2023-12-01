@@ -29,6 +29,8 @@ namespace Tmpl8
 		void IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
 		void IntersectBVH(Ray& ray, const uint nodeIdx);
 		float EvaluateSAH(BVHNode& node, int axis, float pos);
+		float FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos);
+		float CalculateNodeCost(BVHNode& node);
 	public:
 		void BuildBVH();
 		void Intersect(Ray& ray);
