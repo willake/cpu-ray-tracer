@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "grid.h"
 
-void Grid::BuildGrid()
+void Grid::Build()
 {
     // Determine scene bound
     for (size_t i = 0; i < triangles.size(); i++)

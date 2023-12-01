@@ -4,10 +4,6 @@
 #include "material.h"
 #include "model.h"
 #include "hit_info.h"
-#include "bvh.h"
-#include "basic_scene.h"
-#include "bvh_scene.h"
-#include "grid_scene.h"
 #include "base_scene.h"
 #include "primitive_scene.h"
 #include "scene_1.h"
@@ -43,7 +39,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		Scene1 scene;
+		Scene2 scene;
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;

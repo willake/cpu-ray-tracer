@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "bvh.h"
 
-void BVH::BuildBVH()
+void BVH::Build()
 {
     normals.resize(triangles.size());
     triangleIndices.resize(triangles.size());

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "base_scene.h"
+#include "bvh.h"
+#include "grid.h"
 
 namespace Tmpl8
 {

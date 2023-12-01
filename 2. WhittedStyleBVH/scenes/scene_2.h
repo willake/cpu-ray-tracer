@@ -1,6 +1,8 @@
 #pragma once
 
 #include "base_scene.h"
+#include "bvh.h"
+#include "grid.h"
 
 namespace Tmpl8
 {
@@ -23,7 +25,7 @@ namespace Tmpl8
 		Model wok2;
 		//Model models[NUM_CUBE];
 		Texture skydome;
-		BVH sceneBVH;
+		Grid sceneBVH;
 		Plane floor;
 		Sphere sphere;
 		Quad light;

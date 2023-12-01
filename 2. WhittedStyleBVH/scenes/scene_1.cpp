@@ -21,7 +21,7 @@ Scene1::Scene1()
 	wok2.AppendTriangles(sceneBVH.triangles);
 
 	printf("Triangle count: %d\n", sceneBVH.GetTriangleCount());
-	sceneBVH.BuildBVH();
+	sceneBVH.Build();
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	SetTime(0);
 }
