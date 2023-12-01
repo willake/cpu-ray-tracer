@@ -21,9 +21,11 @@ namespace Tmpl8
 		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
+		void SetTriangles(std::vector<Tri>& triangles);
 		int3 resolution;
 		float3 cellSize;
 		aabb gridBounds;
+		aabb worldBounds;
 		std::vector<Tri> triangles;
 		std::vector<float3> normals;
 		std::vector<uint> triangleIndices;

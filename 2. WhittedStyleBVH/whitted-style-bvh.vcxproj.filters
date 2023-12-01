@@ -60,6 +60,7 @@
       <Filter>scenes</Filter>
     </ClCompile>
     <ClCompile Include="bvh_model.cpp" />
+    <ClCompile Include="grid_model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -153,6 +154,7 @@
       <Filter>scenes</Filter>
     </ClInclude>
     <ClInclude Include="bvh_model.h" />
+    <ClInclude Include="grid_model.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">

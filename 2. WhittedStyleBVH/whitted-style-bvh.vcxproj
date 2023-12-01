@@ -148,6 +148,7 @@
     <ClCompile Include="bvh.cpp" />
     <ClCompile Include="bvh_model.cpp" />
     <ClCompile Include="grid.cpp" />
+    <ClCompile Include="grid_model.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="scenes\animable_scene.cpp" />
     <ClCompile Include="scenes\primitive_scene.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="bvh.h" />
     <ClInclude Include="bvh_model.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="grid_model.h" />
     <ClInclude Include="helper.h" />
     <ClInclude Include="hit_info.h" />
     <ClInclude Include="renderer.h" />
