@@ -8,6 +8,10 @@
 #include "basic_scene.h"
 #include "bvh_scene.h"
 #include "grid_scene.h"
+#include "base_scene.h"
+#include "primitive_scene.h"
+#include "scene_1.h"
+#include "scene_2.h"
 
 #define EPSILON	0.0001f
 
@@ -39,7 +43,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		BVHScene scene;
+		Scene1 scene;
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;
