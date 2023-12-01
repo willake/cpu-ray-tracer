@@ -146,6 +146,7 @@
     </ClCompile>
     <ClCompile Include="..\template\tmplmath.cpp" />
     <ClCompile Include="bvh.cpp" />
+    <ClCompile Include="bvh_model.cpp" />
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="scenes\animable_scene.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="..\template\texture.h" />
     <ClInclude Include="..\template\tmplmath.h" />
     <ClInclude Include="bvh.h" />
+    <ClInclude Include="bvh_model.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="helper.h" />
     <ClInclude Include="hit_info.h" />

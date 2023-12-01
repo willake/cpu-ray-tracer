@@ -11,7 +11,7 @@ Scene1::Scene1()
 	materials[1].reflectivity = 0.3f;
 	materials[2] = Material(MaterialType::Mirror);
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
-	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(0.01);
+	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(1);
 	wok = Model(3, "../assets/wok.obj", t);
 	wok.material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.jpg");
 	wok.AppendTriangles(sceneBVH.triangles);

@@ -38,11 +38,11 @@ namespace Tmpl8
 		void Build();
 		void Refit();
 		void Intersect(Ray& ray);
+		void SetTriangles(std::vector<Tri>& triangles);
 		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
 		std::vector<Tri> triangles;
-		std::vector<float3> normals;
 		std::vector<uint> triangleIndices;
 		std::vector<BVHNode> bvhNodes;
 		uint rootNodeIdx = 0, nodesUsed = 1;

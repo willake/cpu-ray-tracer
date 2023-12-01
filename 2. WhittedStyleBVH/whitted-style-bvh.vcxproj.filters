@@ -59,6 +59,7 @@
     <ClCompile Include="scenes\animable_scene.cpp">
       <Filter>scenes</Filter>
     </ClCompile>
+    <ClCompile Include="bvh_model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -151,6 +152,7 @@
     <ClInclude Include="scenes\animable_scene.h">
       <Filter>scenes</Filter>
     </ClInclude>
+    <ClInclude Include="bvh_model.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">

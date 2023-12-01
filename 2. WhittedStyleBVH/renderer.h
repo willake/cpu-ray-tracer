@@ -3,6 +3,7 @@
 #include "texture.h"
 #include "material.h"
 #include "model.h"
+#include "bvh_model.h"
 #include "hit_info.h"
 #include "base_scene.h"
 #include "primitive_scene.h"
@@ -40,7 +41,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		AnimableScene scene;
+		Scene2 scene;
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;

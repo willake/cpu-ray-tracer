@@ -3,15 +3,10 @@
 
 void BVH::Build()
 {
-    normals.resize(triangles.size());
     triangleIndices.resize(triangles.size());
     // populate triangle index array
     for (int i = 0; i < triangles.size(); i++)
     {
-        // setup normals
-        float3 edge1 = triangles[i].vertex1 - triangles[i].vertex0;
-        float3 edge2 = triangles[i].vertex2 - triangles[i].vertex0;
-        normals[i] = normalize(cross(edge1, edge2));
         // setup indices
         triangleIndices[i] = i;
     }
@@ -304,6 +299,11 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
 int BVH::GetTriangleCount() const
 {
     return triangles.size();
+}
+
+void BVH::SetTriangles(std::vector<Tri>& tris)
+{
+    triangles = tris;
 }
 
 void BVH::Intersect(Ray& ray)
