@@ -12,11 +12,13 @@ Scene2::Scene2()
 	materials[2] = Material(MaterialType::Mirror);
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 1));
-	mat4 s = mat4::Scale(0.5f);
+	mat4 s = mat4::Scale(1);
 	//bvhModels.push_back(BVHModel(3, "../assets/wok.obj", t, s));
 	//bvhModels[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	gridModels.push_back(GridModel(3, "../assets/wok.obj", t, s));
-	gridModels[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	gridModels.push_back(GridModel(3, "../assets/teapot.obj", t, s));
+	gridModels[0].material.reflectivity = 0.4;
+	gridModels[0].material.type = MaterialType::Mirror;
+	//gridModels[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	//mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);
 	//models.push_back(BVHModel(4, "../assets/wok.obj", t2));
 	//models[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
