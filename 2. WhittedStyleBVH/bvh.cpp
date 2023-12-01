@@ -108,8 +108,13 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
     float bestCost = 1e30f;
     for (int a = 0; a < 3; a++)
     {
-        float boundsMin = node.aabbMin[a];
-        float boundsMax = node.aabbMax[a];
+        float boundsMin = 1e30f, boundsMax = -1e30f;
+        for (int i = 0; i < node.triCount; i++)
+        {
+            Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
+            boundsMin = min(boundsMin, triangle.centroid[a]);
+            boundsMax = max(boundsMax, triangle.centroid[a]);
+        }
         if (boundsMin == boundsMax) continue;
         float scale = (boundsMax - boundsMin) / 100;
         for (uint i = 1; i < 100; i++)
