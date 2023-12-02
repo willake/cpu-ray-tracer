@@ -21,7 +21,7 @@ namespace Tmpl8
 		int GetTriangleCount() const;
 	public:
 		float animTime = 0;
-		std::vector<BVHModel> bvhModels;
+		std::vector<BVH> bvhModels;
 		std::vector<GridModel> gridModels;
 		Texture skydome;
 		Plane floor;

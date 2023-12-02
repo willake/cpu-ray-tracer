@@ -7,6 +7,11 @@ namespace Tmpl8 {
 	{
 	public:
 		Ray() = default;
+		Ray(const Ray& ray)
+		{
+			O = ray.O, D = ray.D, t = ray.t; rD = ray.rD; objIdx = ray.objIdx; barycentric = ray.barycentric; triIdx = ray.triIdx;
+			traversed = ray.traversed; inside = ray.inside;
+		}
 		Ray(const float3 origin, const float3 direction, const float distance = 1e34f, const int idx = -1)
 		{
 			O = origin, D = direction, t = distance;

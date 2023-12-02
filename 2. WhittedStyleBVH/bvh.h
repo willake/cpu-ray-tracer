@@ -35,17 +35,24 @@ namespace Tmpl8
 		float FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos);
 		float CalculateNodeCost(BVHNode& node);
 	public:
+		BVH() = default;
+		BVH(const int idx, const std::string& modelPath, const mat4 transform, const mat4 scaleMat);
 		void Build();
 		void Refit();
 		void Intersect(Ray& ray);
-		void SetTriangles(std::vector<Tri>& triangles);
+		void SetTransform(mat4 transform);
 		float3 GetNormal(const uint triIdx, const float2 barycentric) const;
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
+	private:
 		std::vector<Tri> triangles;
 		std::vector<uint> triangleIndices;
-		std::vector<BVHNode> bvhNodes;
 		uint rootNodeIdx = 0, nodesUsed = 1;
+	public:
+		int objIdx = -1;
+		std::vector<BVHNode> bvhNodes;
+		Material material;
 		aabb bounds;
+		mat4 invT;
 	};
 }

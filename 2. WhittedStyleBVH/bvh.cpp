@@ -1,6 +1,85 @@
 #include "precomp.h"
 #include "bvh.h"
 
+BVH::BVH(const int idx, const std::string& modelPath, const mat4 transform, const mat4 scaleMat)
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
+    {
+        throw std::runtime_error(warn + err);
+    }
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    for (const auto& shape : shapes)
+    {
+        for (const auto& index : shape.mesh.indices)
+        {
+            Vertex vertex{};
+
+            if (index.vertex_index >= 0)
+            {
+                vertex.position = {
+                    attrib.vertices[3 * index.vertex_index + 0],
+                    attrib.vertices[3 * index.vertex_index + 1],
+                    attrib.vertices[3 * index.vertex_index + 2] };
+            }
+
+            if (index.normal_index >= 0)
+            {
+                vertex.normal = {
+                    attrib.normals[3 * index.normal_index + 0],
+                    attrib.normals[3 * index.normal_index + 1],
+                    attrib.normals[3 * index.normal_index + 2] };
+            }
+
+            if (index.texcoord_index >= 0)
+            {
+                vertex.uv = {
+                    attrib.texcoords[2 * index.texcoord_index + 0],
+                    attrib.texcoords[2 * index.texcoord_index + 1] };
+            }
+
+            if (uniqueVertices.count(vertex) == 0)
+            {
+                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                vertices.push_back(vertex);
+            }
+            indices.push_back(uniqueVertices[vertex]);
+        }
+    }
+
+    invT = transform.FastInvertedTransformNoScale();
+
+    objIdx = idx;
+
+    for (int i = 0; i < indices.size(); i += 3)
+    {
+        Tri tri(
+            TransformPosition(vertices[indices[i]].position, scaleMat),
+            TransformPosition(vertices[indices[i + 1]].position, scaleMat),
+            TransformPosition(vertices[indices[i + 2]].position, scaleMat),
+            vertices[indices[i]].normal,
+            vertices[indices[i + 1]].normal,
+            vertices[indices[i + 2]].normal,
+            vertices[indices[i]].uv,
+            vertices[indices[i + 1]].uv,
+            vertices[indices[i + 2]].uv,
+            float3(0), objIdx);
+        tri.centroid = (tri.vertex0 + tri.vertex1 + tri.vertex2) * 0.3333f;
+        triangles.push_back(tri);
+    }
+
+    Build();
+}
+
 void BVH::Build()
 {
     triangleIndices.resize(triangles.size());
@@ -281,6 +360,7 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
 #else
     BVHNode& node = bvhNodes[nodeIdx];
     if (!IntersectAABB(ray, node.aabbMin, node.aabbMax)) return;
+    ray.traversed++;
     if (node.isLeaf())
     {
         for (uint i = 0; i < node.triCount; i++)
@@ -302,14 +382,31 @@ int BVH::GetTriangleCount() const
     return triangles.size();
 }
 
-void BVH::SetTriangles(std::vector<Tri>& tris)
+void BVH::SetTransform(mat4 transform)
 {
-    triangles = tris;
+    invT = transform.FastInvertedTransformNoScale();
+    // update bvh bound
+    // calculate world-space bounds using the new matrix
+    float3 bmin = bvhNodes[0].aabbMin, bmax = bvhNodes[0].aabbMax;
+    bounds = aabb();
+    for (int i = 0; i < 8; i++)
+        bounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
+            i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
 }
 
 void BVH::Intersect(Ray& ray)
 {
-    IntersectBVH(ray, rootNodeIdx);
+    Ray tRay = Ray(ray);
+    tRay.O = TransformPosition_SSE(ray.O4, invT);
+    tRay.D = TransformVector_SSE(ray.D4, invT);
+    tRay.rD = float3(1 / tRay.D.x, 1 / tRay.D.y, 1 / tRay.D.z);
+
+    IntersectBVH(tRay, rootNodeIdx);
+
+    tRay.O = ray.O;
+    tRay.D = ray.D;
+    tRay.rD = ray.rD;
+    ray = tRay;
 }
 
 float3 BVH::GetNormal(const uint triIdx, const float2 barycentric) const
@@ -317,8 +414,8 @@ float3 BVH::GetNormal(const uint triIdx, const float2 barycentric) const
     float3 n0 = triangles[triIdx].normal0;
     float3 n1 = triangles[triIdx].normal1;
     float3 n2 = triangles[triIdx].normal2;
-    return (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
-    //return normals[triIdx];
+    float3 N = (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
+    return normalize(TransformVector(N, invT));
 }
 
 float2 BVH::GetUV(const uint triIdx, const float2 barycentric) const

@@ -75,7 +75,7 @@ BVHModel::BVHModel(const int idx, const std::string& modelPath, const mat4 trans
         tri.centroid = (tri.vertex0 + tri.vertex1 + tri.vertex2) * 0.3333f;
         triangles.push_back(tri);
     }
-    bvh.SetTriangles(triangles);
+    //bvh.SetTriangles(triangles);
 
     bvh.Build();
 }
@@ -113,13 +113,13 @@ Material* BVHModel::GetMaterial()
 
 void BVHModel::SetTransform(mat4 transform)
 {
-    T = transform;
-    invT = transform.FastInvertedTransformNoScale();
-    // update bvh bound
-    // calculate world-space bounds using the new matrix
-    float3 bmin = bvh.bvhNodes[0].aabbMin, bmax = bvh.bvhNodes[0].aabbMax;
-    bvh.bounds = aabb();
-    for (int i = 0; i < 8; i++)
-        bvh.bounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
-            i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
+    //T = transform;
+    //invT = transform.FastInvertedTransformNoScale();
+    //// update bvh bound
+    //// calculate world-space bounds using the new matrix
+    //float3 bmin = bvh.bvhNodes[0].aabbMin, bmax = bvh.bvhNodes[0].aabbMax;
+    //bvh.bounds = aabb();
+    //for (int i = 0; i < 8; i++)
+    //    bvh.bounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
+    //        i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
 }

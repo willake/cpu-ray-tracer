@@ -13,7 +13,7 @@ Scene2::Scene2()
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 1));
 	mat4 s = mat4::Scale(1);
-	bvhModels.push_back(BVHModel(3, "../assets/wok.obj", t, s));
+	bvhModels.push_back(BVH(3, "../assets/wok.obj", t, s));
 	bvhModels[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	//gridModels.push_back(GridModel(3, "../assets/wok.obj", t, s));
 	//gridModels[0].material.reflectivity = 0.4;
@@ -128,7 +128,7 @@ HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 	case 3:
 		hitInfo.normal = bvhModels[0].GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = bvhModels[0].GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = bvhModels[0].GetMaterial();
+		hitInfo.material = &bvhModels[0].material;
 		/*hitInfo.normal = gridModels[0].GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = gridModels[0].GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = gridModels[0].GetMaterial();*/
@@ -136,7 +136,7 @@ HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 	case 4:
 		hitInfo.normal = bvhModels[1].GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = bvhModels[1].GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = bvhModels[1].GetMaterial();
+		hitInfo.material = &bvhModels[1].material;
 		/*hitInfo.normal = gridModels[1].GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = gridModels[1].GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = gridModels[1].GetMaterial();*/
@@ -159,7 +159,7 @@ int Scene2::GetTriangleCount() const
 	int count = 0;
 	for (int i = 0; i < bvhModels.size(); i++)
 	{
-		count += bvhModels[i].bvh.GetTriangleCount();
+		count += bvhModels[i].GetTriangleCount();
 	}
 	for (int i = 0; i < gridModels.size(); i++)
 	{
