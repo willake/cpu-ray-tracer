@@ -23,6 +23,16 @@ namespace Tmpl8
 			this->refractivity = 1.0f;
 			this->absorption = float3(0);
 		}
+		//Material(const Material& mat)
+		//{
+		//	this->type = mat.type;
+		//	this->albedo = mat.albedo;
+		//	this->isAlbedoOverridden = mat.isAlbedoOverridden;
+		//	this->reflectivity = mat.reflectivity;
+		//	this->refractivity = mat.refractivity;
+		//	this->absorption = float3(0);
+		//	textureDiffuse = std::make_unique<Texture>(mat.textureDiffuse.get());
+		//}
 		float3 GetAlbedo(float2 uv)
 		{
 			if (textureDiffuse.get() == nullptr)

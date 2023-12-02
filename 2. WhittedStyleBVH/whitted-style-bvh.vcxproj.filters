@@ -53,8 +53,12 @@
     <ClCompile Include="scenes\scene_2.cpp">
       <Filter>scenes</Filter>
     </ClCompile>
-    <ClCompile Include="bvh_model.cpp" />
-    <ClCompile Include="grid_model.cpp" />
+    <ClCompile Include="tlas_bvh.cpp">
+      <Filter>bvh</Filter>
+    </ClCompile>
+    <ClCompile Include="tlas_grid.cpp">
+      <Filter>grid</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -141,8 +145,12 @@
     <ClInclude Include="scenes\scene_2.h">
       <Filter>scenes</Filter>
     </ClInclude>
-    <ClInclude Include="bvh_model.h" />
-    <ClInclude Include="grid_model.h" />
+    <ClInclude Include="tlas_bvh.h">
+      <Filter>bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="tlas_grid.h">
+      <Filter>grid</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">

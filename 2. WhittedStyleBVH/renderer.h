@@ -3,15 +3,13 @@
 #include "helper.h"
 #include "texture.h"
 #include "material.h"
-#include "bvh_model.h"
-#include "grid_model.h"
 #include "hit_info.h"
 #include "base_scene.h"
 #include "primitive_scene.h"
 #include "scene_1.h"
 #include "scene_2.h"
 
-#define EPSILON	0.0001f
+#define EPSILON	0.001f
 
 namespace Tmpl8
 {

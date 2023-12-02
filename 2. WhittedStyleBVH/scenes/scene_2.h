@@ -1,8 +1,8 @@
 #pragma once
 
 #include "base_scene.h"
-#include "grid_model.h"
-#include "bvh_model.h"
+#include "tlas_bvh.h"
+#include "tlas_grid.h"
 
 namespace Tmpl8
 {
@@ -21,8 +21,10 @@ namespace Tmpl8
 		int GetTriangleCount() const;
 	public:
 		float animTime = 0;
-		std::vector<BVHModel> bvhModels;
-		std::vector<GridModel> gridModels;
+		BVH bvhs[3];
+		Grid grids[3];
+		TLASBVH tlasBVH;
+		TLASGrid tlasGrid;
 		Texture skydome;
 		Plane floor;
 		Sphere sphere;
