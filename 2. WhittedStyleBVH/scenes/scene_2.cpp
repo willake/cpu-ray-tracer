@@ -13,9 +13,9 @@ Scene2::Scene2()
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 1));
 	mat4 s = mat4::Scale(0.5f);
-	bvhs.push_back(BVH(3, "../assets/sphere.obj", t, s));
-	bvhs[0].material.type = MaterialType::Mirror;
-	//bvhModels[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	bvhs.push_back(BVH(3, "../assets/wok.obj", t, s));
+	//bvhs[0].material.type = MaterialType::Mirror;
+	bvhs[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	//gridModels.push_back(Grid(3, "../assets/wok.obj", t, s));
 	//gridModels[0].material.reflectivity = 0.4;
 	//gridModels[0].material.type = MaterialType::Mirror;
