@@ -39,12 +39,19 @@ namespace Tmpl8
         }
     public:
         Texture() = default;
-        Texture(const std::string& file) : pixels(0), width(0), height(0)
+        Texture(const std::string& file) : pixels(0), width(0), height(0), ownBuffer(false)
         {
             FILE* f = fopen(file.c_str(), "rb");
             if (!f) FatalError("File not found: %s", file);
             fclose(f);
             LoadFromFile(file);
+        }
+        Texture(const Texture& texture)
+        {
+            //pixels = texture.pixels;
+            pixels.insert(pixels.begin(), texture.pixels.begin(), texture.pixels.end());
+            int width = texture.width, height = texture.height;
+            bool ownBuffer = texture.ownBuffer;
         }
         ~Texture()
         {

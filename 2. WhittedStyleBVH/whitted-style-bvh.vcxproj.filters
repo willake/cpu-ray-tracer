@@ -53,6 +53,9 @@
     <ClCompile Include="scenes\scene_2.cpp">
       <Filter>scenes</Filter>
     </ClCompile>
+    <ClCompile Include="tlas_bvh.cpp">
+      <Filter>bvh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -138,6 +141,9 @@
     </ClInclude>
     <ClInclude Include="scenes\scene_2.h">
       <Filter>scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="tlas_bvh.h">
+      <Filter>bvh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

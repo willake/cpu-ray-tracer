@@ -1,12 +1,13 @@
 #include "precomp.h"
 #include "tlas_bvh.h"
 
-TLASBVH::TLASBVH(std::vector<BVH>& bvhList)
+TLASBVH::TLASBVH(BVH* bvhList, int N)
 {
+	// copy a pointer to the array of bottom level accstructs
 	blas = bvhList;
-	blasCount = bvhList.size();
-	tlasNode.resize(2 * blasCount);
-	nodesUsed = 2;
+	blasCount = N;
+	// allocate TLAS nodes
+	tlasNode = (TLASBVHNode*)_aligned_malloc(sizeof(TLASBVHNode) * 2 * N, 64);
 }
 
 void TLASBVH::Build()
@@ -80,12 +81,12 @@ void TLASBVH::Intersect(Ray& ray)
 	{
 		if (node->isLeaf())
 		{
-			blas[node->leftRight].Intersect(ray);
+			blas[node->BLAS].Intersect(ray);
 			if (stackPtr == 0) break; else node = stack[--stackPtr];
 			continue;
 		}
-		TLASBVHNode* child1 = &tlasNode[node->leftRight];
-		TLASBVHNode* child2 = &tlasNode[node->leftRight + 1];
+		TLASBVHNode* child1 = &tlasNode[node->leftRight & 0xffff];
+		TLASBVHNode* child2 = &tlasNode[node->leftRight >> 16];
 		float dist1 = IntersectAABB(ray, child1->aabbMin, child1->aabbMax);
 		float dist2 = IntersectAABB(ray, child2->aabbMin, child2->aabbMax);
 		if (dist1 > dist2) { swap(dist1, dist2); swap(child1, child2); }

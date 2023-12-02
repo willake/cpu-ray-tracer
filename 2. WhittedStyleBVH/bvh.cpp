@@ -56,9 +56,6 @@ BVH::BVH(const int idx, const std::string& modelPath, const mat4 transform, cons
         }
     }
 
-    T = transform;
-    invT = transform.FastInvertedTransformNoScale();
-
     objIdx = idx;
 
     for (int i = 0; i < indices.size(); i += 3)
@@ -79,7 +76,23 @@ BVH::BVH(const int idx, const std::string& modelPath, const mat4 transform, cons
     }
 
     Build();
+    SetTransform(transform);
 }
+
+//BVH::BVH(const BVH& bvh)
+//{
+//    objIdx = bvh.objIdx;
+//    
+//    triangles = bvh.triangles;
+//    triangleIndices = bvh.triangleIndices;
+//    bvhNodes = bvh.bvhNodes;
+//
+//    rootNodeIdx = 0, nodesUsed = bvh.nodesUsed;
+//    material = bvh.material;
+//    bounds = bvh.bounds;
+//    T = bvh.T;
+//    invT = bvh.invT;
+//}
 
 void BVH::Build()
 {

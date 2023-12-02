@@ -13,9 +13,13 @@ Scene2::Scene2()
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 1));
 	mat4 s = mat4::Scale(0.5f);
-	bvhs.push_back(BVH(3, "../assets/japanese_torii_gate.obj", t, s));
+	mat4 t2 = mat4::Translate(float3(-1, -0.4f, 2));
+	mat4 s2 = mat4::Scale(0.5f);
+	mat4 t3 = mat4::Translate(float3(0, -0.4f, 4));
+	mat4 s3 = mat4::Scale(0.5f);
+	//bvhs.push_back(BVH(3, "../assets/wok.obj", t, s));
 	//bvhs[0].material.type = MaterialType::Mirror;
-	bvhs[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/T_Trim_01_BaseColor.png");
+	//bvhs.push_back(BVH(4, "../assets/wok.obj", t, s));
 	//gridModels.push_back(Grid(3, "../assets/wok.obj", t, s));
 	//gridModels[0].material.reflectivity = 0.4;
 	//gridModels[0].material.type = MaterialType::Mirror;
@@ -26,6 +30,14 @@ Scene2::Scene2()
 
 	//printf("Triangle count: %d\n", sceneBVH.GetTriangleCount());
 	//sceneBVH.Build();
+	bvhs[0] = BVH(100, "../assets/wok.obj", t, s);
+	bvhs[1] = BVH(101, "../assets/wok.obj", t2, s2);
+	bvhs[2] = BVH(102, "../assets/wok.obj", t3, s3);
+	tlasBVH = TLASBVH(bvhs, 3);
+	tlasBVH.Build();
+	tlasBVH.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	tlasBVH.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	tlasBVH.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	SetTime(0);
 }
@@ -76,14 +88,15 @@ void Scene2::FindNearest(Ray& ray)
 	light.Intersect(ray);
 	floor.Intersect(ray);
 	//sphere.Intersect(ray);
-	for (int i = 0; i < bvhs.size(); i++)
-	{
-		bvhs[i].Intersect(ray);
-	}
-	for (int i = 0; i < grids.size(); i++)
-	{
-		grids[i].Intersect(ray);
-	}
+	//for (int i = 0; i < bvhs.size(); i++)
+	//{
+	//	bvhs[i].Intersect(ray);
+	//}
+	//for (int i = 0; i < grids.size(); i++)
+	//{
+	//	grids[i].Intersect(ray);
+	//}
+	tlasBVH.Intersect(ray);
 }
 
 bool Scene2::IsOccluded(const Ray& ray)
@@ -93,14 +106,15 @@ bool Scene2::IsOccluded(const Ray& ray)
 	//if (light.IsOccluded(ray)) return true;
 	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
-	for (int i = 0; i < bvhs.size(); i++)
-	{
-		bvhs[i].Intersect(shadow);
-	}
-	for (int i = 0; i < grids.size(); i++)
-	{
-		grids[i].Intersect(shadow);
-	}
+	//for (int i = 0; i < bvhs.size(); i++)
+	//{
+	//	bvhs[i].Intersect(shadow);
+	//}
+	//for (int i = 0; i < grids.size(); i++)
+	//{
+	//	grids[i].Intersect(shadow);
+	//}
+	tlasBVH.Intersect(shadow);
 	if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
@@ -146,6 +160,14 @@ HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 		break;
 	}
 
+	if (ray.objIdx > 99)
+	{
+		BVH& bvh = tlasBVH.blas[ray.objIdx - 100];
+		hitInfo.normal = bvh.GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = bvh.GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &bvh.material;
+	}
+
 	return hitInfo;
 }
 
@@ -158,7 +180,7 @@ float3 Scene2::GetAlbedo(int objIdx, float3 I) const
 int Scene2::GetTriangleCount() const
 {
 	int count = 0;
-	for (int i = 0; i < bvhs.size(); i++)
+	for (int i = 0; i < 2; i++)
 	{
 		count += bvhs[i].GetTriangleCount();
 	}

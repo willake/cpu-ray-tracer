@@ -37,6 +37,7 @@ namespace Tmpl8
 	public:
 		BVH() = default;
 		BVH(const int idx, const std::string& modelPath, const mat4 transform, const mat4 scaleMat);
+		//BVH(const BVH& bvh);
 		void Build();
 		void Refit();
 		void Intersect(Ray& ray);
@@ -45,12 +46,12 @@ namespace Tmpl8
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
 	private:
-		std::vector<Tri> triangles;
-		std::vector<uint> triangleIndices;
-		uint rootNodeIdx = 0, nodesUsed = 1;
 	public:
 		int objIdx = -1;
 		std::vector<BVHNode> bvhNodes;
+		std::vector<Tri> triangles;
+		std::vector<uint> triangleIndices;
+		uint rootNodeIdx = 0, nodesUsed = 1;
 		Material material;
 		aabb bounds;
 		mat4 T, invT;
