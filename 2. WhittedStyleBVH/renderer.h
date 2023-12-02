@@ -3,8 +3,6 @@
 #include "helper.h"
 #include "texture.h"
 #include "material.h"
-#include "bvh_model.h"
-#include "grid_model.h"
 #include "hit_info.h"
 #include "base_scene.h"
 #include "primitive_scene.h"

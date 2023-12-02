@@ -13,8 +13,8 @@ Scene2::Scene2()
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 1));
 	mat4 s = mat4::Scale(0.5f);
-	bvhModels.push_back(BVH(3, "../assets/sphere.obj", t, s));
-	bvhModels[0].material.type = MaterialType::Mirror;
+	bvhs.push_back(BVH(3, "../assets/sphere.obj", t, s));
+	bvhs[0].material.type = MaterialType::Mirror;
 	//bvhModels[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	//gridModels.push_back(Grid(3, "../assets/wok.obj", t, s));
 	//gridModels[0].material.reflectivity = 0.4;
@@ -38,8 +38,8 @@ void Scene2::SetTime(float t)
 	sphere.pos = float3(-1.8f, 0.4f + tm, 1);
 
 	mat4 modelT = mat4::Translate(float3(1, -0.4f + tm, 1));
-	//bvhModels[0].SetTransform(modelT);
-	//gridModels[0].SetTransform(modelT);
+	//bvhs[0].SetTransform(modelT);
+	//grids[0].SetTransform(modelT);
 	// light source animation: swing
 	mat4 M1base = mat4::Translate(float3(0, 2.6f, 2));
 	mat4 M1 = M1base * mat4::RotateZ(sinf(animTime * 0.6f) * 0.1f) * mat4::Translate(float3(0, -0.9f, 0));
@@ -76,13 +76,13 @@ void Scene2::FindNearest(Ray& ray)
 	light.Intersect(ray);
 	//floor.Intersect(ray);
 	//sphere.Intersect(ray);
-	for (int i = 0; i < bvhModels.size(); i++)
+	for (int i = 0; i < bvhs.size(); i++)
 	{
-		bvhModels[i].Intersect(ray);
+		bvhs[i].Intersect(ray);
 	}
-	for (int i = 0; i < gridModels.size(); i++)
+	for (int i = 0; i < grids.size(); i++)
 	{
-		gridModels[i].Intersect(ray);
+		grids[i].Intersect(ray);
 	}
 }
 
@@ -93,13 +93,13 @@ bool Scene2::IsOccluded(const Ray& ray)
 	//if (light.IsOccluded(ray)) return true;
 	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
-	for (int i = 0; i < bvhModels.size(); i++)
+	for (int i = 0; i < bvhs.size(); i++)
 	{
-		bvhModels[i].Intersect(shadow);
+		bvhs[i].Intersect(shadow);
 	}
-	for (int i = 0; i < gridModels.size(); i++)
+	for (int i = 0; i < grids.size(); i++)
 	{
-		gridModels[i].Intersect(shadow);
+		grids[i].Intersect(shadow);
 	}
 	if (shadow.objIdx > -1) return true;
 	// skip planes
@@ -127,17 +127,17 @@ HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.material = &materials[2];
 		break;
 	case 3:
-		hitInfo.normal = bvhModels[0].GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = bvhModels[0].GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &bvhModels[0].material;
+		hitInfo.normal = bvhs[0].GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = bvhs[0].GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &bvhs[0].material;
 		/*hitInfo.normal = gridModels[0].GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = gridModels[0].GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &gridModels[0].material;*/
 		break;
 	case 4:
-		hitInfo.normal = bvhModels[1].GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = bvhModels[1].GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &bvhModels[1].material;
+		hitInfo.normal = bvhs[1].GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = bvhs[1].GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &bvhs[1].material;
 		/*hitInfo.normal = gridModels[1].GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = gridModels[1].GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &gridModels[1].material;*/
@@ -158,13 +158,13 @@ float3 Scene2::GetAlbedo(int objIdx, float3 I) const
 int Scene2::GetTriangleCount() const
 {
 	int count = 0;
-	for (int i = 0; i < bvhModels.size(); i++)
+	for (int i = 0; i < bvhs.size(); i++)
 	{
-		count += bvhModels[i].GetTriangleCount();
+		count += bvhs[i].GetTriangleCount();
 	}
-	for (int i = 0; i < gridModels.size(); i++)
+	for (int i = 0; i < grids.size(); i++)
 	{
-		count += gridModels[i].GetTriangleCount();
+		count += grids[i].GetTriangleCount();
 	}
 	return count;
 }
