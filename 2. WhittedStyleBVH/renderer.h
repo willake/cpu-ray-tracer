@@ -11,7 +11,7 @@
 #include "scene_1.h"
 #include "scene_2.h"
 
-#define EPSILON	0.0001f
+#define EPSILON	0.001f
 
 namespace Tmpl8
 {
