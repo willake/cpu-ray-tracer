@@ -17,27 +17,24 @@ Scene2::Scene2()
 	mat4 s2 = mat4::Scale(0.5f);
 	mat4 t3 = mat4::Translate(float3(0, -0.4f, 4));
 	mat4 s3 = mat4::Scale(0.5f);
-	//bvhs.push_back(BVH(3, "../assets/wok.obj", t, s));
-	//bvhs[0].material.type = MaterialType::Mirror;
-	//bvhs.push_back(BVH(4, "../assets/wok.obj", t, s));
-	//gridModels.push_back(Grid(3, "../assets/wok.obj", t, s));
-	//gridModels[0].material.reflectivity = 0.4;
-	//gridModels[0].material.type = MaterialType::Mirror;
-	//gridModels[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	//mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);
-	//models.push_back(BVHModel(4, "../assets/wok.obj", t2));
-	//models[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 
-	//printf("Triangle count: %d\n", sceneBVH.GetTriangleCount());
-	//sceneBVH.Build();
-	bvhs[0] = BVH(100, "../assets/wok.obj", t, s);
-	bvhs[1] = BVH(101, "../assets/wok.obj", t2, s2);
-	bvhs[2] = BVH(102, "../assets/wok.obj", t3, s3);
-	tlasBVH = TLASBVH(bvhs, 3);
-	tlasBVH.Build();
-	tlasBVH.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	tlasBVH.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	tlasBVH.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//bvhs[0] = BVH(100, "../assets/wok.obj", t, s);
+	//bvhs[1] = BVH(101, "../assets/wok.obj", t2, s2);
+	//bvhs[2] = BVH(102, "../assets/wok.obj", t3, s3);
+	//tlasBVH = TLASBVH(bvhs, 3);
+	//tlasBVH.Build();
+	//tlasBVH.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//tlasBVH.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//tlasBVH.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+
+	grids[0] = Grid(200, "../assets/wok.obj", t, s);
+	grids[1] = Grid(201, "../assets/wok.obj", t2, s2);
+	grids[2] = Grid(202, "../assets/wok.obj", t3, s3);
+	tlasGrid = TLASGrid(grids, 3);
+	tlasGrid.Build();
+	tlasGrid.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	tlasGrid.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	tlasGrid.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	SetTime(0);
 }
@@ -96,7 +93,8 @@ void Scene2::FindNearest(Ray& ray)
 	//{
 	//	grids[i].Intersect(ray);
 	//}
-	tlasBVH.Intersect(ray);
+	//tlasBVH.Intersect(ray);
+	tlasGrid.Intersect(ray);
 }
 
 bool Scene2::IsOccluded(const Ray& ray)
@@ -114,7 +112,8 @@ bool Scene2::IsOccluded(const Ray& ray)
 	//{
 	//	grids[i].Intersect(shadow);
 	//}
-	tlasBVH.Intersect(shadow);
+	//tlasBVH.Intersect(shadow);
+	tlasGrid.Intersect(shadow);
 	if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
@@ -160,12 +159,20 @@ HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 		break;
 	}
 
-	if (ray.objIdx > 99)
+	if (ray.objIdx > 99 && ray.objIdx < 200)
 	{
 		BVH& bvh = tlasBVH.blas[ray.objIdx - 100];
 		hitInfo.normal = bvh.GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = bvh.GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &bvh.material;
+	}
+
+	if (ray.objIdx > 199 && ray.objIdx < 300)
+	{
+		Grid& grid = tlasGrid.blas[ray.objIdx - 200];
+		hitInfo.normal = grid.GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = grid.GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &grid.material;
 	}
 
 	return hitInfo;
@@ -180,11 +187,11 @@ float3 Scene2::GetAlbedo(int objIdx, float3 I) const
 int Scene2::GetTriangleCount() const
 {
 	int count = 0;
-	for (int i = 0; i < 2; i++)
+	/*for (int i = 0; i < 3; i++)
 	{
 		count += bvhs[i].GetTriangleCount();
-	}
-	for (int i = 0; i < grids.size(); i++)
+	}*/
+	for (int i = 0; i < 3; i++)
 	{
 		count += grids[i].GetTriangleCount();
 	}

@@ -56,9 +56,6 @@ Grid::Grid(const int idx, const std::string& modelPath, const mat4 transform, co
         }
     }
 
-    T = transform;
-    invT = transform.FastInvertedTransformNoScale();
-
     objIdx = idx;
 
     for (int i = 0; i < indices.size(); i += 3)
@@ -79,6 +76,7 @@ Grid::Grid(const int idx, const std::string& modelPath, const mat4 transform, co
     }
 
     Build();
+    SetTransform(transform);
 }
 
 void Grid::Build()

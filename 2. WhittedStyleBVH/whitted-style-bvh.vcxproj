@@ -151,6 +151,7 @@
     <ClCompile Include="scenes\scene_1.cpp" />
     <ClCompile Include="scenes\scene_2.cpp" />
     <ClCompile Include="tlas_bvh.cpp" />
+    <ClCompile Include="tlas_grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\imgui\imconfig.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="scenes\scene_1.h" />
     <ClInclude Include="scenes\scene_2.h" />
     <ClInclude Include="tlas_bvh.h" />
+    <ClInclude Include="tlas_grid.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\template\LICENSE" />

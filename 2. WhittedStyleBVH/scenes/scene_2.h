@@ -2,6 +2,7 @@
 
 #include "base_scene.h"
 #include "tlas_bvh.h"
+#include "tlas_grid.h"
 
 namespace Tmpl8
 {
@@ -21,8 +22,9 @@ namespace Tmpl8
 	public:
 		float animTime = 0;
 		BVH bvhs[3];
-		std::vector<Grid> grids;
+		Grid grids[3];
 		TLASBVH tlasBVH;
+		TLASGrid tlasGrid;
 		Texture skydome;
 		Plane floor;
 		Sphere sphere;

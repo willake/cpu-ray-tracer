@@ -56,6 +56,9 @@
     <ClCompile Include="tlas_bvh.cpp">
       <Filter>bvh</Filter>
     </ClCompile>
+    <ClCompile Include="tlas_grid.cpp">
+      <Filter>grid</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -144,6 +147,9 @@
     </ClInclude>
     <ClInclude Include="tlas_bvh.h">
       <Filter>bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="tlas_grid.h">
+      <Filter>grid</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
