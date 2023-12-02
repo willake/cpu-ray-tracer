@@ -276,6 +276,7 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
             node = child1;
             if (dist2 != 1e30f) stack[stackPtr++] = child2;
         }
+        ray.traversed++;
     }
 #else
     BVHNode& node = bvhNodes[nodeIdx];

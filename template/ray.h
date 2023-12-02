@@ -30,6 +30,7 @@ namespace Tmpl8 {
 		float2 barycentric = float2(0);
 		int objIdx = -1;
 		int triIdx = -1;
+		int traversed = 0;
 		bool inside = false; // true when in medium
 	};
 }

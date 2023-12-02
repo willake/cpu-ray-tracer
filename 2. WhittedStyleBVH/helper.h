@@ -100,4 +100,12 @@ namespace Tmpl8
 
         return float3(x, y, z);
     }
+
+    inline float3 GetTraverseCountColor(int traversed)
+    {
+        traversed = clamp(traversed, 0, 100);
+        float blend = traversed / 100.0f;
+        
+        return float3(blend, 1 - blend, 0);
+    }
 }

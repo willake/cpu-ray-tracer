@@ -97,6 +97,8 @@ void Grid::Intersect(Ray& ray)
     // Calculate tmin and tmax
     if (!IntersectAABB(ray, gridBounds.bmin3, gridBounds.bmax3)) return;
 
+    ray.traversed++;
+
     // Determine the cell indices that the ray traverses
     int3 exit, step, cell;
     float3 deltaT, nextCrossingT;
@@ -134,10 +136,13 @@ void Grid::Intersect(Ray& ray)
             ((nextCrossingT.y < nextCrossingT.z));
         static const uint8_t map[8] = { 2, 1, 2, 1, 2, 2, 0, 0 };
         uint8_t axis = map[k];
+
         if (ray.t < nextCrossingT[axis]) break;
         cell[axis] += step[axis];
         if (cell[axis] == exit[axis]) break;
         nextCrossingT[axis] += deltaT[axis];
+
+        ray.traversed++;
     }
 }
 
