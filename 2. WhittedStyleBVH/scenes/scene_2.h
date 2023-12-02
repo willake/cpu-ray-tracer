@@ -22,7 +22,7 @@ namespace Tmpl8
 	public:
 		float animTime = 0;
 		std::vector<BVH> bvhModels;
-		std::vector<GridModel> gridModels;
+		std::vector<Grid> gridModels;
 		Texture skydome;
 		Plane floor;
 		Sphere sphere;

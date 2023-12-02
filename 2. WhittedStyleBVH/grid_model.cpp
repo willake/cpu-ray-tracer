@@ -75,9 +75,6 @@ GridModel::GridModel(const int idx, const std::string& modelPath, const mat4 tra
         tri.centroid = (tri.vertex0 + tri.vertex1 + tri.vertex2) * 0.3333f;
         triangles.push_back(tri);
     }
-    grid.SetTriangles(triangles);
-
-    grid.Build();
 }
 
 void GridModel::Intersect(Ray& ray)
@@ -113,13 +110,13 @@ Material* GridModel::GetMaterial()
 
 void GridModel::SetTransform(mat4 transform)
 {
-    T = transform;
-    invT = transform.FastInvertedTransformNoScale();
-    // update bvh bound
-    // calculate world-space bounds using the new matrix
-    float3 bmin = grid.gridBounds.bmin3, bmax = grid.gridBounds.bmax3;
-    grid.worldBounds = aabb();
-    for (int i = 0; i < 8; i++)
-        grid.worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
-            i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
+    //T = transform;
+    //invT = transform.FastInvertedTransformNoScale();
+    //// update bvh bound
+    //// calculate world-space bounds using the new matrix
+    //float3 bmin = grid.gridBounds.bmin3, bmax = grid.gridBounds.bmax3;
+    //grid.worldBounds = aabb();
+    //for (int i = 0; i < 8; i++)
+    //    grid.worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
+    //        i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
 }
