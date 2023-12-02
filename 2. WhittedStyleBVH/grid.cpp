@@ -56,6 +56,7 @@ Grid::Grid(const int idx, const std::string& modelPath, const mat4 transform, co
         }
     }
 
+    T = transform;
     invT = transform.FastInvertedTransformNoScale();
 
     objIdx = idx;
@@ -241,7 +242,7 @@ float3 Grid::GetNormal(const uint triIdx, const float2 barycentric) const
     float3 n1 = triangles[triIdx].normal1;
     float3 n2 = triangles[triIdx].normal2;
     float3 N = (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
-    return normalize(TransformVector(N, invT));
+    return normalize(TransformVector(N, T));
 }
 
 float2 Grid::GetUV(const uint triIdx, const float2 barycentric) const
@@ -254,6 +255,7 @@ float2 Grid::GetUV(const uint triIdx, const float2 barycentric) const
 
 void Grid::SetTransform(mat4 transform)
 {
+    T = transform;
     invT = transform.FastInvertedTransformNoScale();
     // update bvh bound
     // calculate world-space bounds using the new matrix

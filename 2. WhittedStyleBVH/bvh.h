@@ -53,6 +53,6 @@ namespace Tmpl8
 		std::vector<BVHNode> bvhNodes;
 		Material material;
 		aabb bounds;
-		mat4 invT;
+		mat4 T, invT;
 	};
 }
