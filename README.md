@@ -3,6 +3,7 @@
 This renderer is based on the [template project](https://github.com/jbikker/tmpl8rt_UU) of [Dr. Jacco Bikker](https://github.com/jbikker). By extending the template, the following features are developed:
 
 - Whitted Style ray tracer
+- Path tracer
 - BVH
 - .obj model loading
 - texture loading & mapping
