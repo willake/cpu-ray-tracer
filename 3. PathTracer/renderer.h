@@ -20,12 +20,16 @@ namespace Tmpl8
 		float m_alpha = 1;
 		float m_fps = 0;
 		float m_rps = 0;
+		bool m_changed;
 		float3 GetEdgeDebugColor(float2 uv);
 	public:
 		// game flow methods
 		void Init();
-		float3 Trace( Ray& ray , int depth);
-		float3 DirectIllumination(float3 I, float3 N);
+		void ClearAccumulator();
+		float3 HandleMirror(const Ray& ray, uint& seed, const float3& I, const float3& N, const int depth);
+		float3 HandleDielectric(const Ray& ray, uint& seed, const float3& I, const float3& N, const int depth);
+		float3 Sample(Ray& ray, uint& seed, int depth = 0);
+		void ProcessTile(int tx, int ty, float& sum);
 		void Tick( float deltaTime );
 		void UI();
 		void Shutdown() { /* implement if you want to do things on shutdown */ }
@@ -39,10 +43,11 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		Scene2 scene;
+		PrimitiveScene scene;
 		Camera camera;
+		int spp = 1, passes = 1;
 		bool animating = false;
-		float anim_time = 0;
-		int depthLimit = 7;
+		float energy, anim_time = 0;
+		int depthLimit = 4;
 	};
 } // namespace Tmpl8
