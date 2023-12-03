@@ -32,13 +32,13 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	/* visualize normal */ // return N; // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ // return albedo;
-	/* visualize traversed */ return GetTraverseCountColor(ray.traversed);
+	if(m_inspectTraversal) return GetTraverseCountColor(ray.traversed);
 
 	if (material->isLight) return scene.GetLightColor();
 
 	float3 out_radiance(0);
 	float reflectivity = material->reflectivity;
-	float refractivity = material->reflectivity;
+	float refractivity = material->refractivity;
 	float diffuseness = 1 - (reflectivity + refractivity);
 
 	if (reflectivity > 0.0f)
@@ -164,6 +164,7 @@ void Renderer::UI()
 {
 	// animation toggle
 	ImGui::Checkbox("Animate scene", &animating);
+	ImGui::Checkbox("Inspect Traversal", &m_inspectTraversal);
 	ImGui::SliderFloat("Camera move speed", &camera.moveSpeed, 1.0f, 10.0f, "%.2f");
 	ImGui::SliderFloat("Camera turn speed", &camera.turnSpeed, 1.0f, 10.0f, "%.2f");
 	// ray query on mouse

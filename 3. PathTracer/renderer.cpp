@@ -64,7 +64,7 @@ float3 Renderer::Sample(Ray& ray, uint& seed, int depth)
 	/* visualize normal */ // return N; // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ // return albedo;
-	/* visualize traversed */ //return GetTraverseCountColor(ray.traversed);
+	if (m_inspectTraversal) return GetTraverseCountColor(ray.traversed);
 
 	if (material->isLight) return scene.GetLightColor();
 
@@ -170,6 +170,7 @@ void Renderer::UI()
 {
 	// animation toggle
 	bool changed = ImGui::Checkbox("Animate scene", &animating);
+	ImGui::Checkbox("Inspect Traversal", &m_inspectTraversal);
 	changed |= ImGui::SliderInt("spp", &passes, 1, 4, "%i");
 	ImGui::SliderFloat("Camera move speed", &camera.moveSpeed, 1.0f, 10.0f, "%.2f");
 	ImGui::SliderFloat("Camera turn speed", &camera.turnSpeed, 1.0f, 10.0f, "%.2f");
