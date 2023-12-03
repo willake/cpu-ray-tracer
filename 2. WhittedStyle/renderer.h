@@ -40,10 +40,10 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		PrimitiveScene scene;
+		Scene2 scene;
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;
-		int depthLimit = 7;
+		int depthLimit = 3;
 	};
 } // namespace Tmpl8

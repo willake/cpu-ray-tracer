@@ -82,8 +82,8 @@ float3 Scene2::GetLightColor() const
 
 void Scene2::FindNearest(Ray& ray)
 {
-	light.Intersect(ray);
-	floor.Intersect(ray);
+	//light.Intersect(ray);
+	//floor.Intersect(ray);
 	sphere.Intersect(ray);
 	//for (int i = 0; i < bvhs.size(); i++)
 	//{
@@ -102,8 +102,8 @@ bool Scene2::IsOccluded(const Ray& ray)
 	// from tmpl8rt_IGAD
 	if (sphere.IsOccluded(ray)) return true;
 	//if (light.IsOccluded(ray)) return true;
-	Ray shadow = Ray(ray);
-	shadow.t = 1e34f;
+	//Ray shadow = Ray(ray);
+	//.t = 1e34f;
 	//for (int i = 0; i < bvhs.size(); i++)
 	//{
 	//	bvhs[i].Intersect(shadow);
@@ -114,7 +114,7 @@ bool Scene2::IsOccluded(const Ray& ray)
 	//}
 	//tlasBVH.Intersect(shadow);
 	//tlasGrid.Intersect(shadow);
-	if (shadow.objIdx > -1) return true;
+	//if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
 }

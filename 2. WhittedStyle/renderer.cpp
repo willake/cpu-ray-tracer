@@ -17,10 +17,10 @@ void Renderer::Init()
 // -----------------------------------------------------------
 float3 Renderer::Trace(Ray& ray, int depth)
 {
+	if (depth > depthLimit) return float3(0);
 	scene.FindNearest(ray);
 	//if (ray.objIdx == -1) return float3(0);
 	if (ray.objIdx == -1) return scene.GetSkyColor(ray); // or a fancy sky color
-	if (depth >= depthLimit) return float3(0);
 	float3 I = ray.O + ray.t * ray.D;
 	HitInfo hitInfo = scene.GetHitInfo(ray, I);
 	float3 N = hitInfo.normal;
@@ -64,7 +64,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 			t.inside = !ray.inside;
 			out_radiance += albedo * (1 - Fr) * Trace(t, depth + 1);
 		}
-		out_radiance += albedo * Fr * Trace(r, depth + 1);
+		//out_radiance += albedo * Fr * Trace(r, depth + 1);
 	}
 
 	if (diffuseness > 0)
