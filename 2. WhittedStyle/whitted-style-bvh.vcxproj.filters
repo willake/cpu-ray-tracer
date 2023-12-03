@@ -38,26 +38,26 @@
     <ClCompile Include="..\template\tmplmath.cpp">
       <Filter>template</Filter>
     </ClCompile>
-    <ClCompile Include="bvh.cpp">
-      <Filter>bvh</Filter>
+    <ClCompile Include="..\infra\bvh.cpp">
+      <Filter>infra\bvh</Filter>
     </ClCompile>
-    <ClCompile Include="grid.cpp">
-      <Filter>grid</Filter>
+    <ClCompile Include="..\infra\grid.cpp">
+      <Filter>infra\grid</Filter>
     </ClCompile>
-    <ClCompile Include="scenes\primitive_scene.cpp">
-      <Filter>scenes</Filter>
+    <ClCompile Include="..\infra\tlas_bvh.cpp">
+      <Filter>infra\bvh</Filter>
     </ClCompile>
-    <ClCompile Include="scenes\scene_1.cpp">
-      <Filter>scenes</Filter>
+    <ClCompile Include="..\infra\tlas_grid.cpp">
+      <Filter>infra\grid</Filter>
     </ClCompile>
-    <ClCompile Include="scenes\scene_2.cpp">
-      <Filter>scenes</Filter>
+    <ClCompile Include="..\infra\scene\primitive_scene.cpp">
+      <Filter>infra\scene</Filter>
     </ClCompile>
-    <ClCompile Include="tlas_bvh.cpp">
-      <Filter>bvh</Filter>
+    <ClCompile Include="..\infra\scene\scene_1.cpp">
+      <Filter>infra\scene</Filter>
     </ClCompile>
-    <ClCompile Include="tlas_grid.cpp">
-      <Filter>grid</Filter>
+    <ClCompile Include="..\infra\scene\scene_2.cpp">
+      <Filter>infra\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,7 +113,6 @@
     <ClInclude Include="..\template\tmplmath.h">
       <Filter>template</Filter>
     </ClInclude>
-    <ClInclude Include="helper.h" />
     <ClInclude Include="..\template\ray.h">
       <Filter>template</Filter>
     </ClInclude>
@@ -126,30 +125,35 @@
     <ClInclude Include="..\template\texture.h">
       <Filter>template</Filter>
     </ClInclude>
-    <ClInclude Include="bvh.h">
-      <Filter>bvh</Filter>
+    <ClInclude Include="..\infra\helper.h">
+      <Filter>infra</Filter>
     </ClInclude>
-    <ClInclude Include="grid.h">
-      <Filter>grid</Filter>
+    <ClInclude Include="..\infra\hit_info.h">
+      <Filter>infra</Filter>
     </ClInclude>
-    <ClInclude Include="hit_info.h" />
-    <ClInclude Include="scenes\base_scene.h">
-      <Filter>scenes</Filter>
+    <ClInclude Include="..\infra\bvh.h">
+      <Filter>infra\bvh</Filter>
     </ClInclude>
-    <ClInclude Include="scenes\primitive_scene.h">
-      <Filter>scenes</Filter>
+    <ClInclude Include="..\infra\grid.h">
+      <Filter>infra\grid</Filter>
     </ClInclude>
-    <ClInclude Include="scenes\scene_1.h">
-      <Filter>scenes</Filter>
+    <ClInclude Include="..\infra\tlas_bvh.h">
+      <Filter>infra\bvh</Filter>
     </ClInclude>
-    <ClInclude Include="scenes\scene_2.h">
-      <Filter>scenes</Filter>
+    <ClInclude Include="..\infra\tlas_grid.h">
+      <Filter>infra\grid</Filter>
     </ClInclude>
-    <ClInclude Include="tlas_bvh.h">
-      <Filter>bvh</Filter>
+    <ClInclude Include="..\infra\scene\base_scene.h">
+      <Filter>infra\scene</Filter>
     </ClInclude>
-    <ClInclude Include="tlas_grid.h">
-      <Filter>grid</Filter>
+    <ClInclude Include="..\infra\scene\primitive_scene.h">
+      <Filter>infra\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\scene\scene_1.h">
+      <Filter>infra\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\scene\scene_2.h">
+      <Filter>infra\scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -159,14 +163,17 @@
     <Filter Include="template\imgui">
       <UniqueIdentifier>{63ed95a2-d26b-4145-a2e0-5fb72e8ef727}</UniqueIdentifier>
     </Filter>
-    <Filter Include="bvh">
-      <UniqueIdentifier>{424c5119-0015-4e65-8f13-af93548b35a8}</UniqueIdentifier>
+    <Filter Include="infra">
+      <UniqueIdentifier>{4f97b364-599f-4093-ba87-a95e49310992}</UniqueIdentifier>
     </Filter>
-    <Filter Include="grid">
-      <UniqueIdentifier>{4c5bec9c-0781-48a7-a87c-c599b8772339}</UniqueIdentifier>
+    <Filter Include="infra\bvh">
+      <UniqueIdentifier>{066300a7-69c0-4b8b-8bdd-4fadf8a303a8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="scenes">
-      <UniqueIdentifier>{b821885e-8a8d-4e73-8e0c-05f55902b67d}</UniqueIdentifier>
+    <Filter Include="infra\grid">
+      <UniqueIdentifier>{9a46d33d-99e1-48e8-9c3e-0bae7955fda2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="infra\scene">
+      <UniqueIdentifier>{e966b79d-de74-4b81-82cb-6083c0b3958b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
