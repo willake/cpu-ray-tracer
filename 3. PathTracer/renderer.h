@@ -48,6 +48,6 @@ namespace Tmpl8
 		int spp = 1, passes = 1;
 		bool animating = false;
 		float energy, anim_time = 0;
-		int depthLimit = 4;
+		int depthLimit = 5;
 	};
 } // namespace Tmpl8

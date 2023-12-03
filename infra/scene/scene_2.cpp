@@ -10,22 +10,22 @@ Scene2::Scene2()
 	materials[0].isLight = true;
 	materials[1].reflectivity = 0.3f;
 	materials[2].refractivity = 1.0f;
-	materials[2].absorption = float3(0.5f, 0, 0.5f);
-	mat4 t = mat4::Translate(float3(1, -0.4f, 1));
+	materials[2].absorption = float3(0.5f, 0.5f, 0.5f);
+	mat4 t = mat4::Translate(float3(1.5f, -0.6f, 0));
 	mat4 s = mat4::Scale(0.5f);
-	mat4 t2 = mat4::Translate(float3(-1, -0.4f, 2));
+	mat4 t2 = mat4::Translate(float3(-1.5f, -0.6f, 0));
 	mat4 s2 = mat4::Scale(0.5f);
-	mat4 t3 = mat4::Translate(float3(0, -0.4f, 4));
+	mat4 t3 = mat4::Translate(float3(0, -0.6f, 3));
 	mat4 s3 = mat4::Scale(0.5f);
 
-	//bvhs[0] = BVH(100, "../assets/wok.obj", t, s);
-	//bvhs[1] = BVH(101, "../assets/wok.obj", t2, s2);
-	//bvhs[2] = BVH(102, "../assets/wok.obj", t3, s3);
-	//tlasBVH = TLASBVH(bvhs, 3);
-	//tlasBVH.Build();
-	//tlasBVH.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	//tlasBVH.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	//tlasBVH.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	bvhs[0] = BVH(100, "../assets/wok.obj", t, s);
+	bvhs[1] = BVH(101, "../assets/wok.obj", t2, s2);
+	bvhs[2] = BVH(102, "../assets/wok.obj", t3, s3);
+	tlasBVH = TLASBVH(bvhs, 3);
+	tlasBVH.Build();
+	tlasBVH.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	tlasBVH.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	tlasBVH.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 
 	//grids[0] = Grid(200, "../assets/wok.obj", t, s);
 	//grids[1] = Grid(201, "../assets/wok.obj", t2, s2);
@@ -44,10 +44,10 @@ void Scene2::SetTime(float t)
 	animTime = t;
 	// sphere animation: bounce
 	float tm = 1 - sqrf(fmodf(animTime, 2.0f) - 1);
-	sphere.pos = float3(-1.8f, 0.4f + tm, 1);
+	sphere.pos = float3(0.f, 0.5f + tm, 1.f);
 
-	mat4 modelT = mat4::Translate(float3(1, -0.4f + tm, 1));
-	//bvhs[0].SetTransform(modelT);
+	/*mat4 modelT = mat4::Translate(float3(2.f, -0.6f + tm, 1));
+	bvhs[0].SetTransform(modelT);*/
 	//grids[0].SetTransform(modelT);
 	// light source animation: swing
 	mat4 M1base = mat4::Translate(float3(0, 2.6f, 2));
@@ -85,15 +85,8 @@ void Scene2::FindNearest(Ray& ray)
 	light.Intersect(ray);
 	floor.Intersect(ray);
 	sphere.Intersect(ray);
-	//for (int i = 0; i < bvhs.size(); i++)
-	//{
-	//	bvhs[i].Intersect(ray);
-	//}
-	//for (int i = 0; i < grids.size(); i++)
-	//{
-	//	grids[i].Intersect(ray);
-	//}
-	//tlasBVH.Intersect(ray);
+
+	tlasBVH.Intersect(ray);
 	//tlasGrid.Intersect(ray);
 }
 
@@ -101,20 +94,12 @@ bool Scene2::IsOccluded(const Ray& ray)
 {
 	// from tmpl8rt_IGAD
 	if (sphere.IsOccluded(ray)) return true;
-	//if (light.IsOccluded(ray)) return true;
-	//Ray shadow = Ray(ray);
-	//.t = 1e34f;
-	//for (int i = 0; i < bvhs.size(); i++)
-	//{
-	//	bvhs[i].Intersect(shadow);
-	//}
-	//for (int i = 0; i < grids.size(); i++)
-	//{
-	//	grids[i].Intersect(shadow);
-	//}
-	//tlasBVH.Intersect(shadow);
+	if (light.IsOccluded(ray)) return true;
+	Ray shadow = Ray(ray);
+	shadow.t = 1e34f;
+	tlasBVH.Intersect(shadow);
 	//tlasGrid.Intersect(shadow);
-	//if (shadow.objIdx > -1) return true;
+	if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
 }
@@ -189,10 +174,10 @@ float3 Scene2::GetAlbedo(int objIdx, float3 I) const
 int Scene2::GetTriangleCount() const
 {
 	int count = 0;
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	count += bvhs[i].GetTriangleCount();
-	//}
+	for (int i = 0; i < 3; i++)
+	{
+		count += bvhs[i].GetTriangleCount();
+	}
 	//for (int i = 0; i < 3; i++)
 	//{
 	//	count += grids[i].GetTriangleCount();

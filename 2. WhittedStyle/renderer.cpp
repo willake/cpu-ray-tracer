@@ -64,7 +64,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 			t.inside = !ray.inside;
 			out_radiance += albedo * (1 - Fr) * Trace(t, depth + 1);
 		}
-		//out_radiance += albedo * Fr * Trace(r, depth + 1);
+		out_radiance += albedo * Fr * Trace(r, depth + 1);
 	}
 
 	if (diffuseness > 0)
