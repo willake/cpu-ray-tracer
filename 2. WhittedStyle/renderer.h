@@ -20,6 +20,7 @@ namespace Tmpl8
 		float m_alpha = 1;
 		float m_fps = 0;
 		float m_rps = 0;
+		bool m_inspectTraversal = false;
 		float3 GetEdgeDebugColor(float2 uv);
 	public:
 		// game flow methods
@@ -43,6 +44,6 @@ namespace Tmpl8
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;
-		int depthLimit = 7;
+		int depthLimit = 3;
 	};
 } // namespace Tmpl8

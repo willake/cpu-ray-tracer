@@ -3,13 +3,13 @@
 
 Scene1::Scene1()
 {
+	errorMaterial.albedo = float3(255, 192, 203) / 255.f;
 	light = Quad(0, 1);
 	floor = Plane(1, float3(0, 1, 0), 1);
 	sphere = Sphere(2, float3(0), 0.6f);
-	materials[0] = Material(MaterialType::Light);
-	materials[1] = Material(MaterialType::Mirror, float3(0), true);
+	materials[0].isLight = true;
 	materials[1].reflectivity = 0.3f;
-	materials[2] = Material(MaterialType::Mirror);
+	materials[2].refractivity = 1.0f;
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 0)) * mat4::Scale(1);
 	//mat4 t2 = mat4::Translate(float3(0, -0.4f, 2)) * mat4::Scale(0.5);

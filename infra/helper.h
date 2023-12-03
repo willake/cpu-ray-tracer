@@ -108,4 +108,12 @@ namespace Tmpl8
         
         return float3(blend, 1 - blend, 0);
     }
+
+    inline float3 GetDepthColor(int current, int max)
+    {
+        current = clamp(current, 0, max);
+        float blend = current / (float) max;
+
+        return float3(blend, 1 - blend, 0);
+    }
 }

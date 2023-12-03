@@ -3,13 +3,13 @@
 
 Scene2::Scene2()
 {
+	errorMaterial.albedo = float3(255, 192, 203) / 255.f;
 	light = Quad(0, 1);
 	floor = Plane(1, float3(0, 1, 0), 1);
 	sphere = Sphere(2, float3(0), 0.6f);
-	materials[0] = Material(MaterialType::Light);
-	materials[1] = Material(MaterialType::Mirror, float3(0.5f));
+	materials[0].isLight = true;
 	materials[1].reflectivity = 0.3f;
-	materials[2] = Material(MaterialType::Mirror);
+	materials[2].refractivity = 1.0f;
 	materials[2].absorption = float3(0.5f, 0, 0.5f);
 	mat4 t = mat4::Translate(float3(1, -0.4f, 1));
 	mat4 s = mat4::Scale(0.5f);
@@ -27,14 +27,14 @@ Scene2::Scene2()
 	//tlasBVH.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	//tlasBVH.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 
-	grids[0] = Grid(200, "../assets/wok.obj", t, s);
-	grids[1] = Grid(201, "../assets/wok.obj", t2, s2);
-	grids[2] = Grid(202, "../assets/wok.obj", t3, s3);
-	tlasGrid = TLASGrid(grids, 3);
-	tlasGrid.Build();
-	tlasGrid.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	tlasGrid.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	tlasGrid.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//grids[0] = Grid(200, "../assets/wok.obj", t, s);
+	//grids[1] = Grid(201, "../assets/wok.obj", t2, s2);
+	//grids[2] = Grid(202, "../assets/wok.obj", t3, s3);
+	//tlasGrid = TLASGrid(grids, 3);
+	//tlasGrid.Build();
+	//tlasGrid.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//tlasGrid.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//tlasGrid.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	SetTime(0);
 }
@@ -82,9 +82,9 @@ float3 Scene2::GetLightColor() const
 
 void Scene2::FindNearest(Ray& ray)
 {
-	light.Intersect(ray);
-	floor.Intersect(ray);
-	//sphere.Intersect(ray);
+	//light.Intersect(ray);
+	//floor.Intersect(ray);
+	sphere.Intersect(ray);
 	//for (int i = 0; i < bvhs.size(); i++)
 	//{
 	//	bvhs[i].Intersect(ray);
@@ -94,16 +94,16 @@ void Scene2::FindNearest(Ray& ray)
 	//	grids[i].Intersect(ray);
 	//}
 	//tlasBVH.Intersect(ray);
-	tlasGrid.Intersect(ray);
+	//tlasGrid.Intersect(ray);
 }
 
 bool Scene2::IsOccluded(const Ray& ray)
 {
 	// from tmpl8rt_IGAD
-	//if (sphere.IsOccluded(ray)) return true;
+	if (sphere.IsOccluded(ray)) return true;
 	//if (light.IsOccluded(ray)) return true;
-	Ray shadow = Ray(ray);
-	shadow.t = 1e34f;
+	//Ray shadow = Ray(ray);
+	//.t = 1e34f;
 	//for (int i = 0; i < bvhs.size(); i++)
 	//{
 	//	bvhs[i].Intersect(shadow);
@@ -113,8 +113,8 @@ bool Scene2::IsOccluded(const Ray& ray)
 	//	grids[i].Intersect(shadow);
 	//}
 	//tlasBVH.Intersect(shadow);
-	tlasGrid.Intersect(shadow);
-	if (shadow.objIdx > -1) return true;
+	//tlasGrid.Intersect(shadow);
+	//if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
 }
@@ -187,13 +187,13 @@ float3 Scene2::GetAlbedo(int objIdx, float3 I) const
 int Scene2::GetTriangleCount() const
 {
 	int count = 0;
-	/*for (int i = 0; i < 3; i++)
-	{
-		count += bvhs[i].GetTriangleCount();
-	}*/
-	for (int i = 0; i < 3; i++)
-	{
-		count += grids[i].GetTriangleCount();
-	}
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	count += bvhs[i].GetTriangleCount();
+	//}
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	count += grids[i].GetTriangleCount();
+	//}
 	return count;
 }

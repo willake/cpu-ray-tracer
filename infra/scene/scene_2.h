@@ -1,15 +1,15 @@
 #pragma once
 
 #include "base_scene.h"
-#include "bvh.h"
-#include "grid.h"
+#include "tlas_bvh.h"
+#include "tlas_grid.h"
 
 namespace Tmpl8
 {
-	class Scene1 : BaseScene
+	class Scene2 : BaseScene
 	{
 	public:
-		Scene1();
+		Scene2();
 		void SetTime(float t);
 		float3 GetSkyColor(const Ray& ray) const;
 		float3 GetLightPos() const;
@@ -21,13 +21,15 @@ namespace Tmpl8
 		int GetTriangleCount() const;
 	public:
 		float animTime = 0;
-		//Model models[NUM_CUBE];
+		BVH bvhs[3];
+		Grid grids[3];
+		TLASBVH tlasBVH;
+		TLASGrid tlasGrid;
 		Texture skydome;
-		BVH sceneBVH;
 		Plane floor;
 		Sphere sphere;
 		Quad light;
-		Material errorMaterial = Material(MaterialType::Diffuse, float3(255, 192, 203) / 255.f);
+		Material errorMaterial;
 		Material materials[3];
 	};
 }

@@ -3,6 +3,7 @@
 
 PrimitiveScene::PrimitiveScene()
 {
+	errorMaterial.albedo = float3(255, 192, 203) / 255.f;
 	// we store all primitives in one continuous buffer
 #ifdef FOURLIGHTS
 	for (int i = 0; i < 4; i++) quad[i] = Quad(0, 0.5f);	// 0: four light sources
@@ -21,19 +22,19 @@ PrimitiveScene::PrimitiveScene()
 	torus = Torus(10, 0.8f, 0.25f);						// 10: torus
 	torus.T = mat4::Translate(-0.25f, 0, 2) * mat4::RotateX(PI / 4);
 	torus.invT = torus.T.Inverted();
-	materials[0] = Material(MaterialType::Light); // 0: light source
-	materials[1] = Material(MaterialType::Mirror); // 1: bouncing ball
-	materials[2] = Material(MaterialType::Diffuse); // 2: rounded corners
-	materials[3] = Material(MaterialType::Glass); // 3: cube
+	materials[0].isLight = true; // 0: light source
+	materials[1].reflectivity = 1.0f; // 1: bouncing ball
+	materials[2] = Material(); // 2: rounded corners
+	materials[3].refractivity = 1.0f; // 3: cube
 	materials[3].absorption = float3(0.5f, 0, 0.5f);
-	materials[4] = Material(MaterialType::Diffuse, float3(0), true); // 4: left wall
-	materials[5] = Material(MaterialType::Diffuse, float3(0), true); // 5: right wall
-	materials[6] = Material(MaterialType::Mirror, float3(0), true); // 6: floor
+	materials[4] = Material(true); // 4: left wall
+	materials[5] = Material(true); // 5: right wall
+	materials[6] = Material(true); // 6: floor
 	materials[6].reflectivity = 0.3f;
-	materials[7] = Material(MaterialType::Diffuse, float3(0), true); // 7: ceiling
-	materials[8] = Material(MaterialType::Diffuse, float3(0), true); // 8: front wall
-	materials[9] = Material(MaterialType::Diffuse, float3(0), true); // 9: back wall
-	materials[10] = Material(MaterialType::Glass); // 10: torus
+	materials[7] = Material(); // 7: ceiling
+	materials[8] = Material(); // 8: front wall
+	materials[9] = Material(); // 9: back wall
+	materials[10].refractivity = 1.0f; // 10: torus
 	SetTime(0);
 	// Note: once we have triangle support we should get rid of the class
 	// hierarchy: virtuals reduce performance somewhat.
