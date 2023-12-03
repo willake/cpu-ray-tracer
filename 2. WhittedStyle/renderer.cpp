@@ -34,20 +34,20 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	/* visualize albedo */ // return albedo;
 	/* visualize traversed */ return GetTraverseCountColor(ray.traversed);
 
-	if (material->type == MaterialType::Light) return scene.GetLightColor();
+	if (material->isLight) return scene.GetLightColor();
 
 	float3 out_radiance(0);
-	float reflectivity = material->type == MaterialType::Mirror ? material->reflectivity : 0;
-	float refractivity = material->type == MaterialType::Glass ? 1 : 0;
+	float reflectivity = material->reflectivity;
+	float refractivity = material->reflectivity;
 	float diffuseness = 1 - (reflectivity + refractivity);
 
-	if (material->type == MaterialType::Mirror)
+	if (reflectivity > 0.0f)
 	{
 		float3 R = reflect(ray.D , N);
 		Ray r(I + R * EPSILON, R);
 		out_radiance += reflectivity * albedo * Trace(r, depth + 1);
 	}
-	else if (material->type == MaterialType::Glass)
+	else if (refractivity > 0.0f)
 	{
 		float3 R = reflect(ray.D, N);
 		Ray r(I + R * EPSILON, R);

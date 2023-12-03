@@ -20,7 +20,6 @@ namespace Tmpl8
 		float m_alpha = 1;
 		float m_fps = 0;
 		float m_rps = 0;
-		bool m_changed;
 		float3 GetEdgeDebugColor(float2 uv);
 	public:
 		// game flow methods
@@ -43,7 +42,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		PrimitiveScene scene;
+		Scene2 scene;
 		Camera camera;
 		int spp = 1, passes = 1;
 		bool animating = false;

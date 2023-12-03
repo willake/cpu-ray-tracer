@@ -66,11 +66,11 @@ float3 Renderer::Sample(Ray& ray, uint& seed, int depth)
 	/* visualize albedo */ // return albedo;
 	/* visualize traversed */ //return GetTraverseCountColor(ray.traversed);
 
-	if (material->type == MaterialType::Light) return scene.GetLightColor();
+	if (material->isLight) return scene.GetLightColor();
 
 	float3 out_radiance(0);
-	float reflectivity = material->type == MaterialType::Mirror ? material->reflectivity : 0;
-	float refractivity = material->type == MaterialType::Glass ? 1 : 0;
+	float reflectivity = material->reflectivity;
+	float refractivity = material->refractivity;
 	//float diffuseness = 1 - (reflectivity + refractivity);
 
 	float3 medium_scale(1);
@@ -86,7 +86,7 @@ float3 Renderer::Sample(Ray& ray, uint& seed, int depth)
 	{
 		return albedo * medium_scale * HandleMirror(ray, seed, I, N, depth);
 	}
-	else if (material->type == Glass && r < reflectivity + refractivity) // handle dielectrics
+	else if (r < reflectivity + refractivity) // handle dielectrics
 	{
 		return albedo * medium_scale * HandleDielectric(ray, seed, I, N, depth);
 	}
@@ -169,8 +169,8 @@ void Renderer::Tick(float deltaTime)
 void Renderer::UI()
 {
 	// animation toggle
-	ImGui::Checkbox("Animate scene", &animating);
-	m_changed |= ImGui::SliderInt("spp", &passes, 1, 4, "%i");
+	bool changed = ImGui::Checkbox("Animate scene", &animating);
+	changed |= ImGui::SliderInt("spp", &passes, 1, 4, "%i");
 	ImGui::SliderFloat("Camera move speed", &camera.moveSpeed, 1.0f, 10.0f, "%.2f");
 	ImGui::SliderFloat("Camera turn speed", &camera.turnSpeed, 1.0f, 10.0f, "%.2f");
 	// ray query on mouse
@@ -183,5 +183,5 @@ void Renderer::UI()
 	ImGui::Text("Energy: %fk", energy / 1000);
 	ImGui::Text("RPS: %.1f Mrays/s", m_rps);
 	// reset accumulator if changes have been made
-	if (m_changed) ClearAccumulator();
+	if (changed) ClearAccumulator();
 }

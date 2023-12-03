@@ -3,24 +3,16 @@
 
 namespace Tmpl8
 {
-	enum MaterialType
-	{
-		Diffuse,
-		Mirror,
-		Glass,
-		Light
-	};
-
-	class Material
+	struct Material
 	{
 	public:
-		Material(const MaterialType type = MaterialType::Diffuse, const float3 albedo = float3(1.0f), const bool isAlbedoOverridden = false)
+		Material(const bool isAlbedoOverridden = false)
 		{
-			this->type = type;
-			this->albedo = albedo;
+			bool isLight = false;
+			this->albedo = float3(1.0f);
 			this->isAlbedoOverridden = isAlbedoOverridden;
-			this->reflectivity = 1.0f;
-			this->refractivity = 1.0f;
+			this->reflectivity = 0.0f;
+			this->refractivity = 0.0f;
 			this->absorption = float3(0);
 		}
 		//Material(const Material& mat)
@@ -42,12 +34,12 @@ namespace Tmpl8
 			return textureDiffuse->Sample(uv.x, uv.y);
 		}
 	public:
-		MaterialType type;
-		float3 albedo{};
-		bool isAlbedoOverridden;
-		float reflectivity;
-		float refractivity;
-		float3 absorption;
+		bool isLight = false;
+		float3 albedo = float3(1.0f);
+		bool isAlbedoOverridden = false;
+		float reflectivity = 0.0f;
+		float refractivity = 0.0f;
+		float3 absorption = float3(0.0f);
 		std::unique_ptr<Texture> textureDiffuse;
 		/*Texture textureMetallic;
 		Texture textuteRoughness;*/

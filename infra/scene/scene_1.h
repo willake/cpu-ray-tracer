@@ -27,7 +27,7 @@ namespace Tmpl8
 		Plane floor;
 		Sphere sphere;
 		Quad light;
-		Material errorMaterial = Material(MaterialType::Diffuse, float3(255, 192, 203) / 255.f);
+		Material errorMaterial;
 		Material materials[3];
 	};
 }

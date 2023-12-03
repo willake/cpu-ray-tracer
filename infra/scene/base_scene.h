@@ -28,6 +28,6 @@ namespace Tmpl8
 		virtual int GetTriangleCount() const = 0;
 	public:
 		float animTime = 0;
-		Material errorMaterial = Material(MaterialType::Diffuse, float3(255, 192, 203) / 255.f);
+		Material errorMaterial;
 	};
 }
