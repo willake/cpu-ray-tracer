@@ -82,8 +82,8 @@ float3 Scene2::GetLightColor() const
 
 void Scene2::FindNearest(Ray& ray)
 {
-	//light.Intersect(ray);
-	//floor.Intersect(ray);
+	light.Intersect(ray);
+	floor.Intersect(ray);
 	sphere.Intersect(ray);
 	//for (int i = 0; i < bvhs.size(); i++)
 	//{
@@ -174,6 +174,8 @@ HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.uv = grid.GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &grid.material;
 	}
+
+	if (dot(hitInfo.normal, ray.D) > 0) hitInfo.normal = -hitInfo.normal;
 
 	return hitInfo;
 }
