@@ -59,6 +59,12 @@
     <ClCompile Include="..\infra\scene\scene_2.cpp">
       <Filter>infra\scene</Filter>
     </ClCompile>
+    <ClCompile Include="..\infra\kdtree.cpp">
+      <Filter>infra\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\infra\tlas_kdtree.cpp">
+      <Filter>infra\kdtree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -155,6 +161,12 @@
     <ClInclude Include="..\infra\scene\scene_2.h">
       <Filter>infra\scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\infra\kdtree.h">
+      <Filter>infra\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\tlas_kdtree.h">
+      <Filter>infra\kdtree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template">
@@ -174,6 +186,9 @@
     </Filter>
     <Filter Include="infra\grid">
       <UniqueIdentifier>{ca85d851-4320-4345-a896-156db3bceb23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="infra\kdtree">
+      <UniqueIdentifier>{b40055c1-4761-4e33-86c3-7938d0c509ef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

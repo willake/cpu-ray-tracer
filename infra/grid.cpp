@@ -84,10 +84,10 @@ void Grid::Build()
     // Determine scene bound
     for (size_t i = 0; i < triangles.size(); i++)
     {
-        gridBounds.Grow(triangles[i].GetBounds());
+        localBounds.Grow(triangles[i].GetBounds());
     }
 
-    float3 gridSize = gridBounds.bmax3 - gridBounds.bmin3;
+    float3 gridSize = localBounds.bmax3 - localBounds.bmin3;
 
     // dynamically calculate resolution
     float cubeRoot = powf(5 * GetTriangleCount() / (gridSize.x * gridSize.y * gridSize.z), 1 / 3.f);
@@ -107,12 +107,12 @@ void Grid::Build()
         aabb bounds = triangles[triIdx].GetBounds();
 
         // Determine grid cell range for the object
-        int minX = clamp(static_cast<int>((bounds.bmin3.x - gridBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
-        int minY = clamp(static_cast<int>((bounds.bmin3.y - gridBounds.bmin3.y) / cellSize.y), 0, resolution.y - 1);
-        int minZ = clamp(static_cast<int>((bounds.bmin3.z - gridBounds.bmin3.z) / cellSize.z), 0, resolution.z - 1);
-        int maxX = clamp(static_cast<int>((bounds.bmax3.x - gridBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
-        int maxY = clamp(static_cast<int>((bounds.bmax3.y - gridBounds.bmin3.y) / cellSize.y), 0, resolution.y - 1);
-        int maxZ = clamp(static_cast<int>((bounds.bmax3.z - gridBounds.bmin3.z) / cellSize.z), 0, resolution.z - 1);
+        int minX = clamp(static_cast<int>((bounds.bmin3.x - localBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
+        int minY = clamp(static_cast<int>((bounds.bmin3.y - localBounds.bmin3.y) / cellSize.y), 0, resolution.y - 1);
+        int minZ = clamp(static_cast<int>((bounds.bmin3.z - localBounds.bmin3.z) / cellSize.z), 0, resolution.z - 1);
+        int maxX = clamp(static_cast<int>((bounds.bmax3.x - localBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
+        int maxY = clamp(static_cast<int>((bounds.bmax3.y - localBounds.bmin3.y) / cellSize.y), 0, resolution.y - 1);
+        int maxZ = clamp(static_cast<int>((bounds.bmax3.z - localBounds.bmin3.z) / cellSize.z), 0, resolution.z - 1);
 
         // Assign the object to the corresponding grid cells
         for (int iz = minZ; iz <= maxZ; ++iz) {
@@ -168,7 +168,7 @@ int Grid::GetTriangleCount() const
 void Grid::IntersectGrid(Ray& ray)
 {
     // Calculate tmin and tmax
-    if (!IntersectAABB(ray, gridBounds.bmin3, gridBounds.bmax3)) return;
+    if (!IntersectAABB(ray, localBounds.bmin3, localBounds.bmax3)) return;
 
     ray.traversed++;
 
@@ -177,7 +177,7 @@ void Grid::IntersectGrid(Ray& ray)
     float3 deltaT, nextCrossingT;
     for (int i = 0; i < 3; ++i)
     {
-        float rayOrigCell = ray.O[i] - gridBounds.bmin3[i];
+        float rayOrigCell = ray.O[i] - localBounds.bmin3[i];
         cell[i] = clamp(static_cast<int>(std::floor(rayOrigCell / cellSize[i])), 0, resolution[i] - 1);
         if (ray.D[i] < 0)
         {
@@ -257,7 +257,7 @@ void Grid::SetTransform(mat4 transform)
     invT = transform.FastInvertedTransformNoScale();
     // update bvh bound
     // calculate world-space bounds using the new matrix
-    float3 bmin = gridBounds.bmin3, bmax = gridBounds.bmax3;
+    float3 bmin = localBounds.bmin3, bmax = localBounds.bmax3;
     worldBounds = aabb();
     for (int i = 0; i < 8; i++)
         worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,

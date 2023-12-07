@@ -1,8 +1,9 @@
 #pragma once
+#include "kdtree.h"
 
 namespace Tmpl8
 {
-    struct TLASBVHNode
+    struct TLASKDTreeNode
     {
         float3 aabbMin = float3(0);
         uint leftRight = 0; // 2x16 bits
@@ -11,20 +12,20 @@ namespace Tmpl8
         bool isLeaf() { return leftRight == 0; }
     };
 
-    class TLASBVH
+    class TLASKDTree
     {
     private:
         float IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
         int FindBestMatch(int* list, int N, int A);
     public:
-        TLASBVH() = default;
-        TLASBVH(BVH* bvhList, int N);
+        TLASKDTree() = default;
+        TLASKDTree(KDTree* kdtreeList, int N);
         void Build();
         void Intersect(Ray& ray);
     private:
-        TLASBVHNode* tlasNode;
+        TLASKDTreeNode* tlasNode;
         uint nodesUsed = 0, blasCount;
     public:
-        BVH* blas;
+        KDTree* blas;
     };
 }

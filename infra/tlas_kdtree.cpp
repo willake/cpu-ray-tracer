@@ -1,16 +1,16 @@
 #include "precomp.h"
-#include "tlas_bvh.h"
+#include "tlas_kdtree.h"
 
-TLASBVH::TLASBVH(BVH* bvhList, int N)
+TLASKDTree::TLASKDTree(KDTree* bvhList, int N)
 {
 	// copy a pointer to the array of bottom level accstructs
 	blas = bvhList;
 	blasCount = N;
 	// allocate TLAS nodes
-	tlasNode = (TLASBVHNode*)_aligned_malloc(sizeof(TLASBVHNode) * 2 * N, 64);
+	tlasNode = (TLASKDTreeNode*)_aligned_malloc(sizeof(TLASKDTreeNode) * 2 * N, 64);
 }
 
-void TLASBVH::Build()
+void TLASKDTree::Build()
 {
 	// assign a TLASleaf node to each BLAS
 	int nodeIdx[256], nodeIndices = blasCount;
@@ -32,9 +32,9 @@ void TLASBVH::Build()
 		if (A == C)
 		{
 			int nodeIdxA = nodeIdx[A], nodeIdxB = nodeIdx[B];
-			TLASBVHNode& nodeA = tlasNode[nodeIdxA];
-			TLASBVHNode& nodeB = tlasNode[nodeIdxB];
-			TLASBVHNode& newNode = tlasNode[nodesUsed];
+			TLASKDTreeNode& nodeA = tlasNode[nodeIdxA];
+			TLASKDTreeNode& nodeB = tlasNode[nodeIdxB];
+			TLASKDTreeNode& newNode = tlasNode[nodesUsed];
 			newNode.leftRight = nodeIdxA + (nodeIdxB << 16);
 			newNode.aabbMin = fminf(nodeA.aabbMin, nodeB.aabbMin);
 			newNode.aabbMax = fmaxf(nodeA.aabbMax, nodeB.aabbMax);
@@ -47,7 +47,7 @@ void TLASBVH::Build()
 	tlasNode[0] = tlasNode[nodeIdx[A]];
 }
 
-int TLASBVH::FindBestMatch(int* list, int N, int A)
+int TLASKDTree::FindBestMatch(int* list, int N, int A)
 {
 	float smallest = 1e30f;
 	int bestB = -1;
@@ -62,7 +62,7 @@ int TLASBVH::FindBestMatch(int* list, int N, int A)
 	return bestB;
 }
 
-float TLASBVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
+float TLASKDTree::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
 	float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
 	float tmin = min(tx1, tx2), tmax = max(tx1, tx2);
@@ -73,9 +73,9 @@ float TLASBVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bma
 	if (tmax >= tmin && tmin < ray.t && tmax > 0) return tmin; else return 1e30f;
 }
 
-void TLASBVH::Intersect(Ray& ray)
+void TLASKDTree::Intersect(Ray& ray)
 {
-	TLASBVHNode* node = &tlasNode[0], * stack[64];
+	TLASKDTreeNode* node = &tlasNode[0], * stack[64];
 	uint stackPtr = 0;
 	while (1)
 	{
@@ -86,8 +86,8 @@ void TLASBVH::Intersect(Ray& ray)
 			if (stackPtr == 0) break; else node = stack[--stackPtr];
 			continue;
 		}
-		TLASBVHNode* child1 = &tlasNode[node->leftRight & 0xffff];
-		TLASBVHNode* child2 = &tlasNode[node->leftRight >> 16];
+		TLASKDTreeNode* child1 = &tlasNode[node->leftRight & 0xffff];
+		TLASKDTreeNode* child2 = &tlasNode[node->leftRight >> 16];
 		float dist1 = IntersectAABB(ray, child1->aabbMin, child1->aabbMax);
 		float dist2 = IntersectAABB(ray, child2->aabbMin, child2->aabbMax);
 		if (dist1 > dist2) { swap(dist1, dist2); swap(child1, child2); }

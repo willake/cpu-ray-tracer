@@ -403,9 +403,9 @@ void BVH::SetTransform(mat4 transform)
     // update bvh bound
     // calculate world-space bounds using the new matrix
     float3 bmin = bvhNodes[0].aabbMin, bmax = bvhNodes[0].aabbMax;
-    bounds = aabb();
+    worldBounds = aabb();
     for (int i = 0; i < 8; i++)
-        bounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
+        worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
             i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
 }
 

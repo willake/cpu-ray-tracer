@@ -35,7 +35,7 @@ namespace Tmpl8
 		int objIdx = -1;
 		Material material;
 		mat4 T, invT;
-		aabb gridBounds;
+		aabb localBounds;
 		aabb worldBounds;
 	};
 }

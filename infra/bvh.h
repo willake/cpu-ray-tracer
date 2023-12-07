@@ -53,7 +53,7 @@ namespace Tmpl8
 		std::vector<uint> triangleIndices;
 		uint rootNodeIdx = 0, nodesUsed = 1;
 		Material material;
-		aabb bounds;
+		aabb worldBounds;
 		mat4 T, invT;
 	};
 }
