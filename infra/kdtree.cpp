@@ -92,11 +92,12 @@ void KDTree::Build()
     UpdateBounds();
     // assign all triangles to root node
     KDTreeNode root;
-    root.bounds = localBounds;
+    root.aabbMin = localBounds.bmin3;
+    root.aabbMax = localBounds.bmax3;
     root.triIndices = triangleIndices;
     nodes.push_back(root);
     // subdivide recursively
-    Subdivide(rootNodeIdx, triangleIndices);
+    Subdivide(rootNodeIdx);
 }
 
 void KDTree::UpdateBounds()
@@ -116,32 +117,55 @@ void KDTree::UpdateBounds()
     localBounds = b;
 }
 
-void KDTree::Subdivide(uint nodeIdx, std::vector<uint> triIdxs)
+void KDTree::Subdivide(uint nodeIdx)
 {
     // terminate recursion
     KDTreeNode& node = nodes[nodeIdx];
-    if (triIdxs.size() <= 2) return;
+    if (node.triIndices.size() <= 2) return;
 
     // split plane axis and position
-    int axis = node.bounds.LongestAxis();
-    int distance = node.bounds.Extend(axis) * 0.5f;
-    float splitPos = node.bounds.bmin[axis] + distance;
+    float3 extent = node.aabbMax - node.aabbMin;
+    int axis = 0;
+    if (extent.y > extent.x) axis = 1;
+    if (extent.z > extent[axis]) axis = 2;
+    int distance = extent[axis] * 0.5f;
+    float splitPos = node.aabbMin[axis] + distance;
 
-    std::vector<uint> leftTriIdxs, rightTriIdxs;
+    int leftChildIdx = nodesUsed++;
+    int rightChildIdx = nodesUsed++;
+
+    node.left = leftChildIdx;
+    node.splitAxis = axis;
+    node.splitDistance = distance;
+
+    // update the bounds of nodes
+    KDTreeNode leftChild;
+    leftChild.aabbMin = node.aabbMin;
+    leftChild.aabbMax = node.aabbMax;
+    leftChild.aabbMax[axis] = splitPos;
+    nodes.push_back(leftChild);
+
+    KDTreeNode rightChild;
+    rightChild.aabbMin = node.aabbMin;
+    rightChild.aabbMax = node.aabbMax;
+    rightChild.aabbMin[axis] = splitPos;
+    nodes.push_back(rightChild);
 
 
     // split the group in two halves
-    for (int i = 0; i < triIdxs.size(); i++)
+    for (int i = 0; i < node.triIndices.size(); i++)
     {
         if (triangleBounds[i].bmin[axis] < splitPos)
         {
-            leftTriIdxs.push_back(triIdxs[i]);
+            leftChild.triIndices.push_back(node.triIndices[i]);
         }
         if (triangleBounds[i].bmax[axis] > splitPos - 0.001)
         {
-            leftTriIdxs.push_back(triIdxs[i]);
+            rightChild.triIndices.push_back(node.triIndices[i]);
         }
     }
+
+    node.triIndices.clear();
     /*while (i <= j)
     {
         if (triangles[triangleIndices[i]].centroid[axis] < splitPos)
@@ -150,31 +174,9 @@ void KDTree::Subdivide(uint nodeIdx, std::vector<uint> triIdxs)
             swap(triangleIndices[i], triangleIndices[j--]);
     }*/
 
-    int leftChildIdx = nodesUsed++;
-    int rightChildIdx = nodesUsed++;
-
-    node.left = leftChildIdx;
-    node.splitAxis = axis;
-    node.splitDistance = distance;
-    node.triIndices.clear();
-    
-    // update the bounds of nodes
-    
-    KDTreeNode leftChild;
-    leftChild.bounds = node.bounds;
-    leftChild.bounds.bmax[axis] = splitPos;
-    leftChild.triIndices = leftTriIdxs;
-    nodes.push_back(leftChild);
-
-    KDTreeNode rightChild;
-    rightChild.bounds = node.bounds;
-    rightChild.bounds.bmin[axis] = splitPos;
-    rightChild.triIndices = rightTriIdxs;
-    nodes.push_back(rightChild);
-
     // recurse
-    Subdivide(leftChildIdx, leftTriIdxs);
-    Subdivide(rightChildIdx, rightTriIdxs);
+    Subdivide(leftChildIdx);
+    Subdivide(rightChildIdx);
 }
 
 bool KDTree::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax, float& tminOut, float& tmaxOut)
@@ -215,7 +217,7 @@ void KDTree::IntersectKDTree(Ray& ray, const uint nodeIdx)
 {
     KDTreeNode& node = nodes[nodeIdx];
     float tmin, tmax;
-    if (!IntersectAABB(ray, node.bounds.bmin3, node.bounds.bmax3, tmin, tmax)) return;
+    if (!IntersectAABB(ray, node.aabbMin, node.aabbMax, tmin, tmax)) return;
     ray.traversed++;
     if (node.isLeaf())
     {
@@ -278,7 +280,7 @@ void KDTree::SetTransform(mat4 transform)
     invT = transform.FastInvertedTransformNoScale();
     // update bvh bound
     // calculate world-space bounds using the new matrix
-    float3 bmin = nodes[rootNodeIdx].bounds.bmin3, bmax = nodes[rootNodeIdx].bounds.bmax3;
+    float3 bmin = nodes[rootNodeIdx].aabbMin, bmax = nodes[rootNodeIdx].aabbMax;
     worldBounds = aabb();
     for (int i = 0; i < 8; i++)
         worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,

@@ -18,14 +18,14 @@ Scene2::Scene2()
 	mat4 t3 = mat4::Translate(float3(0, -0.6f, 3));
 	mat4 s3 = mat4::Scale(0.5f);
 
-	bvhs[0] = BVH(100, "../assets/wok.obj", t, s);
-	bvhs[1] = BVH(101, "../assets/wok.obj", t2, s2);
-	bvhs[2] = BVH(102, "../assets/wok.obj", t3, s3);
-	tlasBVH = TLASBVH(bvhs, 3);
-	tlasBVH.Build();
-	tlasBVH.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	tlasBVH.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	tlasBVH.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//bvhs[0] = BVH(100, "../assets/wok.obj", t, s);
+	//bvhs[1] = BVH(101, "../assets/wok.obj", t2, s2);
+	//bvhs[2] = BVH(102, "../assets/wok.obj", t3, s3);
+	//tlasBVH = TLASBVH(bvhs, 3);
+	//tlasBVH.Build();
+	//tlasBVH.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//tlasBVH.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//tlasBVH.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 
 	//grids[0] = Grid(200, "../assets/wok.obj", t, s);
 	//grids[1] = Grid(201, "../assets/wok.obj", t2, s2);
@@ -35,6 +35,15 @@ Scene2::Scene2()
 	//tlasGrid.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	//tlasGrid.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	//tlasGrid.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+
+	kdTrees[0] = KDTree(300, "../assets/wok.obj", t, s);
+	kdTrees[1] = KDTree(301, "../assets/wok.obj", t2, s2);
+	kdTrees[2] = KDTree(302, "../assets/wok.obj", t3, s3);
+	tlasKDTree = TLASKDTree(kdTrees, 3);
+	tlasKDTree.Build();
+	tlasKDTree.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	tlasKDTree.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	tlasKDTree.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	SetTime(0);
 }
@@ -86,8 +95,9 @@ void Scene2::FindNearest(Ray& ray)
 	floor.Intersect(ray);
 	sphere.Intersect(ray);
 
-	tlasBVH.Intersect(ray);
+	//tlasBVH.Intersect(ray);
 	//tlasGrid.Intersect(ray);
+	tlasKDTree.Intersect(ray);
 }
 
 bool Scene2::IsOccluded(const Ray& ray)
@@ -97,8 +107,9 @@ bool Scene2::IsOccluded(const Ray& ray)
 	if (light.IsOccluded(ray)) return true;
 	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
-	tlasBVH.Intersect(shadow);
+	//tlasBVH.Intersect(shadow);
 	//tlasGrid.Intersect(shadow);
+	tlasKDTree.Intersect(shadow);
 	if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
@@ -160,6 +171,14 @@ HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.material = &grid.material;
 	}
 
+	if (ray.objIdx > 299 && ray.objIdx < 400)
+	{
+		KDTree& kdtree = tlasKDTree.blas[ray.objIdx - 300];
+		hitInfo.normal = kdtree.GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = kdtree.GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &kdtree.material;
+	}
+
 	if (dot(hitInfo.normal, ray.D) > 0) hitInfo.normal = -hitInfo.normal;
 
 	return hitInfo;
@@ -174,13 +193,17 @@ float3 Scene2::GetAlbedo(int objIdx, float3 I) const
 int Scene2::GetTriangleCount() const
 {
 	int count = 0;
-	for (int i = 0; i < 3; i++)
+	/*for (int i = 0; i < 3; i++)
 	{
 		count += bvhs[i].GetTriangleCount();
-	}
+	}*/
 	//for (int i = 0; i < 3; i++)
 	//{
 	//	count += grids[i].GetTriangleCount();
 	//}
+	for (int i = 0; i < 3; i++)
+	{
+		count += kdTrees[i].GetTriangleCount();
+	}
 	return count;
 }

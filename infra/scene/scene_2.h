@@ -23,9 +23,11 @@ namespace Tmpl8
 	public:
 		float animTime = 0;
 		BVH bvhs[3];
-		Grid grids[3];
+		Grid grids[3]; 
+		KDTree kdTrees[3];
 		TLASBVH tlasBVH;
 		TLASGrid tlasGrid;
+		TLASKDTree tlasKDTree;
 		Texture skydome;
 		Plane floor;
 		Sphere sphere;

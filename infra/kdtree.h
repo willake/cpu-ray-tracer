@@ -8,10 +8,10 @@ namespace Tmpl8
 {
 	struct KDTreeNode
 	{
-		aabb bounds;
-		uint left;   // 8 bytes; total: 32 bytes
-		int splitAxis;
-		float splitDistance;
+		float3 aabbMin = 0, aabbMax = 0;
+		uint left = 0;   // 8 bytes; total: 32 bytes
+		int splitAxis = 0;
+		float splitDistance = 0;
 		std::vector<uint> triIndices = {};
 		// If it is 0, leftFirst contains the index of the left child node.
 		// Otherwise, it contains the index of the first triangle index.
@@ -22,7 +22,7 @@ namespace Tmpl8
 	{
 	private:
 		void UpdateBounds();
-		void Subdivide(uint nodeIdx, std::vector<uint> triIdx);
+		void Subdivide(uint nodeIdx);
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax, float& tmin, float& tmax);
 		void IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
 		void IntersectKDTree(Ray& ray, const uint nodeIdx);
