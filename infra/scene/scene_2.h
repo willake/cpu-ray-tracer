@@ -3,6 +3,7 @@
 #include "base_scene.h"
 #include "tlas_bvh.h"
 #include "tlas_grid.h"
+#include "kdtree.h"
 
 namespace Tmpl8
 {
