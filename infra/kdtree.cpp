@@ -118,7 +118,6 @@ void KDTree::UpdateBounds()
 
 void KDTree::Subdivide(KDTreeNode* node, int depth)
 {
-    printf("Node tris: %d Depth: %d \n", node->triIndices.size(), depth);
     // terminate recursion
     if (depth >= m_maxBuildDepth) return;
     uint triCount = node->triIndices.size();
@@ -229,47 +228,49 @@ void KDTree::IntersectKDTree(Ray& ray, KDTreeNode* node)
         return;
     }
 
-    float t = (node->splitDistance - ray.O[node->splitAxis]) / ray.D[node->splitAxis];
+    int axis = node->splitAxis;
+    float splitPos = node->aabbMin[node->splitAxis] + node->splitDistance;
+    float t = (splitPos - ray.O[axis]) / ray.D[axis];
 
-    IntersectKDTree(ray, node->left);
-    IntersectKDTree(ray, node->right);
+    //IntersectKDTree(ray, node->left);
+    //IntersectKDTree(ray, node->right);
 
-    //if(ray.D[node->splitAxis] > 0)
-    //{
-    //    // t <= tmin, only the right node is intersected
-    //    if (t < tmin + 0.001)
-    //    {
-    //        IntersectKDTree(ray, node->right);
-    //    }
-    //    // t >= tmax, only the left node is intersected
-    //    else if (t > tmax + 0.001)
-    //    {
-    //        IntersectKDTree(ray, node->left);
-    //    }
-    //    else
-    //    {
-    //        IntersectKDTree(ray, node->left);
-    //        IntersectKDTree(ray, node->right);
-    //    }
-    //}
-    //else
-    //{
-    //    // t <= tmin, only the left node is intersected
-    //    if (t < tmin + 0.001)
-    //    {
-    //        IntersectKDTree(ray, node->left);
-    //    }
-    //    // t >= tmax, only the left node is intersected
-    //    else if (t > tmax + 0.001)
-    //    {
-    //        IntersectKDTree(ray, node->right);
-    //    }
-    //    else
-    //    {
-    //        IntersectKDTree(ray, node->right);
-    //        IntersectKDTree(ray, node->left);
-    //    }
-    //}
+    if(ray.D[axis] > 0)
+    {
+        // t <= tmin, only the right node is intersected
+        if (t < tmin + 0.001)
+        {
+            IntersectKDTree(ray, node->right);
+        }
+        // t >= tmax, only the left node is intersected
+        else if (t > tmax + 0.001)
+        {
+            IntersectKDTree(ray, node->left);
+        }
+        else
+        {
+            IntersectKDTree(ray, node->left);
+            IntersectKDTree(ray, node->right);
+        }
+    }
+    else
+    {
+        // t <= tmin, only the left node is intersected
+        if (t < tmin + 0.001)
+        {
+            IntersectKDTree(ray, node->left);
+        }
+        // t >= tmax, only the left node is intersected
+        else if (t > tmax + 0.001)
+        {
+            IntersectKDTree(ray, node->right);
+        }
+        else
+        {
+            IntersectKDTree(ray, node->right);
+            IntersectKDTree(ray, node->left);
+        }
+    }
 }
 
 int KDTree::GetTriangleCount() const
