@@ -82,19 +82,20 @@ KDTree::KDTree(const int idx, const std::string& modelPath, const mat4 transform
 void KDTree::Build()
 {
     triangleBounds.resize(triangles.size());
-    triangleIndices.resize(triangles.size());
     // populate triangle index array
+    std::vector<uint> triIndices;
+    triIndices.resize(triangles.size());
     for (int i = 0; i < triangles.size(); i++)
     {
         // setup indices
-        triangleIndices[i] = i;
+        triIndices[i] = i;
     }
     UpdateBounds();
     // assign all triangles to root node
     rootNode = new KDTreeNode();
     rootNode->aabbMin = localBounds.bmin3;
     rootNode->aabbMax = localBounds.bmax3;
-    rootNode->triIndices = triangleIndices;
+    rootNode->triIndices = triIndices;
     // subdivide recursively
     Subdivide(rootNode, 0);
 }
@@ -102,10 +103,9 @@ void KDTree::Build()
 void KDTree::UpdateBounds()
 {
     aabb b;
-    for (uint i = 0; i < triangleIndices.size(); i++)
+    for (uint i = 0; i < triangles.size(); i++)
     {
-        uint triIdx = triangleIndices[i];
-        Tri& tri = triangles[triIdx];
+        Tri& tri = triangles[i];
         aabb triBounds;
         triBounds.Grow(tri.vertex0);
         triBounds.Grow(tri.vertex1);
@@ -145,6 +145,70 @@ float KDTree::EvaluateSAH(KDTreeNode* node, int axis, float pos)
     return cost > 0 ? cost : 1e30f;
 }
 
+float KDTree::CalculateNodeCost(KDTreeNode* node)
+{
+    float3 e = node->aabbMax - node->aabbMin; // extent of the node
+    float surfaceArea = e.x * e.y + e.y * e.z + e.z * e.x;
+    return node->triIndices.size() * surfaceArea;
+}
+
+float KDTree::FindBestSplitPlane(KDTreeNode* node, int& axis, float& splitPos)
+{
+    float bestCost = 1e30f;
+    int triCount = node->triIndices.size();
+    for (int a = 0; a < 3; a++)
+    {
+        float boundsMin = 1e30f, boundsMax = -1e30f;
+        for (int i = 0; i < triCount; i++)
+        {
+            Tri& triangle = triangles[node->triIndices[i]];
+            boundsMin = min(boundsMin, triangle.centroid[a]);
+            boundsMax = max(boundsMax, triangle.centroid[a]);
+        }
+        if (boundsMin == boundsMax) continue;
+        // populate the bins
+        Bin bin[BINS];
+        float scale = BINS / (boundsMax - boundsMin);
+        for (uint i = 0; i < triCount; i++)
+        {
+            Tri& triangle = triangles[node->triIndices[i]];
+            int binIdx = min(BINS - 1,
+                (int)((triangle.centroid[a] - boundsMin) * scale));
+            bin[binIdx].triCount++;
+            bin[binIdx].bounds.Grow(triangle.vertex0);
+            bin[binIdx].bounds.Grow(triangle.vertex1);
+            bin[binIdx].bounds.Grow(triangle.vertex2);
+        }
+        // gather data for the 7 planes between the 8 bins
+        float leftArea[BINS - 1], rightArea[BINS - 1];
+        int leftCount[BINS - 1], rightCount[BINS - 1];
+        aabb leftBox, rightBox;
+        int leftSum = 0, rightSum = 0;
+        for (int i = 0; i < BINS - 1; i++)
+        {
+            leftSum += bin[i].triCount;
+            leftCount[i] = leftSum;
+            leftBox.Grow(bin[i].bounds);
+            leftArea[i] = leftBox.Area();
+            rightSum += bin[BINS - 1 - i].triCount;
+            rightCount[BINS - 2 - i] = rightSum;
+            rightBox.Grow(bin[BINS - 1 - i].bounds);
+            rightArea[BINS - 2 - i] = rightBox.Area();
+        }
+        // calculate SAH cost for the 7 planes
+        scale = (boundsMax - boundsMin) / BINS;
+        for (int i = 0; i < BINS - 1; i++)
+        {
+            float planeCost =
+                leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
+            if (planeCost < bestCost)
+                axis = a, splitPos = boundsMin + scale * (i + 1),
+                bestCost = planeCost;
+        }
+    }
+    return bestCost;
+}
+
 void KDTree::Subdivide(KDTreeNode* node, int depth)
 {
     // terminate recursion
@@ -154,19 +218,13 @@ void KDTree::Subdivide(KDTreeNode* node, int depth)
 
 #ifdef  SAH
     // determine split axis using SAH
-    int bestAxis = -1;
-    float bestPos = 0, bestCost = 1e30f;
-    for (int axis = 0; axis < 3; axis++) for (uint i = 0; i < triCount; i++)
-    {
-        Tri& triangle = triangles[node->triIndices[i]];
-        float candidatePos = triangle.centroid[axis];
-        float cost = EvaluateSAH(node, axis, candidatePos);
-        if (cost < bestCost)
-            bestPos = candidatePos, bestAxis = axis, bestCost = cost;
-    }
-    int axis = bestAxis;
-    float distance = bestPos - node->aabbMin[axis];
-    float splitPos = bestPos;
+    int axis;
+    float splitPos;
+    float splitCost = FindBestSplitPlane(node, axis, splitPos);
+
+    float nosplitCost = CalculateNodeCost(node);
+    if (splitCost >= nosplitCost) return;
+    float distance = splitPos - node->aabbMin[axis];
 #else
     // split plane axis and position
     float3 extent = node->aabbMax - node->aabbMin;

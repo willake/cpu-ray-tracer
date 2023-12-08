@@ -5,6 +5,10 @@
 #include "tlas_grid.h"
 #include "tlas_kdtree.h"
 
+#define USE_KDTree
+//#define USE_BVH
+//#define USE_Grid
+
 namespace Tmpl8
 {
 	class Scene2 : BaseScene
@@ -22,9 +26,15 @@ namespace Tmpl8
 		int GetTriangleCount() const;
 	public:
 		float animTime = 0;
+#ifdef USE_BVH
 		BVH bvhs[3];
+#endif
+#ifdef USE_Grid
 		Grid grids[3]; 
-		KDTree kdTrees[1];
+#endif
+#ifdef USE_KDTree
+		KDTree kdTrees[3];
+#endif
 		TLASBVH tlasBVH;
 		TLASGrid tlasGrid;
 		TLASKDTree tlasKDTree;

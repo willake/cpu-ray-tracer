@@ -29,7 +29,6 @@ namespace Tmpl8
 		int3 resolution = 0;
 		float3 cellSize = 0;
 		std::vector<Tri> triangles;
-		std::vector<uint> triangleIndices;
 		std::vector<GridCell> gridCells;
 	public:
 		int objIdx = -1;

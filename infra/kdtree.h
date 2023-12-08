@@ -2,6 +2,7 @@
 
 #define SAH
 #define FASTER_RAY
+#define BINS 8
 // reference: https://www.youtube.com/watch?v=TrqK-atFfWY&ab_channel=JustinSolomon
 // reference: https://github.com/reddeupenn/kdtreePathTracerOptimization
 // refernece: On building fast kd-Trees for Ray Tracing, and on doing that in O(N log N) by Ingo Wald and Vlastimil Havran
@@ -23,6 +24,8 @@ namespace Tmpl8
 	{
 	private:
 		void UpdateBounds();
+		float CalculateNodeCost(KDTreeNode* node);
+		float FindBestSplitPlane(KDTreeNode* node, int& axis, float& splitPos);
 		void Subdivide(KDTreeNode* node, int depth);
 		float EvaluateSAH(KDTreeNode* node, int axis, float pos);
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax, float& tmin, float& tmax);
@@ -44,7 +47,6 @@ namespace Tmpl8
 		KDTreeNode* rootNode;
 		std::vector<Tri> triangles;
 		std::vector<aabb> triangleBounds;
-		std::vector<uint> triangleIndices;
 		uint rootNodeIdx = 0, nodesUsed = 1;
 		Material material;
 		aabb localBounds;
