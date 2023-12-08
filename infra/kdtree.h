@@ -2,7 +2,8 @@
 
 #define SAH
 #define FASTER_RAY
-// reference: https://jacco.ompf2.com/2022/04/13/how-to-build-a-bvh-part-1-basics/
+// reference: https://www.youtube.com/watch?v=TrqK-atFfWY&ab_channel=JustinSolomon
+// reference: https://github.com/reddeupenn/kdtreePathTracerOptimization
 
 namespace Tmpl8
 {
