@@ -1,6 +1,6 @@
 #pragma once
 
-#define SAH
+//#define SAH
 #define FASTER_RAY
 #define BINS 8
 // reference: https://www.youtube.com/watch?v=TrqK-atFfWY&ab_channel=JustinSolomon
@@ -11,26 +11,25 @@ namespace Tmpl8
 {
 	struct KDTreeNode
 	{
-		float3 aabbMin = 0, aabbMax = 0;
-		KDTreeNode* left;
-		KDTreeNode* right;
-		int splitAxis = 0;
-		float splitDistance = 0;
+		float3 aabbMin = 0, aabbMax = 0; // 24 bytes
+		uint left; // 4 bytes
+		uint splitAxis = 0; // 4 bytes
+		float splitDistance = 0; // 4 bytes
+		bool isLeaf = true; // 2 bytes    total 38 bytes
 		std::vector<uint> triIndices;
-		bool isLeaf = true;
 	};
 
 	class KDTree
 	{
 	private:
 		void UpdateBounds();
-		float CalculateNodeCost(KDTreeNode* node);
-		float FindBestSplitPlane(KDTreeNode* node, int& axis, float& splitPos);
-		void Subdivide(KDTreeNode* node, int depth);
-		float EvaluateSAH(KDTreeNode* node, int axis, float pos);
+		float CalculateNodeCost(KDTreeNode& node);
+		float FindBestSplitPlane(KDTreeNode& node, int& axis, float& splitPos);
+		void Subdivide(uint nodeIdx, int depth);
+		float EvaluateSAH(KDTreeNode& node, int axis, float pos);
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax, float& tmin, float& tmax);
 		void IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
-		void IntersectKDTree(Ray& ray, KDTreeNode* node);
+		void IntersectKDTree(Ray& ray, uint nodeIdx);
 	public:
 		KDTree() = default;
 		KDTree(const int idx, const std::string& modelPath, const mat4 transform, const mat4 scaleMat);
@@ -41,10 +40,10 @@ namespace Tmpl8
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
 	private:
-		int m_maxBuildDepth = 30;
+		int m_maxBuildDepth = 100;
 	public:
 		int objIdx = -1;
-		KDTreeNode* rootNode;
+		std::vector<KDTreeNode> nodes;
 		std::vector<Tri> triangles;
 		std::vector<aabb> triangleBounds;
 		uint rootNodeIdx = 0, nodesUsed = 1;
