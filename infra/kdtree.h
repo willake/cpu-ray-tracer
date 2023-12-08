@@ -4,6 +4,7 @@
 #define FASTER_RAY
 // reference: https://www.youtube.com/watch?v=TrqK-atFfWY&ab_channel=JustinSolomon
 // reference: https://github.com/reddeupenn/kdtreePathTracerOptimization
+// refernece: On building fast kd-Trees for Ray Tracing, and on doing that in O(N log N) by Ingo Wald and Vlastimil Havran
 
 namespace Tmpl8
 {
