@@ -37,13 +37,13 @@ Scene2::Scene2()
 	//tlasGrid.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 
 	kdTrees[0] = KDTree(300, "../assets/wok.obj", t, s);
-	kdTrees[1] = KDTree(301, "../assets/wok.obj", t2, s2);
-	kdTrees[2] = KDTree(302, "../assets/wok.obj", t3, s3);
+	/*kdTrees[1] = KDTree(301, "../assets/wok.obj", t2, s2);
+	kdTrees[2] = KDTree(302, "../assets/wok.obj", t3, s3);*/
 	tlasKDTree = TLASKDTree(kdTrees, 3);
 	tlasKDTree.Build();
 	tlasKDTree.blas[0].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	tlasKDTree.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
-	tlasKDTree.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//tlasKDTree.blas[1].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
+	//tlasKDTree.blas[2].material.textureDiffuse = std::make_unique<Texture>("../assets/textures/Defuse_wok.png");
 	skydome = Texture("../assets/industrial_sunset_puresky_4k.hdr");
 	SetTime(0);
 }
@@ -201,9 +201,9 @@ int Scene2::GetTriangleCount() const
 	//{
 	//	count += grids[i].GetTriangleCount();
 	//}
-	for (int i = 0; i < 3; i++)
-	{
-		count += kdTrees[i].GetTriangleCount();
-	}
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	count += kdTrees[i].GetTriangleCount();
+	//}
 	return count;
 }

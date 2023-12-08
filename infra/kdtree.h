@@ -9,23 +9,22 @@ namespace Tmpl8
 	struct KDTreeNode
 	{
 		float3 aabbMin = 0, aabbMax = 0;
-		uint left = 0;   // 8 bytes; total: 32 bytes
+		KDTreeNode* left;
+		KDTreeNode* right;
 		int splitAxis = 0;
 		float splitDistance = 0;
-		std::vector<uint> triIndices = {};
-		// If it is 0, leftFirst contains the index of the left child node.
-		// Otherwise, it contains the index of the first triangle index.
-		bool isLeaf() { return triIndices.size() > 0; }
+		std::vector<uint> triIndices;
+		bool isLeaf = true;
 	};
 
 	class KDTree
 	{
 	private:
 		void UpdateBounds();
-		void Subdivide(uint nodeIdx);
+		void Subdivide(KDTreeNode* node, int depth);
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax, float& tmin, float& tmax);
 		void IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
-		void IntersectKDTree(Ray& ray, const uint nodeIdx);
+		void IntersectKDTree(Ray& ray, KDTreeNode* node);
 	public:
 		KDTree() = default;
 		KDTree(const int idx, const std::string& modelPath, const mat4 transform, const mat4 scaleMat);
@@ -36,9 +35,10 @@ namespace Tmpl8
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
 	private:
+		int m_maxBuildDepth = 20;
 	public:
 		int objIdx = -1;
-		std::vector<KDTreeNode> nodes;
+		KDTreeNode* rootNode;
 		std::vector<Tri> triangles;
 		std::vector<aabb> triangleBounds;
 		std::vector<uint> triangleIndices;

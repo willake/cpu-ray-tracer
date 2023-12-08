@@ -91,13 +91,12 @@ void KDTree::Build()
     }
     UpdateBounds();
     // assign all triangles to root node
-    KDTreeNode root;
-    root.aabbMin = localBounds.bmin3;
-    root.aabbMax = localBounds.bmax3;
-    root.triIndices = triangleIndices;
-    nodes.push_back(root);
+    rootNode = new KDTreeNode();
+    rootNode->aabbMin = localBounds.bmin3;
+    rootNode->aabbMax = localBounds.bmax3;
+    rootNode->triIndices = triangleIndices;
     // subdivide recursively
-    Subdivide(rootNodeIdx);
+    Subdivide(rootNode, 0);
 }
 
 void KDTree::UpdateBounds()
@@ -117,66 +116,66 @@ void KDTree::UpdateBounds()
     localBounds = b;
 }
 
-void KDTree::Subdivide(uint nodeIdx)
+void KDTree::Subdivide(KDTreeNode* node, int depth)
 {
+    printf("Node tris: %d Depth: %d \n", node->triIndices.size(), depth);
     // terminate recursion
-    KDTreeNode& node = nodes[nodeIdx];
-    if (node.triIndices.size() <= 2) return;
+    if (depth >= m_maxBuildDepth) return;
+    uint triCount = node->triIndices.size();
+    if (triCount <= 2) return;
 
     // split plane axis and position
-    float3 extent = node.aabbMax - node.aabbMin;
+    float3 extent = node->aabbMax - node->aabbMin;
     int axis = 0;
     if (extent.y > extent.x) axis = 1;
     if (extent.z > extent[axis]) axis = 2;
-    int distance = extent[axis] * 0.5f;
-    float splitPos = node.aabbMin[axis] + distance;
+    float distance = extent[axis] * 0.5f;
+    float splitPos = node->aabbMin[axis] + distance;
 
-    int leftChildIdx = nodesUsed++;
-    int rightChildIdx = nodesUsed++;
+    std::vector<uint> leftTriIdxs;
+    std::vector<uint> rightTriIdxs;
 
-    node.left = leftChildIdx;
-    node.splitAxis = axis;
-    node.splitDistance = distance;
-
-    // update the bounds of nodes
-    KDTreeNode leftChild;
-    leftChild.aabbMin = node.aabbMin;
-    leftChild.aabbMax = node.aabbMax;
-    leftChild.aabbMax[axis] = splitPos;
-    nodes.push_back(leftChild);
-
-    KDTreeNode rightChild;
-    rightChild.aabbMin = node.aabbMin;
-    rightChild.aabbMax = node.aabbMax;
-    rightChild.aabbMin[axis] = splitPos;
-    nodes.push_back(rightChild);
-
-
-    // split the group in two halves
-    for (int i = 0; i < node.triIndices.size(); i++)
+    for (int i = 0; i < triCount; i++)
     {
-        if (triangleBounds[i].bmin[axis] < splitPos)
+        uint idx = node->triIndices[i];
+        if (triangleBounds[idx].bmin[axis] < splitPos)
         {
-            leftChild.triIndices.push_back(node.triIndices[i]);
+            leftTriIdxs.push_back(idx);
         }
-        if (triangleBounds[i].bmax[axis] > splitPos - 0.001)
+        if (triangleBounds[idx].bmax[axis] > splitPos - 0.001)
         {
-            rightChild.triIndices.push_back(node.triIndices[i]);
+            rightTriIdxs.push_back(idx);
         }
     }
 
-    node.triIndices.clear();
-    /*while (i <= j)
-    {
-        if (triangles[triangleIndices[i]].centroid[axis] < splitPos)
-            i++;
-        else
-            swap(triangleIndices[i], triangleIndices[j--]);
-    }*/
+    if (leftTriIdxs.size() == triCount || rightTriIdxs.size() == triCount) return;
+
+    KDTreeNode* leftChild = new KDTreeNode();
+    KDTreeNode* rightChild = new KDTreeNode();
+    leftChild->triIndices = leftTriIdxs;
+    rightChild->triIndices = rightTriIdxs;
+    node->left = leftChild;
+    node->right = rightChild;
+    nodesUsed++; nodesUsed++;
+
+    node->splitAxis = axis;
+    node->splitDistance = distance;
+
+    // update the bounds of nodes
+    leftChild->aabbMin = node->aabbMin;
+    leftChild->aabbMax = node->aabbMax;
+    leftChild->aabbMax[axis] = splitPos;
+
+    rightChild->aabbMin = node->aabbMin;
+    rightChild->aabbMax = node->aabbMax;
+    rightChild->aabbMin[axis] = splitPos;
+
+    node->triIndices.clear();
+    node->isLeaf = false;
 
     // recurse
-    Subdivide(leftChildIdx);
-    Subdivide(rightChildIdx);
+    Subdivide(leftChild, depth + 1);
+    Subdivide(rightChild, depth + 1);
 }
 
 bool KDTree::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax, float& tminOut, float& tmaxOut)
@@ -213,60 +212,64 @@ void KDTree::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
     }
 }
 
-void KDTree::IntersectKDTree(Ray& ray, const uint nodeIdx)
+void KDTree::IntersectKDTree(Ray& ray, KDTreeNode* node)
 {
-    KDTreeNode& node = nodes[nodeIdx];
     float tmin, tmax;
-    if (!IntersectAABB(ray, node.aabbMin, node.aabbMax, tmin, tmax)) return;
+    if (node == nullptr) return;
+    if (!IntersectAABB(ray, node->aabbMin, node->aabbMax, tmin, tmax)) return;
     ray.traversed++;
-    if (node.isLeaf())
+    if (node->isLeaf)
     {
-        uint triCount = node.triIndices.size();
+        uint triCount = node->triIndices.size();
         for (uint i = 0; i < triCount; i++)
         {
-            uint triIdx = triangleIndices[node.triIndices[i]];
+            uint triIdx = node->triIndices[i];
             IntersectTri(ray, triangles[triIdx], triIdx);
         }
+        return;
     }
 
-    float t = (node.splitDistance - ray.O[node.splitAxis]) / ray.D[node.splitAxis];
+    float t = (node->splitDistance - ray.O[node->splitAxis]) / ray.D[node->splitAxis];
 
-    if(ray.D[node.splitAxis] > 0)
-    {
-        // t <= tmin, only the right node is intersected
-        if (t < tmin + 0.001)
-        {
-            IntersectKDTree(ray, node.left + 1);
-        }
-        // t >= tmax, only the left node is intersected
-        else if (t > tmax + 0.001)
-        {
-            IntersectKDTree(ray, node.left);
-        }
-        else
-        {
-            IntersectKDTree(ray, node.left);
-            IntersectKDTree(ray, node.left + 1);
-        }
-    }
-    else
-    {
-        // t <= tmin, only the left node is intersected
-        if (t < tmin + 0.001)
-        {
-            IntersectKDTree(ray, node.left);
-        }
-        // t >= tmax, only the left node is intersected
-        else if (t > tmax + 0.001)
-        {
-            IntersectKDTree(ray, node.left + 1);
-        }
-        else
-        {
-            IntersectKDTree(ray, node.left + 1);
-            IntersectKDTree(ray, node.left);
-        }
-    }
+    IntersectKDTree(ray, node->left);
+    IntersectKDTree(ray, node->right);
+
+    //if(ray.D[node->splitAxis] > 0)
+    //{
+    //    // t <= tmin, only the right node is intersected
+    //    if (t < tmin + 0.001)
+    //    {
+    //        IntersectKDTree(ray, node->right);
+    //    }
+    //    // t >= tmax, only the left node is intersected
+    //    else if (t > tmax + 0.001)
+    //    {
+    //        IntersectKDTree(ray, node->left);
+    //    }
+    //    else
+    //    {
+    //        IntersectKDTree(ray, node->left);
+    //        IntersectKDTree(ray, node->right);
+    //    }
+    //}
+    //else
+    //{
+    //    // t <= tmin, only the left node is intersected
+    //    if (t < tmin + 0.001)
+    //    {
+    //        IntersectKDTree(ray, node->left);
+    //    }
+    //    // t >= tmax, only the left node is intersected
+    //    else if (t > tmax + 0.001)
+    //    {
+    //        IntersectKDTree(ray, node->right);
+    //    }
+    //    else
+    //    {
+    //        IntersectKDTree(ray, node->right);
+    //        IntersectKDTree(ray, node->left);
+    //    }
+    //}
 }
 
 int KDTree::GetTriangleCount() const
@@ -280,7 +283,7 @@ void KDTree::SetTransform(mat4 transform)
     invT = transform.FastInvertedTransformNoScale();
     // update bvh bound
     // calculate world-space bounds using the new matrix
-    float3 bmin = nodes[rootNodeIdx].aabbMin, bmax = nodes[rootNodeIdx].aabbMax;
+    float3 bmin = rootNode->aabbMin, bmax = rootNode->aabbMax;
     worldBounds = aabb();
     for (int i = 0; i < 8; i++)
         worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
@@ -294,7 +297,7 @@ void KDTree::Intersect(Ray& ray)
     tRay.D = TransformVector_SSE(ray.D4, invT);
     tRay.rD = float3(1 / tRay.D.x, 1 / tRay.D.y, 1 / tRay.D.z);
 
-    IntersectKDTree(tRay, rootNodeIdx);
+    IntersectKDTree(tRay, rootNode);
 
     tRay.O = ray.O;
     tRay.D = ray.D;

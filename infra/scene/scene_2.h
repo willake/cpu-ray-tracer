@@ -24,7 +24,7 @@ namespace Tmpl8
 		float animTime = 0;
 		BVH bvhs[3];
 		Grid grids[3]; 
-		KDTree kdTrees[3];
+		KDTree kdTrees[1];
 		TLASBVH tlasBVH;
 		TLASGrid tlasGrid;
 		TLASKDTree tlasKDTree;
