@@ -243,13 +243,14 @@ void KDTree::IntersectKDTree(Ray& ray, KDTreeNode* node)
             IntersectKDTree(ray, node->right);
         }
         // t >= tmax, only the left node is intersected
-        else if (t > tmax + 0.001)
+        else if (t > tmax - 0.001)
         {
             IntersectKDTree(ray, node->left);
         }
         else
         {
             IntersectKDTree(ray, node->left);
+            if (ray.objIdx == objIdx && ray.t < t) return;
             IntersectKDTree(ray, node->right);
         }
     }
@@ -261,13 +262,14 @@ void KDTree::IntersectKDTree(Ray& ray, KDTreeNode* node)
             IntersectKDTree(ray, node->left);
         }
         // t >= tmax, only the left node is intersected
-        else if (t > tmax + 0.001)
+        else if (t > tmax - 0.001)
         {
             IntersectKDTree(ray, node->right);
         }
         else
         {
             IntersectKDTree(ray, node->right);
+            if (ray.objIdx == objIdx && ray.t < t) return;
             IntersectKDTree(ray, node->left);
         }
     }

@@ -35,7 +35,7 @@ namespace Tmpl8
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
 	private:
-		int m_maxBuildDepth = 20;
+		int m_maxBuildDepth = 30;
 	public:
 		int objIdx = -1;
 		KDTreeNode* rootNode;
