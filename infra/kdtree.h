@@ -24,6 +24,7 @@ namespace Tmpl8
 	private:
 		void UpdateBounds();
 		void Subdivide(KDTreeNode* node, int depth);
+		float EvaluateSAH(KDTreeNode* node, int axis, float pos);
 		bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax, float& tmin, float& tmax);
 		void IntersectTri(Ray& ray, const Tri& tri, const uint triIdx);
 		void IntersectKDTree(Ray& ray, KDTreeNode* node);

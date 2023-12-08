@@ -116,6 +116,35 @@ void KDTree::UpdateBounds()
     localBounds = b;
 }
 
+float KDTree::EvaluateSAH(KDTreeNode* node, int axis, float pos)
+{
+    // determine triangle counts and bounds for this split candidate
+    aabb leftBox, rightBox;
+    int leftCount = 0, rightCount = 0;
+    int triCount = node->triIndices.size();
+    for (uint i = 0; i < triCount; i++)
+    {
+        Tri& triangle = triangles[node->triIndices[i]];
+        if (triangle.centroid[axis] < pos)
+        {
+            leftCount++;
+            leftBox.Grow(triangle.vertex0);
+            leftBox.Grow(triangle.vertex1);
+            leftBox.Grow(triangle.vertex2);
+        }
+        else
+        {
+            rightCount++;
+            rightBox.Grow(triangle.vertex0);
+            rightBox.Grow(triangle.vertex1);
+            rightBox.Grow(triangle.vertex2);
+        }
+    }
+    float cost = leftCount * leftBox.Area() + rightCount * rightBox.Area();
+
+    return cost > 0 ? cost : 1e30f;
+}
+
 void KDTree::Subdivide(KDTreeNode* node, int depth)
 {
     // terminate recursion
@@ -123,6 +152,22 @@ void KDTree::Subdivide(KDTreeNode* node, int depth)
     uint triCount = node->triIndices.size();
     if (triCount <= 2) return;
 
+#ifdef  SAH
+    // determine split axis using SAH
+    int bestAxis = -1;
+    float bestPos = 0, bestCost = 1e30f;
+    for (int axis = 0; axis < 3; axis++) for (uint i = 0; i < triCount; i++)
+    {
+        Tri& triangle = triangles[node->triIndices[i]];
+        float candidatePos = triangle.centroid[axis];
+        float cost = EvaluateSAH(node, axis, candidatePos);
+        if (cost < bestCost)
+            bestPos = candidatePos, bestAxis = axis, bestCost = cost;
+    }
+    int axis = bestAxis;
+    float distance = bestPos - node->aabbMin[axis];
+    float splitPos = bestPos;
+#else
     // split plane axis and position
     float3 extent = node->aabbMax - node->aabbMin;
     int axis = 0;
@@ -130,7 +175,7 @@ void KDTree::Subdivide(KDTreeNode* node, int depth)
     if (extent.z > extent[axis]) axis = 2;
     float distance = extent[axis] * 0.5f;
     float splitPos = node->aabbMin[axis] + distance;
-
+#endif
     std::vector<uint> leftTriIdxs;
     std::vector<uint> rightTriIdxs;
 
