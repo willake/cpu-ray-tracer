@@ -18,13 +18,13 @@ namespace Tmpl8
         int FindBestMatch(int* list, int N, int A);
     public:
         TLASGrid() = default;
-        TLASGrid(Grid* gridList, int N);
+        TLASGrid(std::vector<Grid*> blasList);
         void Build();
         void Intersect(Ray& ray);
     private:
         TLASGridNode* tlasNode;
         uint nodesUsed = 0, blasCount;
     public:
-        Grid* blas;
+        std::vector<Grid*> blas;
     };
 }

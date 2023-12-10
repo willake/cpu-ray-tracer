@@ -11,6 +11,7 @@ TLASBVH::TLASBVH(std::vector<BVH*> bvhList)
 	}
 	// allocate TLAS nodes
 	tlasNode = (TLASBVHNode*)_aligned_malloc(sizeof(TLASBVHNode) * 2 * blasCount, 64);
+	Build();
 }
 
 void TLASBVH::Build()

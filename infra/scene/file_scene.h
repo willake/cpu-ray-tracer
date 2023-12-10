@@ -1,10 +1,17 @@
 #pragma once
 
 #include "base_scene.h"
+#include "bvh.h"
+#include "grid.h"
+#include "kdtree.h"
 #include "tlas_bvh.h"
 #include "tlas_grid.h"
 #include "tlas_kdtree.h"
 #include "rapidxml.hpp"
+
+//#define USE_BVH
+//#define USE_Grid
+#define USE_KDTree
 
 namespace Tmpl8
 {
@@ -19,6 +26,7 @@ namespace Tmpl8
 	// Define a structure to hold scene information
 	struct SceneData {
 		std::string name;
+		float3 lightPos;
 		std::string skydomeLocation;
 		std::vector<ObjectData> objects;
 	};
@@ -41,18 +49,15 @@ namespace Tmpl8
 	public:
 		float animTime = 0;
 #ifdef USE_BVH
-		BVH bvhs[3];
+		TLASBVH tlas;
 #endif
 #ifdef USE_Grid
-		Grid grids[3];
+		TLASGrid tlas;
 #endif
 #ifdef USE_KDTree
-		KDTree kdTrees[3];
+		TLASKDTree tlas;
 #endif
 		string sceneName;
-		TLASBVH tlasBVH;
-		TLASGrid tlasGrid;
-		TLASKDTree tlasKDTree;
 		Texture skydome;
 		Plane floor;
 		Sphere sphere;
