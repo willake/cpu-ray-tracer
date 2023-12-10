@@ -8,6 +8,7 @@
 #include "primitive_scene.h"
 #include "scene_1.h"
 #include "scene_2.h"
+#include "file_scene.h"
 
 #define EPSILON	0.001f
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene>
+    <!-- Scene Information -->
+    <scene_name>wok scene</scene_name>
+    <skydome_location>../assets/industrial_sunset_puresky_4k.hdr</skydome_location>
+
+    <!-- Object List -->
+    <objects>
+        <!-- Object 1 -->
+        <object>
+            <model_location>../assets/wok.obj</model_location>
+            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
+            <position>
+                <x>1.0</x>
+                <y>0.0</y>
+                <z>3.5</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>0.5</x>
+                <y>0.5</y>
+                <z>0.5</z>
+            </scale>
+        </object>
+
+        <!-- Add more objects as needed -->
+    </objects>
+</scene>

@@ -1,13 +1,16 @@
 #include "precomp.h"
 #include "tlas_bvh.h"
 
-TLASBVH::TLASBVH(BVH* bvhList, int N)
+TLASBVH::TLASBVH(std::vector<BVH*> bvhList)
 {
+	blasCount = bvhList.size();
 	// copy a pointer to the array of bottom level accstructs
-	blas = bvhList;
-	blasCount = N;
+	for (int i = 0; i < blasCount; i++)
+	{
+		blas.push_back(bvhList[i]);
+	}
 	// allocate TLAS nodes
-	tlasNode = (TLASBVHNode*)_aligned_malloc(sizeof(TLASBVHNode) * 2 * N, 64);
+	tlasNode = (TLASBVHNode*)_aligned_malloc(sizeof(TLASBVHNode) * 2 * blasCount, 64);
 }
 
 void TLASBVH::Build()
@@ -18,8 +21,8 @@ void TLASBVH::Build()
 	for (uint i = 0; i < blasCount; i++)
 	{
 		nodeIdx[i] = nodesUsed;
-		tlasNode[nodesUsed].aabbMin = blas[i].worldBounds.bmin3;
-		tlasNode[nodesUsed].aabbMax = blas[i].worldBounds.bmax3;
+		tlasNode[nodesUsed].aabbMin = blas[i]->worldBounds.bmin3;
+		tlasNode[nodesUsed].aabbMax = blas[i]->worldBounds.bmax3;
 		tlasNode[nodesUsed].BLAS = i;
 		tlasNode[nodesUsed++].leftRight = 0; // makes it a leaf
 	}
@@ -82,7 +85,7 @@ void TLASBVH::Intersect(Ray& ray)
 		ray.traversed++;
 		if (node->isLeaf())
 		{
-			blas[node->BLAS].Intersect(ray);
+			blas[node->BLAS]->Intersect(ray);
 			if (stackPtr == 0) break; else node = stack[--stackPtr];
 			continue;
 		}

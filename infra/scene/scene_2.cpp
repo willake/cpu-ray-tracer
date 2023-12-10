@@ -156,10 +156,10 @@ HitInfo Scene2::GetHitInfo(const Ray& ray, const float3 I)
 
 	if (ray.objIdx > 99 && ray.objIdx < 200)
 	{
-		BVH& bvh = tlasBVH.blas[ray.objIdx - 100];
-		hitInfo.normal = bvh.GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = bvh.GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &bvh.material;
+		BVH* bvh = tlasBVH.blas[ray.objIdx - 100];
+		hitInfo.normal = bvh->GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = bvh->GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &bvh->material;
 	}
 
 	if (ray.objIdx > 199 && ray.objIdx < 300)
