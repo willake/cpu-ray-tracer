@@ -53,17 +53,14 @@
     <ClCompile Include="..\infra\scene\primitive_scene.cpp">
       <Filter>infra\scene</Filter>
     </ClCompile>
-    <ClCompile Include="..\infra\scene\scene_1.cpp">
-      <Filter>infra\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="..\infra\scene\scene_2.cpp">
-      <Filter>infra\scene</Filter>
-    </ClCompile>
     <ClCompile Include="..\infra\kdtree.cpp">
       <Filter>infra\kdtree</Filter>
     </ClCompile>
     <ClCompile Include="..\infra\tlas_kdtree.cpp">
       <Filter>infra\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\infra\scene\file_scene.cpp">
+      <Filter>infra\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -155,17 +152,14 @@
     <ClInclude Include="..\infra\scene\primitive_scene.h">
       <Filter>infra\scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\infra\scene\scene_1.h">
-      <Filter>infra\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\infra\scene\scene_2.h">
-      <Filter>infra\scene</Filter>
-    </ClInclude>
     <ClInclude Include="..\infra\kdtree.h">
       <Filter>infra\kdtree</Filter>
     </ClInclude>
     <ClInclude Include="..\infra\tlas_kdtree.h">
       <Filter>infra\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\scene\file_scene.h">
+      <Filter>infra\scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

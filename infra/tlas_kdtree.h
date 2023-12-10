@@ -19,13 +19,13 @@ namespace Tmpl8
         int FindBestMatch(int* list, int N, int A);
     public:
         TLASKDTree() = default;
-        TLASKDTree(KDTree* kdtreeList, int N);
+        TLASKDTree(std::vector<KDTree*> blasList);
         void Build();
         void Intersect(Ray& ray);
     private:
         TLASKDTreeNode* tlasNode;
         uint nodesUsed = 0, blasCount;
     public:
-        KDTree* blas;
+        std::vector<KDTree*> blas;
     };
 }

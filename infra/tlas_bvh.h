@@ -18,13 +18,13 @@ namespace Tmpl8
         int FindBestMatch(int* list, int N, int A);
     public:
         TLASBVH() = default;
-        TLASBVH(BVH* bvhList, int N);
+        TLASBVH(std::vector<BVH*> bvhList);
         void Build();
         void Intersect(Ray& ray);
     private:
         TLASBVHNode* tlasNode;
         uint nodesUsed = 0, blasCount;
     public:
-        BVH* blas;
+        std::vector<BVH*> blas;
     };
 }

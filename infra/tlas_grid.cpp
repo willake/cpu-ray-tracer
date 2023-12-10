@@ -1,13 +1,17 @@
 #include "precomp.h"
 #include "tlas_grid.h"
 
-TLASGrid::TLASGrid(Grid* gridList, int N)
+TLASGrid::TLASGrid(std::vector<Grid*> blasList)
 {
+	blasCount = blasList.size();
 	// copy a pointer to the array of bottom level accstructs
-	blas = gridList;
-	blasCount = N;
+	for (int i = 0; i < blasCount; i++)
+	{
+		blas.push_back(blasList[i]);
+	}
 	// allocate TLAS nodes
-	tlasNode = (TLASGridNode*)_aligned_malloc(sizeof(TLASGridNode) * 2 * N, 64);
+	tlasNode = (TLASGridNode*)_aligned_malloc(sizeof(TLASGridNode) * 2 * blasCount, 64);
+	Build();
 }
 
 void TLASGrid::Build()
@@ -18,8 +22,8 @@ void TLASGrid::Build()
 	for (uint i = 0; i < blasCount; i++)
 	{
 		nodeIdx[i] = nodesUsed;
-		tlasNode[nodesUsed].aabbMin = blas[i].worldBounds.bmin3;
-		tlasNode[nodesUsed].aabbMax = blas[i].worldBounds.bmax3;
+		tlasNode[nodesUsed].aabbMin = blas[i]->worldBounds.bmin3;
+		tlasNode[nodesUsed].aabbMax = blas[i]->worldBounds.bmax3;
 		tlasNode[nodesUsed].BLAS = i;
 		tlasNode[nodesUsed++].leftRight = 0; // makes it a leaf
 	}
@@ -82,7 +86,7 @@ void TLASGrid::Intersect(Ray& ray)
 		ray.traversed++;
 		if (node->isLeaf())
 		{
-			blas[node->BLAS].Intersect(ray);
+			blas[node->BLAS]->Intersect(ray);
 			if (stackPtr == 0) break; else node = stack[--stackPtr];
 			continue;
 		}

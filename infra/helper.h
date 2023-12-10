@@ -116,4 +116,6 @@ namespace Tmpl8
 
         return float3(blend, 1 - blend, 0);
     }
+
+    const float Deg2Red = (PI * 2) / 360.0f;
 }

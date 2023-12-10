@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene>
+    <!-- Scene Information -->
+    <scene_name>wok scene</scene_name>
+	<light_position>
+		<x>0.0</x>
+		<y>3.0</y>
+		<z>0.0</z>
+	</light_position>
+    <skydome_location>../assets/industrial_sunset_puresky_4k.hdr</skydome_location>
+
+    <!-- Object List -->
+    <objects>
+        <!-- Object 1 -->
+        <object>
+            <model_location>../assets/wok.obj</model_location>
+            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
+            <position>
+                <x>0.0</x>
+                <y>-0.5</y>
+                <z>2.0</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>0.5</x>
+                <y>0.5</y>
+                <z>0.5</z>
+            </scale>
+        </object>
+		        <object>
+            <model_location>../assets/japanese_torii_gate.obj</model_location>
+            <texture_location>../assets/textures/T_Trim_01_BaseColor.png</texture_location>
+            <position>
+                <x>1.5</x>
+                <y>-1.0</y>
+                <z>2.0</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>90.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1</x>
+                <y>1</y>
+                <z>1</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/japanese_torii_gate.obj</model_location>
+            <texture_location>../assets/textures/T_Trim_01_BaseColor.png</texture_location>
+            <position>
+                <x>-1.5</x>
+                <y>-1.0</y>
+                <z>2.0</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>-90.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1</x>
+                <y>1</y>
+                <z>1</z>
+            </scale>
+        </object>
+
+        <!-- Add more objects as needed -->
+    </objects>
+</scene>
