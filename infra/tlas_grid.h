@@ -23,7 +23,7 @@ namespace Tmpl8
         void Intersect(Ray& ray);
     private:
         TLASGridNode* tlasNode;
-        uint nodesUsed, blasCount;
+        uint nodesUsed = 0, blasCount;
     public:
         Grid* blas;
     };

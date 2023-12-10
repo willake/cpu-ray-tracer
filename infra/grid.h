@@ -29,13 +29,12 @@ namespace Tmpl8
 		int3 resolution = 0;
 		float3 cellSize = 0;
 		std::vector<Tri> triangles;
-		std::vector<uint> triangleIndices;
 		std::vector<GridCell> gridCells;
 	public:
 		int objIdx = -1;
 		Material material;
 		mat4 T, invT;
-		aabb gridBounds;
+		aabb localBounds;
 		aabb worldBounds;
 	};
 }

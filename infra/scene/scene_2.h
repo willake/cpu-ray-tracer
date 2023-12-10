@@ -3,6 +3,11 @@
 #include "base_scene.h"
 #include "tlas_bvh.h"
 #include "tlas_grid.h"
+#include "tlas_kdtree.h"
+
+#define USE_KDTree
+//#define USE_BVH
+//#define USE_Grid
 
 namespace Tmpl8
 {
@@ -21,10 +26,18 @@ namespace Tmpl8
 		int GetTriangleCount() const;
 	public:
 		float animTime = 0;
+#ifdef USE_BVH
 		BVH bvhs[3];
-		Grid grids[3];
+#endif
+#ifdef USE_Grid
+		Grid grids[3]; 
+#endif
+#ifdef USE_KDTree
+		KDTree kdTrees[3];
+#endif
 		TLASBVH tlasBVH;
 		TLASGrid tlasGrid;
+		TLASKDTree tlasKDTree;
 		Texture skydome;
 		Plane floor;
 		Sphere sphere;
