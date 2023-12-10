@@ -39,7 +39,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		FileScene scene = FileScene("../assets/scenes/wok_scene.xml");
+		FileScene scene = FileScene("../assets/scenes/tower_scene.xml");
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;

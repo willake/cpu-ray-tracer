@@ -8,12 +8,12 @@ FileScene::FileScene(const string& filePath)
 	light = Quad(0, 1);
 	floor = Plane(1, float3(0, 1, 0), 1);
 	materials[0].isLight = true;
-	materials[1].reflectivity = 0.3f;
+	materials[1].isAlbedoOverridden = true;
 	objIdUsed = 2;
 
 	SceneData sceneData = LoadSceneFile(filePath);
 
-	mat4 M1base = mat4::Translate(float3(0, 2.6f, 2));// *mat4::RotateZ(sinf(animTime * 0.6f) * 0.1f);
+	mat4 M1base = mat4::Translate(sceneData.lightPos);// *mat4::RotateZ(sinf(animTime * 0.6f) * 0.1f);
 	light.T = M1base, light.invT = M1base.FastInvertedTransformNoScale();
 
 	sceneName = sceneData.name;
