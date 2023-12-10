@@ -167,12 +167,12 @@ float KDTree::FindBestSplitPlane(KDTreeNode* node, int& axis, float& splitPos)
         }
         if (boundsMin == boundsMax) continue;
         // populate the bins
-        Bin bin[BINS];
-        float scale = BINS / (boundsMax - boundsMin);
+        Bin bin[KD_BINS];
+        float scale = KD_BINS / (boundsMax - boundsMin);
         for (uint i = 0; i < triCount; i++)
         {
             Tri& triangle = triangles[node->triIndices[i]];
-            int binIdx = min(BINS - 1,
+            int binIdx = min(KD_BINS - 1,
                 (int)((triangle.centroid[a] - boundsMin) * scale));
             bin[binIdx].triCount++;
             bin[binIdx].bounds.Grow(triangle.vertex0);
@@ -180,24 +180,24 @@ float KDTree::FindBestSplitPlane(KDTreeNode* node, int& axis, float& splitPos)
             bin[binIdx].bounds.Grow(triangle.vertex2);
         }
         // gather data for the 7 planes between the 8 bins
-        float leftArea[BINS - 1], rightArea[BINS - 1];
-        int leftCount[BINS - 1], rightCount[BINS - 1];
+        float leftArea[KD_BINS - 1], rightArea[KD_BINS - 1];
+        int leftCount[KD_BINS - 1], rightCount[KD_BINS - 1];
         aabb leftBox, rightBox;
         int leftSum = 0, rightSum = 0;
-        for (int i = 0; i < BINS - 1; i++)
+        for (int i = 0; i < KD_BINS - 1; i++)
         {
             leftSum += bin[i].triCount;
             leftCount[i] = leftSum;
             leftBox.Grow(bin[i].bounds);
             leftArea[i] = leftBox.Area();
-            rightSum += bin[BINS - 1 - i].triCount;
-            rightCount[BINS - 2 - i] = rightSum;
-            rightBox.Grow(bin[BINS - 1 - i].bounds);
-            rightArea[BINS - 2 - i] = rightBox.Area();
+            rightSum += bin[KD_BINS - 1 - i].triCount;
+            rightCount[KD_BINS - 2 - i] = rightSum;
+            rightBox.Grow(bin[KD_BINS - 1 - i].bounds);
+            rightArea[KD_BINS - 2 - i] = rightBox.Area();
         }
         // calculate SAH cost for the 7 planes
-        scale = (boundsMax - boundsMin) / BINS;
-        for (int i = 0; i < BINS - 1; i++)
+        scale = (boundsMax - boundsMin) / KD_BINS;
+        for (int i = 0; i < KD_BINS - 1; i++)
         {
             float planeCost =
                 leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
@@ -216,7 +216,7 @@ void KDTree::Subdivide(KDTreeNode* node, int depth)
     uint triCount = node->triIndices.size();
     if (triCount <= 2) return;
 
-#ifdef  SAH
+#ifdef KD_SAH
     // determine split axis using SAH
     int axis;
     float splitPos;
@@ -240,17 +240,22 @@ void KDTree::Subdivide(KDTreeNode* node, int depth)
     for (int i = 0; i < triCount; i++)
     {
         uint idx = node->triIndices[i];
-        if (triangleBounds[idx].bmin[axis] < splitPos)
+        if (triangleBounds[idx].bmax[axis] < splitPos)
         {
             leftTriIdxs.push_back(idx);
         }
-        if (triangleBounds[idx].bmax[axis] > splitPos - 0.001)
+        else if (triangleBounds[idx].bmin[axis] > splitPos - 0.001)
         {
+            rightTriIdxs.push_back(idx);
+        }
+        else
+        {
+            leftTriIdxs.push_back(idx);
             rightTriIdxs.push_back(idx);
         }
     }
 
-    if (leftTriIdxs.size() == triCount || rightTriIdxs.size() == triCount) return;
+    //if (leftTriIdxs.size() == triCount || rightTriIdxs.size() == triCount) return;
 
     KDTreeNode* leftChild = new KDTreeNode();
     KDTreeNode* rightChild = new KDTreeNode();
