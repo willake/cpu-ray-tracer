@@ -160,7 +160,11 @@ void Renderer::Tick(float deltaTime)
 	if (m_alpha > 0.05f) m_alpha *= 0.75f;
 	m_fps = 1000.0f / m_avg, m_rps = (SCRWIDTH * SCRHEIGHT) / m_avg;
 	// handle user input
-	if (camera.HandleInput(deltaTime)) ClearAccumulator(); else spp += passes;
+	if (camera.HandleInput(deltaTime)) 
+	{
+		ClearAccumulator();
+	}
+	else spp += passes;
 }
 
 // -----------------------------------------------------------

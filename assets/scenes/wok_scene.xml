@@ -16,9 +16,9 @@
             <model_location>../assets/wok.obj</model_location>
             <texture_location>../assets/textures/Defuse_wok.png</texture_location>
             <position>
-                <x>0.0</x>
+                <x>-1.0</x>
                 <y>-0.5</y>
-                <z>2.0</z>
+                <z>-1.0</z>
             </position>
             <rotation>
                 <x>0.0</x>
@@ -31,42 +31,61 @@
                 <z>0.5</z>
             </scale>
         </object>
-		        <object>
-            <model_location>../assets/japanese_torii_gate.obj</model_location>
-            <texture_location>../assets/textures/T_Trim_01_BaseColor.png</texture_location>
+		<object>
+            <model_location>../assets/wok.obj</model_location>
+            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
             <position>
-                <x>1.5</x>
-                <y>-1.0</y>
-                <z>2.0</z>
+                <x>-1.0</x>
+                <y>-0.5</y>
+                <z>1.0</z>
             </position>
             <rotation>
                 <x>0.0</x>
-                <y>90.0</y>
+                <y>0.0</y>
                 <z>0.0</z>
             </rotation>
 			<scale>
-                <x>1</x>
-                <y>1</y>
-                <z>1</z>
+                <x>0.5</x>
+                <y>0.5</y>
+                <z>0.5</z>
             </scale>
         </object>
 		<object>
-            <model_location>../assets/japanese_torii_gate.obj</model_location>
-            <texture_location>../assets/textures/T_Trim_01_BaseColor.png</texture_location>
+            <model_location>../assets/wok.obj</model_location>
+            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
             <position>
-                <x>-1.5</x>
-                <y>-1.0</y>
-                <z>2.0</z>
+                <x>1</x>
+                <y>-0.5</y>
+                <z>-1.0</z>
             </position>
             <rotation>
                 <x>0.0</x>
-                <y>-90.0</y>
+                <y>0.0</y>
                 <z>0.0</z>
             </rotation>
 			<scale>
+                <x>0.5</x>
+                <y>0.5</y>
+                <z>0.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/wok.obj</model_location>
+            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
+            <position>
                 <x>1</x>
-                <y>1</y>
-                <z>1</z>
+                <y>-0.5</y>
+                <z>1.0</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>0.5</x>
+                <y>0.5</y>
+                <z>0.5</z>
             </scale>
         </object>
 

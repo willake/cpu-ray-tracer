@@ -21,6 +21,14 @@ namespace Tmpl8
 		float m_rps = 0;
 		bool m_inspectTraversal = false;
 		bool m_inspectIntersectionTest = false;
+		float m_totalTraversal = 0;
+		float m_totalTests = 0;
+		float m_avgTraversal = 0;
+		float m_avgTests = 0;
+		float m_averageTraversal = 0;
+		float m_averageTests = 0;
+		float m_peakTraversal = 0;
+		float m_peakTests = 0;
 		float3 GetEdgeDebugColor(float2 uv);
 	public:
 		// game flow methods
@@ -40,7 +48,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		FileScene scene = FileScene("../assets/scenes/tower_scene.xml");
+		FileScene scene = FileScene("../assets/scenes/wok_scene.xml");
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;
