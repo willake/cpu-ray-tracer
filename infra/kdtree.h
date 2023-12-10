@@ -1,8 +1,9 @@
 #pragma once
 
-//#define KD_SAH
+#define KD_SAH
 #define KD_FASTER_RAY
 #define KD_BINS 8
+// reference: course slides
 // reference: https://www.youtube.com/watch?v=TrqK-atFfWY&ab_channel=JustinSolomon
 // reference: https://github.com/reddeupenn/kdtreePathTracerOptimization
 // refernece: On building fast kd-Trees for Ray Tracing, and on doing that in O(N log N) by Ingo Wald and Vlastimil Havran
@@ -41,7 +42,7 @@ namespace Tmpl8
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
 	private:
-		int m_maxBuildDepth = 15;
+		int m_maxBuildDepth = 20;
 	public:
 		int objIdx = -1;
 		KDTreeNode* rootNode;

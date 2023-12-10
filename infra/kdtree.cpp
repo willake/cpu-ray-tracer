@@ -125,15 +125,27 @@ float KDTree::EvaluateSAH(KDTreeNode* node, int axis, float pos)
     for (uint i = 0; i < triCount; i++)
     {
         Tri& triangle = triangles[node->triIndices[i]];
-        if (triangle.centroid[axis] < pos)
+        aabb bounds = triangleBounds[node->triIndices[i]];
+        if (bounds.bmax[axis] < pos + 0.001)
         {
             leftCount++;
             leftBox.Grow(triangle.vertex0);
             leftBox.Grow(triangle.vertex1);
             leftBox.Grow(triangle.vertex2);
         }
+        else if (bounds.bmin[axis] > pos - 0.001)
+        {
+            rightCount++;
+            rightBox.Grow(triangle.vertex0);
+            rightBox.Grow(triangle.vertex1);
+            rightBox.Grow(triangle.vertex2);
+        }
         else
         {
+            leftCount++;
+            leftBox.Grow(triangle.vertex0);
+            leftBox.Grow(triangle.vertex1);
+            leftBox.Grow(triangle.vertex2);
             rightCount++;
             rightBox.Grow(triangle.vertex0);
             rightBox.Grow(triangle.vertex1);
