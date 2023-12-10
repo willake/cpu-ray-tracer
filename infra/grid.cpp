@@ -167,10 +167,10 @@ int Grid::GetTriangleCount() const
 
 void Grid::IntersectGrid(Ray& ray)
 {
+    ray.tested++;
+    ray.traversed++;
     // Calculate tmin and tmax
     if (!IntersectAABB(ray, localBounds.bmin3, localBounds.bmax3)) return;
-
-    ray.traversed++;
 
     // Determine the cell indices that the ray traverses
     int3 exit, step, cell;
@@ -197,9 +197,11 @@ void Grid::IntersectGrid(Ray& ray)
 
     while (true)
     {
+        ray.traversed++;
         uint index = cell.x + cell.y * resolution.x + cell.z * resolution.x * resolution.y;
         for (int triIdx : gridCells[index].triIndices)
         {
+            ray.tested++;
             IntersectTri(ray, triangles[triIdx], triIdx);
         }
 
@@ -214,8 +216,6 @@ void Grid::IntersectGrid(Ray& ray)
         cell[axis] += step[axis];
         if (cell[axis] == exit[axis]) break;
         nextCrossingT[axis] += deltaT[axis];
-
-        ray.traversed++;
     }
 }
 

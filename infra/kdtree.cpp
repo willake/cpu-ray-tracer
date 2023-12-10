@@ -335,8 +335,9 @@ void KDTree::IntersectKDTree(Ray& ray, KDTreeNode* node)
 {
     float tmin, tmax;
     if (node == nullptr) return;
-    if (!IntersectAABB(ray, node->aabbMin, node->aabbMax, tmin, tmax)) return;
     ray.traversed++;
+    ray.tested++;
+    if (!IntersectAABB(ray, node->aabbMin, node->aabbMax, tmin, tmax)) return;
     if (node->isLeaf)
     {
         uint triCount = node->triIndices.size();
@@ -344,6 +345,7 @@ void KDTree::IntersectKDTree(Ray& ray, KDTreeNode* node)
         {
             uint triIdx = node->triIndices[i];
             IntersectTri(ray, triangles[triIdx], triIdx);
+            ray.tested++;
         }
         return;
     }
