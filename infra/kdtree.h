@@ -40,7 +40,6 @@ namespace Tmpl8
 		float2 GetUV(const uint triIdx, const float2 barycentric) const;
 		int GetTriangleCount() const;
 	private:
-		int m_maxBuildDepth = 100;
 	public:
 		int objIdx = -1;
 		std::vector<KDTreeNode> nodes;
@@ -51,5 +50,6 @@ namespace Tmpl8
 		aabb localBounds;
 		aabb worldBounds;
 		mat4 T, invT;
+		int maxDepth = 15;
 	};
 }

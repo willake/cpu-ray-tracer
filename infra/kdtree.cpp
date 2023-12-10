@@ -92,7 +92,7 @@ void KDTree::Build()
     }
     UpdateBounds();
     // assign all triangles to root node
-    nodes.resize(triangles.size() * 2 - 1);
+    nodes.resize(pow(2, maxDepth) - 1);
     KDTreeNode& root = nodes[rootNodeIdx];
     root.aabbMin = localBounds.bmin3;
     root.aabbMax = localBounds.bmax3;
@@ -214,12 +214,12 @@ float KDTree::FindBestSplitPlane(KDTreeNode& node, int& axis, float& splitPos)
 void KDTree::Subdivide(uint nodeIdx, int depth)
 {
     // terminate recursion
-    if (depth >= m_maxBuildDepth) return;
+    if (depth >= maxDepth) return;
     KDTreeNode& node = nodes[nodeIdx];
     uint triCount = node.triIndices.size();
     if (triCount <= 2) return;
 
-#ifdef  SAH
+#ifdef KD_SAH
     // determine split axis using SAH
     int axis;
     float splitPos;
@@ -243,12 +243,17 @@ void KDTree::Subdivide(uint nodeIdx, int depth)
     for (int i = 0; i < triCount; i++)
     {
         uint idx = node.triIndices[i];
-        if (triangleBounds[idx].bmin[axis] < splitPos)
+        if (triangleBounds[idx].bmax[axis] < splitPos)
         {
             leftTriIdxs.push_back(idx);
         }
-        if (triangleBounds[idx].bmax[axis] > splitPos - 0.001)
+        else if (triangleBounds[idx].bmin[axis] > splitPos - 0.001)
         {
+            rightTriIdxs.push_back(idx);
+        }
+        else
+        {
+            leftTriIdxs.push_back(idx);
             rightTriIdxs.push_back(idx);
         }
     }
