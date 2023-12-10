@@ -171,15 +171,13 @@ void Renderer::Tick(float deltaTime)
 	// handle user input
 	if (camera.HandleInput(deltaTime))
 	{
-		m_totalTraversal = 0;
-		m_totalTests = 0;
-		m_avgTraversal = 0;
-		m_avgTests = 0;
 		m_averageTraversal = 0;
 		m_averageTests = 0;
 		m_peakTraversal = 0;
 		m_peakTests = 0;
 	}
+	m_totalTraversal = 0;
+	m_totalTests = 0;
 }
 
 // -----------------------------------------------------------

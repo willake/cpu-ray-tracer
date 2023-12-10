@@ -23,8 +23,6 @@ namespace Tmpl8
 		bool m_inspectIntersectionTest = false;
 		float m_totalTraversal = 0;
 		float m_totalTests = 0;
-		float m_avgTraversal = 0;
-		float m_avgTests = 0;
 		float m_averageTraversal = 0;
 		float m_averageTests = 0;
 		float m_peakTraversal = 0;
