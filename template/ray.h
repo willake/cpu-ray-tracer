@@ -36,6 +36,7 @@ namespace Tmpl8 {
 		int objIdx = -1;
 		int triIdx = -1;
 		int traversed = 0;
+		int tested = 0;
 		bool inside = false; // true when in medium
 	};
 }

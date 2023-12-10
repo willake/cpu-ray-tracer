@@ -344,11 +344,13 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
     uint stackPtr = 0;
     while (1)
     {
+        ray.traversed++;
         if (node->isLeaf())
         {
             for (uint i = 0; i < node->triCount; i++)
             {
                 uint triIdx = triangleIndices[node->leftFirst + i];
+                ray.tested++;
                 IntersectTri(ray, triangles[triIdx], triIdx);
             }
             if (stackPtr == 0) break; else node = stack[--stackPtr];
@@ -357,6 +359,7 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
         }
         BVHNode* child1 = &bvhNodes[node->leftFirst];
         BVHNode* child2 = &bvhNodes[node->leftFirst + 1];
+        ray.tested++; ray.tested++;
         float dist1 = IntersectAABB(ray, child1->aabbMin, child1->aabbMax);
         float dist2 = IntersectAABB(ray, child2->aabbMin, child2->aabbMax);
         if (dist1 > dist2) { swap(dist1, dist2); swap(child1, child2); }
@@ -369,17 +372,18 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
             node = child1;
             if (dist2 != 1e30f) stack[stackPtr++] = child2;
         }
-        ray.traversed++;
     }
 #else
     BVHNode& node = bvhNodes[nodeIdx];
-    if (!IntersectAABB(ray, node.aabbMin, node.aabbMax)) return;
+    ray.tested++;
     ray.traversed++;
+    if (!IntersectAABB(ray, node.aabbMin, node.aabbMax)) return;
     if (node.isLeaf())
     {
         for (uint i = 0; i < node.triCount; i++)
         {
             uint triIdx = triangleIndices[node.leftFirst + i];
+            ray.tested++;
             IntersectTri(ray, triangles[triIdx], triIdx);
         }
     }

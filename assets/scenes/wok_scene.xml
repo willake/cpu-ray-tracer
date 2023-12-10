@@ -5,7 +5,7 @@
 	<light_position>
 		<x>0.0</x>
 		<y>3.0</y>
-		<z>0.0</z>
+		<z>2.0</z>
 	</light_position>
     <skydome_location>../assets/industrial_sunset_puresky_4k.hdr</skydome_location>
 
