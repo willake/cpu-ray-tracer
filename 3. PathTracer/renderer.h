@@ -42,7 +42,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		Scene2 scene;
+		FileScene scene = FileScene("../assets/scenes/tower_scene.xml");
 		Camera camera;
 		int spp = 1, passes = 1;
 		bool animating = false;

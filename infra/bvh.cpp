@@ -79,21 +79,6 @@ BVH::BVH(const int idx, const std::string& modelPath, const mat4 transform, cons
     SetTransform(transform);
 }
 
-//BVH::BVH(const BVH& bvh)
-//{
-//    objIdx = bvh.objIdx;
-//    
-//    triangles = bvh.triangles;
-//    triangleIndices = bvh.triangleIndices;
-//    bvhNodes = bvh.bvhNodes;
-//
-//    rootNodeIdx = 0, nodesUsed = bvh.nodesUsed;
-//    material = bvh.material;
-//    bounds = bvh.bounds;
-//    T = bvh.T;
-//    invT = bvh.invT;
-//}
-
 void BVH::Build()
 {
     triangleIndices.resize(triangles.size());
@@ -264,33 +249,6 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
         }
     }
     return bestCost;
-}
-
-float BVH::EvaluateSAH(BVHNode& node, int axis, float pos)
-{
-    // determine triangle counts and bounds for this split candidate
-    aabb leftBox, rightBox;
-    int leftCount = 0, rightCount = 0;
-    for (uint i = 0; i < node.triCount; i++)
-    {
-        Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
-        if (triangle.centroid[axis] < pos)
-        {
-            leftCount++;
-            leftBox.Grow(triangle.vertex0);
-            leftBox.Grow(triangle.vertex1);
-            leftBox.Grow(triangle.vertex2);
-        }
-        else
-        {
-            rightCount++;
-            rightBox.Grow(triangle.vertex0);
-            rightBox.Grow(triangle.vertex1);
-            rightBox.Grow(triangle.vertex2);
-        }
-    }
-    float cost = leftCount * leftBox.Area() + rightCount * rightBox.Area();
-    return cost > 0 ? cost : 1e30f;
 }
 
 #ifdef FASTER_RAY

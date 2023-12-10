@@ -33,6 +33,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ // return albedo;
 	if(m_inspectTraversal) return GetTraverseCountColor(ray.traversed);
+	if(m_inspectIntersectionTest) return GetTraverseCountColor(ray.tested);
 
 	if (material->isLight) return scene.GetLightColor();
 
@@ -137,7 +138,14 @@ void Renderer::Tick(float deltaTime)
 		// trace a primary ray for each pixel on the line
 		for (int x = 0; x < SCRWIDTH; x++)
 		{
-			float4 pixel = float4(Trace(camera.GetPrimaryRay((float)x, (float)y), 0), 0);
+			Ray primaryRay = camera.GetPrimaryRay((float)x, (float)y);
+			float4 pixel = float4(Trace(primaryRay, 0), 0);
+
+			// for metrics
+			if (primaryRay.traversed > m_peakTraversal) m_peakTraversal = primaryRay.traversed;
+			if (primaryRay.tested > m_peakTests) m_peakTests = primaryRay.tested;
+			m_totalTraversal += primaryRay.traversed;
+			m_totalTests += primaryRay.tested;
 			// translate accumulator contents to rgb32 pixels
 			screen->pixels[x + y * SCRWIDTH] = RGBF32_to_RGB8(&pixel);
 			accumulator[x + y * SCRWIDTH] = pixel;
@@ -149,12 +157,28 @@ void Renderer::Tick(float deltaTime)
 	if (alpha > 0.05f) alpha *= 0.5f;
 	float fps = 1000.0f / avg, rps = (SCRWIDTH * SCRHEIGHT) / avg;
 	printf("%5.2fms (%.1ffps) - %.1fMrays/s\n", avg, fps, rps / 1000);*/
+	m_averageTraversal = m_totalTraversal / (SCRWIDTH * SCRHEIGHT);
+	m_averageTests = m_totalTests / (SCRWIDTH * SCRHEIGHT);
 	m_avg = (1 - m_alpha) * m_avg + m_alpha * t.elapsed() * 1000;
 	if (m_alpha > 0.05f) m_alpha *= 0.5f;
 	m_fps = 1000.0f / m_avg, m_rps = (SCRWIDTH * SCRHEIGHT) / m_avg;
-	printf("%5.2fms (%.1ffps) - %.1fMrays/s\n", m_avg, m_fps, m_rps / 1000);
+	system("cls");
+	printf("Total Traversal: %.0f\n", m_totalTraversal);
+	printf("Average Traversal: %.2f\n", m_averageTraversal);
+	printf("Peak Traversal: %.2f\n", m_peakTraversal);
+	printf("Total Tests: %.0f\n", m_totalTests);
+	printf("Average Tests: %.2f\n", m_averageTests);
+	printf("Peak Tests: %.2f\n", m_peakTests);
 	// handle user input
-	camera.HandleInput(deltaTime);
+	if (camera.HandleInput(deltaTime))
+	{
+		m_averageTraversal = 0;
+		m_averageTests = 0;
+		m_peakTraversal = 0;
+		m_peakTests = 0;
+	}
+	m_totalTraversal = 0;
+	m_totalTests = 0;
 }
 
 // -----------------------------------------------------------
@@ -165,6 +189,7 @@ void Renderer::UI()
 	// animation toggle
 	ImGui::Checkbox("Animate scene", &animating);
 	ImGui::Checkbox("Inspect Traversal", &m_inspectTraversal);
+	ImGui::Checkbox("Inspect Intersection", &m_inspectIntersectionTest);
 	ImGui::SliderFloat("Camera move speed", &camera.moveSpeed, 1.0f, 10.0f, "%.2f");
 	ImGui::SliderFloat("Camera turn speed", &camera.turnSpeed, 1.0f, 10.0f, "%.2f");
 	// ray query on mouse
