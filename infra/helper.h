@@ -104,10 +104,17 @@ namespace Tmpl8
     inline float3 GetTraverseCountColor(int traversed, int peak)
     {
         if (peak == 0) return float3(0, 1, 0);
+        const float invMax = 1 / 255.f;
+        const float3 green(179 * invMax, 255 * invMax, 174 * invMax);
+        const float3 red(255 * invMax, 100 * invMax, 100 * invMax);
         traversed = clamp(traversed, 0, peak);
         float blend = traversed / (float)peak;
+
+        float r = green.x + blend * (red.x - green.x);
+        float g = green.y + blend * (red.y - green.y);
+        float b = green.z + blend * (red.z - green.z);
         
-        return float3(blend, 1 - blend, 0);
+        return float3(r, g, b);
     }
 
     inline float3 GetDepthColor(int current, int max)
