@@ -192,6 +192,13 @@ void Renderer::UI()
 	ImGui::Checkbox("Inspect Intersection", &m_inspectIntersectionTest);
 	ImGui::SliderFloat("Camera move speed", &camera.moveSpeed, 1.0f, 10.0f, "%.2f");
 	ImGui::SliderFloat("Camera turn speed", &camera.turnSpeed, 1.0f, 10.0f, "%.2f");
+	// camera position field
+	ImGuiFloat3("Position", m_camPositionToSet);
+	ImGuiFloat3("Rotation", m_camTargetToSet);
+	if (ImGui::Button("Set Camera")) {
+		// Button was clicked, perform action (e.g., reset values)
+		camera.SetCameraState(m_camPositionToSet, m_camTargetToSet);
+	}
 	// ray query on mouse
 	Ray r = camera.GetPrimaryRay((float)mousePos.x, (float)mousePos.y);
 	scene.FindNearest(r);
@@ -200,4 +207,6 @@ void Renderer::UI()
 	ImGui::Text("Frame: %5.2f ms (%.1ffps)", m_avg, m_fps);
 	//ImGui::Text("FPS: %.1ffps", m_fps);
 	ImGui::Text("RPS: %.1f Mrays/s", m_rps);
+	ImGui::Text("Camera Pos: (%.2f, %.2f, %.2f)", camera.camPos.x, camera.camPos.y, camera.camPos.z);
+	ImGui::Text("Camera Target: (%.2f, %.2f, %.2f)", camera.camTarget.x, camera.camTarget.y, camera.camTarget.z);
 }

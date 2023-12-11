@@ -117,5 +117,20 @@ namespace Tmpl8
         return float3(blend, 1 - blend, 0);
     }
 
+    inline void ImGuiFloat3(const std::string label, float3& value) {
+        ImGui::Text("%s", label.c_str());
+        ImGui::PushID(label.c_str());
+        ImGui::SameLine(); // Move cursor to the same line as the label
+        ImGui::SetNextItemWidth(50.0f);
+        ImGui::InputFloat("X", &value.x, 0.0f, 0.0f, "%.2f");
+        ImGui::SetNextItemWidth(50.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("Y", &value.y, 0.0f, 0.0f, "%.2f");
+        ImGui::SetNextItemWidth(50.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("Z", &value.z, 0.0f, 0.0f, "%.2f");
+        ImGui::PopID();
+    }
+
     const float Deg2Red = (PI * 2) / 360.0f;
 }
