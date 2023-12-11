@@ -142,6 +142,7 @@ void Renderer::Tick(float deltaTime)
 			float4 pixel = float4(Trace(primaryRay, 0), 0);
 
 			// for metrics
+			if (primaryRay.objIdx > 1) m_rayHitCount++;
 			if (primaryRay.traversed > m_peakTraversal) m_peakTraversal = primaryRay.traversed;
 			if (primaryRay.tested > m_peakTests) m_peakTests = primaryRay.tested;
 			m_totalTraversal += primaryRay.traversed;
@@ -157,8 +158,11 @@ void Renderer::Tick(float deltaTime)
 	if (alpha > 0.05f) alpha *= 0.5f;
 	float fps = 1000.0f / avg, rps = (SCRWIDTH * SCRHEIGHT) / avg;
 	printf("%5.2fms (%.1ffps) - %.1fMrays/s\n", avg, fps, rps / 1000);*/
-	m_averageTraversal = m_totalTraversal / (SCRWIDTH * SCRHEIGHT);
-	m_averageTests = m_totalTests / (SCRWIDTH * SCRHEIGHT);
+	if (m_rayHitCount > 0)
+	{
+		m_averageTraversal = m_totalTraversal / m_rayHitCount;
+		m_averageTests = m_totalTests / m_rayHitCount;
+	}
 	m_avg = (1 - m_alpha) * m_avg + m_alpha * t.elapsed() * 1000;
 	if (m_alpha > 0.05f) m_alpha *= 0.5f;
 	m_fps = 1000.0f / m_avg, m_rps = (SCRWIDTH * SCRHEIGHT) / m_avg;
@@ -179,6 +183,7 @@ void Renderer::Tick(float deltaTime)
 	}
 	m_totalTraversal = 0;
 	m_totalTests = 0;
+	m_rayHitCount = 0;
 }
 
 // -----------------------------------------------------------

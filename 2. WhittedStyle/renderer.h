@@ -21,6 +21,7 @@ namespace Tmpl8
 		float m_alpha = 1;
 		float m_fps = 0;
 		float m_rps = 0;
+		float m_rayHitCount = 0;
 		bool m_inspectTraversal = false;
 		bool m_inspectIntersectionTest = false;
 		float m_totalTraversal = 0;
