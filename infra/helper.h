@@ -132,5 +132,12 @@ namespace Tmpl8
         ImGui::PopID();
     }
 
+    uint64_t NowInMicro()
+    {
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch())
+            .count();
+    }
+
     const float Deg2Red = (PI * 2) / 360.0f;
 }
