@@ -35,8 +35,8 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	/* visualize normal */ // return N; // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ // return albedo;
-	if(m_inspectTraversal) return GetTraverseCountColor(ray.traversed);
-	if(m_inspectIntersectionTest) return GetTraverseCountColor(ray.tested);
+	if(m_inspectTraversal) return GetTraverseCountColor(ray.traversed, m_peakTraversal);
+	if(m_inspectIntersectionTest) return GetTraverseCountColor(ray.tested, m_peakTests);
 
 	if (material->isLight) return scene.GetLightColor();
 
