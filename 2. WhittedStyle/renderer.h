@@ -15,6 +15,8 @@ namespace Tmpl8
 	class Renderer : public TheApp
 	{
 	private:
+		float3 m_camPositionToSet = 0;
+		float3 m_camTargetToSet = 0;
 		float m_avg = 10;
 		float m_alpha = 1;
 		float m_fps = 0;

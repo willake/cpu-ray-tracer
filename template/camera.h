@@ -58,6 +58,19 @@ public:
 		bottomLeft = camPos + 2 * ahead - aspect * right - up;
 		return true;
 	}
+	void SetCameraState(float3 position, float3 target)
+	{
+		camPos = position;
+		camTarget = target;
+		float3 ahead = normalize(camTarget - camPos);
+		float3 tmpUp(0, 1, 0);
+		float3 right = normalize(cross(tmpUp, ahead));
+		float3 up = normalize(cross(ahead, right));
+		right = normalize(cross(up, ahead));
+		topLeft = camPos + 2 * ahead - aspect * right + up;
+		topRight = camPos + 2 * ahead + aspect * right + up;
+		bottomLeft = camPos + 2 * ahead - aspect * right - up;
+	}
 	float aspect = (float)SCRWIDTH / (float)SCRHEIGHT;
 	float3 camPos, camTarget;
 	float3 topLeft, topRight, bottomLeft;

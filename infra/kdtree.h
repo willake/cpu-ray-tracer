@@ -1,6 +1,6 @@
 #pragma once
 
-#define KD_SAH
+//#define KD_SAH
 #define KD_FASTER_RAY
 #define KD_BINS 8
 // reference: course slides
