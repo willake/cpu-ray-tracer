@@ -19,9 +19,9 @@ This renderer is based on the [template project](https://github.com/jbikker/tmpl
 Visual Studio 2022
 
 ## Whitted Style Ray Tracer
-
+![Whitted](./assets/readme/whitted-style.png)
 ## Path Tracer
-
+![Path](./assets/readme/path-tracer.jpg)
 ## How to run
 Open `tmpl_2022-rt.sln` with Visual Studio. Select a project (either WhittedStyle or PathTracer). Build.
 ### Inspect traversal
