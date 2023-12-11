@@ -53,5 +53,6 @@ namespace Tmpl8
 		aabb localBounds;
 		aabb worldBounds;
 		mat4 T, invT;
+		std::chrono::microseconds buildTime;
 	};
 }

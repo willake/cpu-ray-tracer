@@ -54,5 +54,6 @@ namespace Tmpl8
 		Material material;
 		aabb worldBounds;
 		mat4 T, invT;
+		std::chrono::microseconds buildTime;
 	};
 }

@@ -27,5 +27,6 @@ namespace Tmpl8
         uint nodesUsed = 0, blasCount;
     public:
         std::vector<KDTree*> blas;
+        std::chrono::microseconds buildTime;
     };
 }

@@ -81,6 +81,7 @@ BVH::BVH(const int idx, const std::string& modelPath, const mat4 transform, cons
 
 void BVH::Build()
 {
+    auto startTime = std::chrono::high_resolution_clock::now();
     triangleIndices.resize(triangles.size());
     // populate triangle index array
     for (int i = 0; i < triangles.size(); i++)
@@ -96,6 +97,8 @@ void BVH::Build()
     UpdateNodeBounds(rootNodeIdx);
     // subdivide recursively
     Subdivide(rootNodeIdx);
+    auto endTime = std::chrono::high_resolution_clock::now();
+    buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
 
 void BVH::Refit()

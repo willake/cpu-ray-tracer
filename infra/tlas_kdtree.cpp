@@ -16,6 +16,7 @@ TLASKDTree::TLASKDTree(std::vector<KDTree*> blasList)
 
 void TLASKDTree::Build()
 {
+	auto startTime = std::chrono::high_resolution_clock::now();
 	// assign a TLASleaf node to each BLAS
 	int nodeIdx[256], nodeIndices = blasCount;
 	nodesUsed = 1;
@@ -49,6 +50,8 @@ void TLASKDTree::Build()
 		else A = B, B = C;
 	}
 	tlasNode[0] = tlasNode[nodeIdx[A]];
+	auto endTime = std::chrono::high_resolution_clock::now();
+	buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
 
 int TLASKDTree::FindBestMatch(int* list, int N, int A)

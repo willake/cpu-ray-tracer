@@ -26,5 +26,6 @@ namespace Tmpl8
         uint nodesUsed = 0, blasCount;
     public:
         std::vector<BVH*> blas;
+        std::chrono::microseconds buildTime;
     };
 }

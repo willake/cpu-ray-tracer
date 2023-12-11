@@ -241,3 +241,14 @@ int FileScene::GetTriangleCount() const
 	}
 	return count;
 }
+
+std::chrono::microseconds FileScene::GetBuildTime() const
+{
+	std::chrono::microseconds time;
+	for (int i = 0; i < objCount; i++)
+	{
+		time += tlas.blas[i]->buildTime;
+	}
+	time += tlas.buildTime;
+	return time;
+}

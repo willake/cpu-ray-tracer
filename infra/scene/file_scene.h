@@ -46,6 +46,7 @@ namespace Tmpl8
 		float3 GetAlbedo(int objIdx, float3 I) const;
 		HitInfo GetHitInfo(const Ray& ray, const float3 I);
 		int GetTriangleCount() const;
+		std::chrono::microseconds GetBuildTime() const;
 	public:
 		float animTime = 0;
 #ifdef USE_BVH

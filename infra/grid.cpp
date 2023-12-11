@@ -81,6 +81,7 @@ Grid::Grid(const int idx, const std::string& modelPath, const mat4 transform, co
 
 void Grid::Build()
 {
+    auto startTime = std::chrono::high_resolution_clock::now();
     // Determine scene bound
     for (size_t i = 0; i < triangles.size(); i++)
     {
@@ -124,6 +125,8 @@ void Grid::Build()
             }
         }
     }
+    auto endTime = std::chrono::high_resolution_clock::now();
+    buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
 
 bool Grid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
