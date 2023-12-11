@@ -10,6 +10,7 @@ This renderer is based on the [template project](https://github.com/jbikker/tmpl
   - KDTree
   - TLAS
 - .obj model loading
+- material
 - texture loading & mapping
 - skybox
 - instruments (only available for whitted style ray tracer)
