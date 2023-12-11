@@ -47,6 +47,7 @@ namespace Tmpl8
 		HitInfo GetHitInfo(const Ray& ray, const float3 I);
 		int GetTriangleCount() const;
 		std::chrono::microseconds GetBuildTime() const;
+		uint GetMaxTreeDepth() const;
 	public:
 		float animTime = 0;
 #ifdef USE_BVH

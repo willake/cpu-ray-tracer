@@ -10,6 +10,9 @@ void Renderer::Init()
 	// create fp32 rgb pixel buffer to render to
 	accumulator = (float4*)MALLOC64(SCRWIDTH * SCRHEIGHT * 16);
 	memset(accumulator, 0, SCRWIDTH * SCRHEIGHT * 16);
+	m_buildTime = scene.GetBuildTime();
+	m_triangleCount = scene.GetTriangleCount();
+	m_maxTreeDepth = scene.GetMaxTreeDepth();
 }
 
 // -----------------------------------------------------------
@@ -193,8 +196,8 @@ void Renderer::UI()
 {
 	// animation toggle
 	ImGui::Checkbox("Animate scene", &animating);
-	ImGui::Checkbox("Inspect Traversal", &m_inspectTraversal);
-	ImGui::Checkbox("Inspect Intersection", &m_inspectIntersectionTest);
+	ImGui::Checkbox("Inspect traversal", &m_inspectTraversal);
+	ImGui::Checkbox("Inspect intersection", &m_inspectIntersectionTest);
 	ImGui::SliderFloat("Camera move speed", &camera.moveSpeed, 1.0f, 10.0f, "%.2f");
 	ImGui::SliderFloat("Camera turn speed", &camera.turnSpeed, 1.0f, 10.0f, "%.2f");
 	// camera position field
@@ -208,11 +211,12 @@ void Renderer::UI()
 	Ray r = camera.GetPrimaryRay((float)mousePos.x, (float)mousePos.y);
 	scene.FindNearest(r);
 	ImGui::Text("Object id: %i", r.objIdx);
-	ImGui::Text("Triangle count: %i", scene.GetTriangleCount());
-	ImGui::Text("Build time: %lld", scene.GetBuildTime().count());
+	ImGui::Text("Triangle count: %i", m_triangleCount);
+	ImGui::Text("Build time: %lld", m_buildTime.count());
+	ImGui::Text("Max tree depth: %d", m_maxTreeDepth);
 	ImGui::Text("Frame: %5.2f ms (%.1ffps)", m_avg, m_fps);
 	//ImGui::Text("FPS: %.1ffps", m_fps);
 	ImGui::Text("RPS: %.1f Mrays/s", m_rps);
-	ImGui::Text("Camera Pos: (%.2f, %.2f, %.2f)", camera.camPos.x, camera.camPos.y, camera.camPos.z);
-	ImGui::Text("Camera Target: (%.2f, %.2f, %.2f)", camera.camTarget.x, camera.camTarget.y, camera.camTarget.z);
+	ImGui::Text("Camera pos: (%.2f, %.2f, %.2f)", camera.camPos.x, camera.camPos.y, camera.camPos.z);
+	ImGui::Text("Camera target: (%.2f, %.2f, %.2f)", camera.camTarget.x, camera.camTarget.y, camera.camTarget.z);
 }
