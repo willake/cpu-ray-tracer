@@ -26,6 +26,8 @@ Visual Studio 2022
 ## How to run
 Open `tmpl_2022-rt.sln` with Visual Studio. Select a project (either WhittedStyle or PathTracer). Build.
 ### Inspect traversal
+Toggle `Inspect Traversal` checkbox in the panel will turn into traversal debug mode.
+![Traversal](./assets/readme/traversal.jpg)
 ## How to configure
 ### Scene
 There are several scenes available in `assets` folder. In `renderer.h`, the user can set the path to the scene file and start the program. The scene will be loaded automatically.
@@ -70,7 +72,7 @@ A scene template looks like the following
 </scene>
 ```
 ### Aceleration struture
-There are several acceleration structure available. In `file_scene.h`, there are three definitions: USE_BVH, USE_Grid, and USE_KDTree. Uncomment one of them, then the FileScene class will load the scene in certain acceleration structure.
+There are several acceleration structure available. In `file_scene.h`, there are three definitions: `USE_BVH`, `USE_Grid`, and `USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
 
 ## Original README.md from template
 
