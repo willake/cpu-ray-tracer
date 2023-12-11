@@ -70,7 +70,7 @@ A scene template looks like the following
 </scene>
 ```
 ### Aceleration struture
-There are several acceleration structure available. In `file_scene.h`, there are three definitions: USE_BVH, USE_Grid, and USE_KDTree. Uncomment one of them, then the FileScene class will load the scene in certain acceleration structure.
+There are several acceleration structure available. In `file_scene.h`, there are three definitions: `USE_BVH`, `USE_Grid`, and `USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
 
 ## Original README.md from template
 
