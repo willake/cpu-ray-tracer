@@ -81,6 +81,7 @@ BVH::BVH(const int idx, const std::string& modelPath, const mat4 transform, cons
 
 void BVH::Build()
 {
+    auto startTime = std::chrono::high_resolution_clock::now();
     triangleIndices.resize(triangles.size());
     // populate triangle index array
     for (int i = 0; i < triangles.size(); i++)
@@ -95,7 +96,9 @@ void BVH::Build()
     root.triCount = triangles.size();
     UpdateNodeBounds(rootNodeIdx);
     // subdivide recursively
-    Subdivide(rootNodeIdx);
+    Subdivide(rootNodeIdx, 0);
+    auto endTime = std::chrono::high_resolution_clock::now();
+    buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
 
 void BVH::Refit()
@@ -135,7 +138,7 @@ void BVH::UpdateNodeBounds(uint nodeIdx)
     }
 }
 
-void BVH::Subdivide(uint nodeIdx)
+void BVH::Subdivide(uint nodeIdx, uint depth)
 {
     // terminate recursion
     BVHNode& node = bvhNodes[nodeIdx];
@@ -183,9 +186,10 @@ void BVH::Subdivide(uint nodeIdx)
     node.triCount = 0;
     UpdateNodeBounds(leftChildIdx);
     UpdateNodeBounds(rightChildIdx);
+    if (depth > maxDepth) maxDepth = depth;
     // recurse
-    Subdivide(leftChildIdx);
-    Subdivide(rightChildIdx);
+    Subdivide(leftChildIdx, depth + 1);
+    Subdivide(rightChildIdx, depth + 1);
 }
 
 float BVH::CalculateNodeCost(BVHNode& node)

@@ -23,7 +23,7 @@ namespace Tmpl8
 	{
 	private:
 		void UpdateNodeBounds(uint nodeIdx);
-		void Subdivide(uint nodeIdx);
+		void Subdivide(uint nodeIdx, uint depth);
 #ifdef FASTER_RAY
 		float IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
 #else
@@ -54,5 +54,7 @@ namespace Tmpl8
 		Material material;
 		aabb worldBounds;
 		mat4 T, invT;
+		std::chrono::microseconds buildTime;
+		uint maxDepth = 0;
 	};
 }

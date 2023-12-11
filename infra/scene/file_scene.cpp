@@ -241,3 +241,27 @@ int FileScene::GetTriangleCount() const
 	}
 	return count;
 }
+
+std::chrono::microseconds FileScene::GetBuildTime() const
+{
+	std::chrono::microseconds time(0);
+	for (int i = 0; i < objCount; i++)
+	{
+		time += tlas.blas[i]->buildTime;
+	}
+	time += tlas.buildTime;
+	return time;
+}
+
+uint FileScene::GetMaxTreeDepth() const
+{
+#ifdef USE_BVH
+	uint maxDepth = 0;
+	for (int i = 0; i < objCount; i++)
+	{
+		if (tlas.blas[i]->maxDepth > maxDepth) maxDepth = tlas.blas[i]->maxDepth;
+	}
+	return maxDepth;
+#endif
+	return 0;
+}

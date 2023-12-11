@@ -10,6 +10,9 @@ void Renderer::Init()
 	// create fp32 rgb pixel buffer to render to
 	accumulator = (float4*)MALLOC64(SCRWIDTH * SCRHEIGHT * 16);
 	memset(accumulator, 0, SCRWIDTH * SCRHEIGHT * 16);
+	m_buildTime = scene.GetBuildTime();
+	m_triangleCount = scene.GetTriangleCount();
+	m_maxTreeDepth = scene.GetMaxTreeDepth();
 }
 
 // -----------------------------------------------------------
@@ -142,6 +145,7 @@ void Renderer::Tick(float deltaTime)
 			float4 pixel = float4(Trace(primaryRay, 0), 0);
 
 			// for metrics
+			if (primaryRay.objIdx > 1) m_rayHitCount++;
 			if (primaryRay.traversed > m_peakTraversal) m_peakTraversal = primaryRay.traversed;
 			if (primaryRay.tested > m_peakTests) m_peakTests = primaryRay.tested;
 			m_totalTraversal += primaryRay.traversed;
@@ -157,8 +161,11 @@ void Renderer::Tick(float deltaTime)
 	if (alpha > 0.05f) alpha *= 0.5f;
 	float fps = 1000.0f / avg, rps = (SCRWIDTH * SCRHEIGHT) / avg;
 	printf("%5.2fms (%.1ffps) - %.1fMrays/s\n", avg, fps, rps / 1000);*/
-	m_averageTraversal = m_totalTraversal / (SCRWIDTH * SCRHEIGHT);
-	m_averageTests = m_totalTests / (SCRWIDTH * SCRHEIGHT);
+	if (m_rayHitCount > 0)
+	{
+		m_averageTraversal = m_totalTraversal / m_rayHitCount;
+		m_averageTests = m_totalTests / m_rayHitCount;
+	}
 	m_avg = (1 - m_alpha) * m_avg + m_alpha * t.elapsed() * 1000;
 	if (m_alpha > 0.05f) m_alpha *= 0.5f;
 	m_fps = 1000.0f / m_avg, m_rps = (SCRWIDTH * SCRHEIGHT) / m_avg;
@@ -179,6 +186,7 @@ void Renderer::Tick(float deltaTime)
 	}
 	m_totalTraversal = 0;
 	m_totalTests = 0;
+	m_rayHitCount = 0;
 }
 
 // -----------------------------------------------------------
@@ -188,8 +196,8 @@ void Renderer::UI()
 {
 	// animation toggle
 	ImGui::Checkbox("Animate scene", &animating);
-	ImGui::Checkbox("Inspect Traversal", &m_inspectTraversal);
-	ImGui::Checkbox("Inspect Intersection", &m_inspectIntersectionTest);
+	ImGui::Checkbox("Inspect traversal", &m_inspectTraversal);
+	ImGui::Checkbox("Inspect intersection", &m_inspectIntersectionTest);
 	ImGui::SliderFloat("Camera move speed", &camera.moveSpeed, 1.0f, 10.0f, "%.2f");
 	ImGui::SliderFloat("Camera turn speed", &camera.turnSpeed, 1.0f, 10.0f, "%.2f");
 	// camera position field
@@ -203,10 +211,12 @@ void Renderer::UI()
 	Ray r = camera.GetPrimaryRay((float)mousePos.x, (float)mousePos.y);
 	scene.FindNearest(r);
 	ImGui::Text("Object id: %i", r.objIdx);
-	ImGui::Text("Triangle count: %i", scene.GetTriangleCount());
+	ImGui::Text("Triangle count: %i", m_triangleCount);
+	ImGui::Text("Build time: %lld", m_buildTime.count());
+	ImGui::Text("Max tree depth: %d", m_maxTreeDepth);
 	ImGui::Text("Frame: %5.2f ms (%.1ffps)", m_avg, m_fps);
 	//ImGui::Text("FPS: %.1ffps", m_fps);
 	ImGui::Text("RPS: %.1f Mrays/s", m_rps);
-	ImGui::Text("Camera Pos: (%.2f, %.2f, %.2f)", camera.camPos.x, camera.camPos.y, camera.camPos.z);
-	ImGui::Text("Camera Target: (%.2f, %.2f, %.2f)", camera.camTarget.x, camera.camTarget.y, camera.camTarget.z);
+	ImGui::Text("Camera pos: (%.2f, %.2f, %.2f)", camera.camPos.x, camera.camPos.y, camera.camPos.z);
+	ImGui::Text("Camera target: (%.2f, %.2f, %.2f)", camera.camTarget.x, camera.camTarget.y, camera.camTarget.z);
 }

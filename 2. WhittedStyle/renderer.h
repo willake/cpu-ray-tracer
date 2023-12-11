@@ -21,6 +21,7 @@ namespace Tmpl8
 		float m_alpha = 1;
 		float m_fps = 0;
 		float m_rps = 0;
+		float m_rayHitCount = 0;
 		bool m_inspectTraversal = false;
 		bool m_inspectIntersectionTest = false;
 		float m_totalTraversal = 0;
@@ -29,6 +30,10 @@ namespace Tmpl8
 		float m_averageTests = 0;
 		float m_peakTraversal = 0;
 		float m_peakTests = 0;
+		// about the scene
+		std::chrono::microseconds m_buildTime;
+		uint m_triangleCount = 0;
+		uint m_maxTreeDepth = 0;
 		float3 GetEdgeDebugColor(float2 uv);
 	public:
 		// game flow methods

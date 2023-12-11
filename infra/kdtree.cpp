@@ -81,6 +81,7 @@ KDTree::KDTree(const int idx, const std::string& modelPath, const mat4 transform
 
 void KDTree::Build()
 {
+    auto startTime = std::chrono::high_resolution_clock::now();
     triangleBounds.resize(triangles.size());
     // populate triangle index array
     std::vector<uint> triIndices;
@@ -98,6 +99,8 @@ void KDTree::Build()
     rootNode->triIndices = triIndices;
     // subdivide recursively
     Subdivide(rootNode, 0);
+    auto endTime = std::chrono::high_resolution_clock::now();
+    buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
 
 void KDTree::UpdateBounds()
