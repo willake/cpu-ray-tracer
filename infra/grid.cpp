@@ -83,6 +83,7 @@ void Grid::Build()
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     // Determine scene bound
+    mailbox.resize(triangles.size());
     for (size_t i = 0; i < triangles.size(); i++)
     {
         localBounds.Grow(triangles[i].GetBounds());
@@ -168,7 +169,7 @@ int Grid::GetTriangleCount() const
     return triangles.size();
 }
 
-void Grid::IntersectGrid(Ray& ray)
+void Grid::IntersectGrid(Ray& ray, long uid)
 {
     ray.tested++;
     ray.traversed++;
@@ -204,8 +205,17 @@ void Grid::IntersectGrid(Ray& ray)
         uint index = cell.x + cell.y * resolution.x + cell.z * resolution.x * resolution.y;
         for (int triIdx : gridCells[index].triIndices)
         {
+#ifdef GRID_MAILBOXING
+            if (uid != mailbox[triIdx])
+            {
+                mailbox[triIdx] = uid;
+                ray.tested++;
+                IntersectTri(ray, triangles[triIdx], triIdx);
+            }
+#else
             ray.tested++;
             IntersectTri(ray, triangles[triIdx], triIdx);
+#endif
         }
 
         uint k =
@@ -225,11 +235,13 @@ void Grid::IntersectGrid(Ray& ray)
 void Grid::Intersect(Ray& ray)
 {
     Ray tRay = Ray(ray);
+    incremental++;
+    if (incremental >= 2147483647) incremental = 0;
     tRay.O = TransformPosition_SSE(ray.O4, invT);
     tRay.D = TransformVector_SSE(ray.D4, invT);
     tRay.rD = float3(1 / tRay.D.x, 1 / tRay.D.y, 1 / tRay.D.z);
 
-    IntersectGrid(tRay);
+    IntersectGrid(tRay, incremental);
 
     tRay.O = ray.O;
     tRay.D = ray.D;
