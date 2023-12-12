@@ -13,79 +13,22 @@
     <objects>
         <!-- Object 1 -->
         <object>
-            <model_location>../assets/wok.obj</model_location>
-            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
+            <model_location>../assets/urna.obj</model_location>
+            <texture_location>../assets/textures/urna.jpg</texture_location>
             <position>
-                <x>-1.0</x>
-                <y>-0.5</y>
-                <z>-1.0</z>
+                <x>0.0</x>
+                <y>0</y>
+                <z>2.8</z>
             </position>
             <rotation>
-                <x>0.0</x>
+                <x>-90.0</x>
                 <y>0.0</y>
-                <z>0.0</z>
+                <z>180.0</z>
             </rotation>
 			<scale>
-                <x>0.5</x>
-                <y>0.5</y>
-                <z>0.5</z>
-            </scale>
-        </object>
-		<object>
-            <model_location>../assets/wok.obj</model_location>
-            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
-            <position>
-                <x>-1.0</x>
-                <y>-0.5</y>
-                <z>1.0</z>
-            </position>
-            <rotation>
-                <x>0.0</x>
-                <y>0.0</y>
-                <z>0.0</z>
-            </rotation>
-			<scale>
-                <x>0.5</x>
-                <y>0.5</y>
-                <z>0.5</z>
-            </scale>
-        </object>
-		<object>
-            <model_location>../assets/wok.obj</model_location>
-            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
-            <position>
-                <x>1</x>
-                <y>-0.5</y>
-                <z>-1.0</z>
-            </position>
-            <rotation>
-                <x>0.0</x>
-                <y>0.0</y>
-                <z>0.0</z>
-            </rotation>
-			<scale>
-                <x>0.5</x>
-                <y>0.5</y>
-                <z>0.5</z>
-            </scale>
-        </object>
-		<object>
-            <model_location>../assets/wok.obj</model_location>
-            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
-            <position>
-                <x>1</x>
-                <y>-0.5</y>
-                <z>1.0</z>
-            </position>
-            <rotation>
-                <x>0.0</x>
-                <y>0.0</y>
-                <z>0.0</z>
-            </rotation>
-			<scale>
-                <x>0.5</x>
-                <y>0.5</y>
-                <z>0.5</z>
+                <x>0.005</x>
+                <y>0.005</y>
+                <z>0.005</z>
             </scale>
         </object>
 

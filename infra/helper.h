@@ -106,7 +106,7 @@ namespace Tmpl8
         if (peak == 0) return float3(0, 1, 0);
         const float invMax = 1 / 255.f;
         const float3 green(179 * invMax, 255 * invMax, 174 * invMax);
-        const float3 red(255 * invMax, 100 * invMax, 100 * invMax);
+        const float3 red(255 * invMax, 50 * invMax, 50 * invMax);
         traversed = clamp(traversed, 0, peak);
         float blend = traversed / (float)peak;
 
