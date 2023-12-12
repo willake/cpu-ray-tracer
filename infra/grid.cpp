@@ -171,8 +171,6 @@ int Grid::GetTriangleCount() const
 
 void Grid::IntersectGrid(Ray& ray, long uid)
 {
-    ray.tested++;
-    ray.traversed++;
     // Calculate tmin and tmax
     if (!IntersectAABB(ray, localBounds.bmin3, localBounds.bmax3)) return;
 

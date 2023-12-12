@@ -339,7 +339,6 @@ void KDTree::IntersectKDTree(Ray& ray, KDTreeNode* node)
     float tmin, tmax;
     if (node == nullptr) return;
     ray.traversed++;
-    ray.tested++;
     if (!IntersectAABB(ray, node->aabbMin, node->aabbMax, tmin, tmax)) return;
     if (node->isLeaf)
     {

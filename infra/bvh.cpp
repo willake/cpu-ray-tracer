@@ -321,7 +321,6 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
         }
         BVHNode* child1 = &bvhNodes[node->leftFirst];
         BVHNode* child2 = &bvhNodes[node->leftFirst + 1];
-        ray.tested++; ray.tested++;
         float dist1 = IntersectAABB(ray, child1->aabbMin, child1->aabbMax);
         float dist2 = IntersectAABB(ray, child2->aabbMin, child2->aabbMax);
         if (dist1 > dist2) { swap(dist1, dist2); swap(child1, child2); }
@@ -337,7 +336,6 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
     }
 #else
     BVHNode& node = bvhNodes[nodeIdx];
-    ray.tested++;
     ray.traversed++;
     if (!IntersectAABB(ray, node.aabbMin, node.aabbMax)) return;
     if (node.isLeaf())
