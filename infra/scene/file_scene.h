@@ -9,9 +9,9 @@
 #include "tlas_kdtree.h"
 #include "rapidxml.hpp"
 
-#define USE_BVH
+//#define USE_BVH
 //#define USE_Grid
-//#define USE_KDTree
+#define USE_KDTree
 
 namespace Tmpl8
 {
