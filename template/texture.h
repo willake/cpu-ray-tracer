@@ -98,7 +98,8 @@ namespace Tmpl8
     private:
         //uint* pixels = 0;
         std::vector<uint> pixels;
-        int width = 0, height = 0;
         bool ownBuffer = false;
+    public:
+        int width = 0, height = 0;
     };
 }

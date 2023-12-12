@@ -4,14 +4,16 @@
 FileScene::FileScene(const string& filePath)
 {
 	errorMaterial.albedo = float3(255, 192, 203) / 255.f;
-	
-	light = Quad(0, 1);
-	floor = Plane(1, float3(0, 1, 0), 1);
-	materials[0].isLight = true;
-	materials[1].isAlbedoOverridden = true;
-	objIdUsed = 2;
 
 	SceneData sceneData = LoadSceneFile(filePath);
+
+	materials[0].isLight = true;
+	//materials[1].isAlbedoOverridden = true;
+	materials[1].textureDiffuse = std::make_unique<Texture>("../assets/textures/Stylized_Wood_basecolor.tga");
+	objIdUsed = 2;
+
+	light = Quad(0, 1);
+	floor = Plane(1, float3(0, 1, 0), 1, materials[1].textureDiffuse.get()->width / 100);
 
 	mat4 M1base = mat4::Translate(sceneData.lightPos);// *mat4::RotateZ(sinf(animTime * 0.6f) * 0.1f);
 	light.T = M1base, light.invT = M1base.FastInvertedTransformNoScale();
@@ -196,7 +198,7 @@ HitInfo FileScene::GetHitInfo(const Ray& ray, const float3 I)
 		break;
 	case 1:
 		hitInfo.normal = floor.GetNormal(I);
-		hitInfo.uv = float2(0);
+		hitInfo.uv = floor.GetUV(I);
 		hitInfo.material = &materials[1];
 		break;
 	default:
