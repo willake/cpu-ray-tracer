@@ -101,7 +101,9 @@ namespace Tmpl8 {
 	{
 	public:
 		Plane() = default;
-		Plane(int idx, float3 normal, float dist) : N(normal), d(dist), objIdx(idx) {}
+		Plane(int idx, float3 normal, float dist, float textureOffset = 1.0f) : N(normal), d(dist), objIdx(idx) {
+			invto = 1.f / textureOffset;
+		}
 		void Intersect(Ray& ray) const
 		{
 			float t = -(dot(ray.O, this->N) + this->d) / (dot(ray.D, this->N));
@@ -110,6 +112,24 @@ namespace Tmpl8 {
 		float3 GetNormal(const float3 I) const
 		{
 			return N;
+		}
+		float2 GetUV(const float3 I) const
+		{
+			if (N.y == 1)
+			{
+				float u = I.x;
+				float v = I.z;
+
+				u *= invto;
+				v *= invto;
+
+				u = u - floor(u);
+				v = v - floor(v);
+
+				// Return the UV coordinates
+				return float2(u, v);
+			}
+			return float2(0);
 		}
 		float3 GetAlbedo(const float3 I) const
 		{
@@ -155,6 +175,7 @@ namespace Tmpl8 {
 		float3 N;
 		float d;
 		int objIdx = -1;
+		float invto = 1.f; // inversed texture offeset
 	};
 
 	// -----------------------------------------------------------
