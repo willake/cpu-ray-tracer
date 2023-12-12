@@ -7,13 +7,13 @@ TLASFileScene::TLASFileScene(const string& filePath)
 
 	SceneData sceneData = LoadSceneFile(filePath);
 
-	materials[0].isLight = true;
+	primitiveMaterials[0].isLight = true;
 	//materials[1].isAlbedoOverridden = true;
-	materials[1].textureDiffuse = std::make_unique<Texture>(sceneData.planeTextureLocation);
+	primitiveMaterials[1].textureDiffuse = std::make_unique<Texture>(sceneData.planeTextureLocation);
 	objIdUsed = 2;
 
 	light = Quad(0, 1);
-	floor = Plane(1, float3(0, 1, 0), 1, materials[1].textureDiffuse.get()->width / 100);
+	floor = Plane(1, float3(0, 1, 0), 1, primitiveMaterials[1].textureDiffuse.get()->width / 100);
 
 	mat4 M1base = mat4::Translate(sceneData.lightPos);// *mat4::RotateZ(sinf(animTime * 0.6f) * 0.1f);
 	light.T = M1base, light.invT = M1base.FastInvertedTransformNoScale();
@@ -22,6 +22,19 @@ TLASFileScene::TLASFileScene(const string& filePath)
 	skydome = Texture(sceneData.skydomeLocation);
 
 	objCount = sceneData.objects.size();
+
+	materialCount = sceneData.materials.size();
+
+	materials.resize(materialCount);
+
+	for (int i = 0; i < materialCount; i++)
+	{
+		materials[i] = new Material();
+		materials[i]->reflectivity = sceneData.materials[i].reflectivity;
+		materials[i]->refractivity = sceneData.materials[i].refractivity;
+		materials[i]->absorption = sceneData.materials[i].absorption;
+		materials[i]->textureDiffuse = std::make_unique<Texture>(sceneData.materials[i].textureLocation);
+	}
 
 #ifdef TLAS_USE_BVH
 	std::vector<BVH*> blas;
@@ -35,7 +48,7 @@ TLASFileScene::TLASFileScene(const string& filePath)
 			* mat4::RotateZ(objectData.rotation.z * Deg2Red);
 		mat4 S = mat4::Scale(objectData.scale);
 		blas[i] = new BVH(objIdUsed, objectData.modelLocation, T, S);
-		blas[i]->material.textureDiffuse = std::make_unique<Texture>(objectData.textureLocation);
+		blas[i]->matIdx = objectData.materialIdx;
 		objIdUsed++;
 	}
 	tlas = TLASBVH(blas);
@@ -52,7 +65,7 @@ TLASFileScene::TLASFileScene(const string& filePath)
 			* mat4::RotateZ(objectData.rotation.z * Deg2Red);
 		mat4 S = mat4::Scale(objectData.scale);
 		blas[i] = new Grid(objIdUsed, objectData.modelLocation, T, S);
-		blas[i]->material.textureDiffuse = std::make_unique<Texture>(objectData.textureLocation);
+		blas[i]->matIdx = objectData.materialIdx;
 		objIdUsed++;
 	}
 	tlas = TLASGrid(blas);
@@ -69,7 +82,7 @@ TLASFileScene::TLASFileScene(const string& filePath)
 			* mat4::RotateZ(objectData.rotation.z * Deg2Red);
 		mat4 S = mat4::Scale(objectData.scale);
 		blas[i] = new BLASKDTree(objIdUsed, objectData.modelLocation, T, S);
-		blas[i]->material.textureDiffuse = std::make_unique<Texture>(objectData.textureLocation);
+		blas[i]->matIdx = objectData.materialIdx;
 		objIdUsed++;
 	}
 	tlas = TLASKDTree(blas);
@@ -107,7 +120,7 @@ SceneData TLASFileScene::LoadSceneFile(const string& filePath)
 	{
 		ObjectData obj;
 		obj.modelLocation = objNode->first_node("model_location")->value();
-		obj.textureLocation = objNode->first_node("texture_location")->value();
+		obj.materialIdx = std::stoi(objNode->first_node("material_idx")->value());
 
 		for (rapidxml::xml_node<>* posNode = objNode->first_node("position")->first_node(); posNode; posNode = posNode->next_sibling()) 
 		{
@@ -128,6 +141,24 @@ SceneData TLASFileScene::LoadSceneFile(const string& filePath)
 		}
 
 		sceneData.objects.push_back(obj);
+	}
+
+	// Extract material information
+	for (rapidxml::xml_node<>* matNode = root->first_node("materials")->first_node("material"); matNode; matNode = matNode->next_sibling())
+	{
+		MaterialData material;
+		material.reflectivity = std::stof(matNode->first_node("reflectivity")->value());
+		material.refractivity = std::stof(matNode->first_node("refractivity")->value());
+
+		for (rapidxml::xml_node<>* absNode = matNode->first_node("absorption")->first_node(); absNode; absNode = absNode->next_sibling())
+		{
+			int index = absNode->name()[0] - 'x'; // 'x', 'y', 'z' map to 0, 1, 2
+			material.absorption[index] = std::stof(absNode->value());
+		}
+
+		material.textureLocation = matNode->first_node("texture_location")->value();
+
+		sceneData.materials.push_back(material);
 	}
 
 	return sceneData;
@@ -170,14 +201,12 @@ void TLASFileScene::FindNearest(Ray& ray)
 {
 	light.Intersect(ray);
 	floor.Intersect(ray);
-	sphere.Intersect(ray);
 	tlas.Intersect(ray);
 }
 
 bool TLASFileScene::IsOccluded(const Ray& ray)
 {
 	// from tmpl8rt_IGAD
-	if (sphere.IsOccluded(ray)) return true;
 	if (light.IsOccluded(ray)) return true;
 	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
@@ -195,31 +224,31 @@ HitInfo TLASFileScene::GetHitInfo(const Ray& ray, const float3 I)
 	case 0:
 		hitInfo.normal = light.GetNormal(I);
 		hitInfo.uv = float2(0);
-		hitInfo.material = &materials[0];
+		hitInfo.material = &primitiveMaterials[0];
 		break;
 	case 1:
 		hitInfo.normal = floor.GetNormal(I);
 		hitInfo.uv = floor.GetUV(I);
-		hitInfo.material = &materials[1];
+		hitInfo.material = &primitiveMaterials[1];
 		break;
 	default:
 #ifdef TLAS_USE_BVH
 		BVH* bvh = tlas.blas[ray.objIdx - 2];
 		hitInfo.normal = bvh->GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = bvh->GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &bvh->material;
+		hitInfo.material = materials[bvh->material];
 #endif // USE_BVH
 #ifdef TLAS_USE_Grid
 		Grid* grid = tlas.blas[ray.objIdx - 2];
 		hitInfo.normal = grid->GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = grid->GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &grid->material;
+		hitInfo.material = materials[grid->material];
 #endif // USE_Grid
 #ifdef TLAS_USE_KDTree
 		BLASKDTree* kdtree = tlas.blas[ray.objIdx - 2];
 		hitInfo.normal = kdtree->GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = kdtree->GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &kdtree->material;
+		hitInfo.material = materials[kdtree->matIdx];
 #endif // USE_KDTree
 		break;
 	}

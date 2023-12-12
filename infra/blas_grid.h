@@ -34,7 +34,7 @@ namespace Tmpl8
 		long incremental = 0;
 	public:
 		int objIdx = -1;
-		Material material;
+		int matIdx = -1;
 		mat4 T, invT;
 		aabb localBounds;
 		aabb worldBounds;

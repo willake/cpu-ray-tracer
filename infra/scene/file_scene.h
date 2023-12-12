@@ -49,7 +49,9 @@ namespace Tmpl8
 		Quad light;
 		int objIdUsed = 2;
 		int objCount = 0;
+		int materialCount = 0;
 		Material errorMaterial;
-		Material materials[3];
+		Material primitiveMaterials[3];
+		std::vector<Material*> materials;
 	};
 }

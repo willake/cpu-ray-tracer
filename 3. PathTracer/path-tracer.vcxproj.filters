@@ -68,6 +68,12 @@
     <ClCompile Include="..\infra\scene\file_scene.cpp">
       <Filter>infra\scene</Filter>
     </ClCompile>
+    <ClCompile Include="..\infra\blas_grid.cpp">
+      <Filter>infra\grid</Filter>
+    </ClCompile>
+    <ClCompile Include="..\infra\blas_bvh.cpp">
+      <Filter>infra\bvh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -172,6 +178,12 @@
     </ClInclude>
     <ClInclude Include="..\infra\scene\file_scene.h">
       <Filter>infra\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\blas_grid.h">
+      <Filter>infra\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\blas_bvh.h">
+      <Filter>infra\bvh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
