@@ -9,7 +9,7 @@ FileScene::FileScene(const string& filePath)
 
 	materials[0].isLight = true;
 	//materials[1].isAlbedoOverridden = true;
-	materials[1].textureDiffuse = std::make_unique<Texture>("../assets/textures/Stylized_Wood_basecolor.tga");
+	materials[1].textureDiffuse = std::make_unique<Texture>(sceneData.planeTextureLocation);
 	objIdUsed = 2;
 
 	light = Quad(0, 1);
@@ -99,6 +99,7 @@ SceneData FileScene::LoadSceneFile(const string& filePath)
 		int index = lightPosNode->name()[0] - 'x'; // 'x', 'y', 'z' map to 0, 1, 2
 		sceneData.lightPos[index] = std::stof(lightPosNode->value());
 	}
+	sceneData.planeTextureLocation = root->first_node("plane_texture_location")->value();
 	sceneData.skydomeLocation = root->first_node("skydome_location")->value();
 
 	// Extract object information

@@ -7,6 +7,7 @@
 		<y>3.0</y>
 		<z>2.0</z>
 	</light_position>
+	<plane_texture_location>../assets/textures/Stylized_Wood_basecolor.tga</plane_texture_location>
     <skydome_location>../assets/industrial_sunset_puresky_4k.hdr</skydome_location>
 
     <!-- Object List -->
@@ -17,7 +18,7 @@
             <texture_location>../assets/textures/urna.jpg</texture_location>
             <position>
                 <x>0.0</x>
-                <y>0</y>
+                <y>1</y>
                 <z>2.8</z>
             </position>
             <rotation>

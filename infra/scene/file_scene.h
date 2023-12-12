@@ -27,6 +27,7 @@ namespace Tmpl8
 	struct SceneData {
 		std::string name;
 		float3 lightPos;
+		std::string planeTextureLocation;
 		std::string skydomeLocation;
 		std::vector<ObjectData> objects;
 	};
