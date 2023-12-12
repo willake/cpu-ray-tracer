@@ -7,8 +7,8 @@
 #include "kdtree.h"
 #include "rapidxml.hpp"
 
-#define USE_BVH
-//#define USE_Grid
+//#define USE_BVH
+#define USE_Grid
 //#define USE_KDTree
 
 #include "tlas_file_scene.h"

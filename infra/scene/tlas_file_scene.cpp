@@ -37,7 +37,7 @@ TLASFileScene::TLASFileScene(const string& filePath)
 	}
 
 #ifdef TLAS_USE_BVH
-	std::vector<BVH*> blas;
+	std::vector<BLASBVH*> blas;
 	blas.resize(objCount);
 	for (int i = 0; i < objCount; i++)
 	{
@@ -47,14 +47,14 @@ TLASFileScene::TLASFileScene(const string& filePath)
 			* mat4::RotateY(objectData.rotation.y * Deg2Red)
 			* mat4::RotateZ(objectData.rotation.z * Deg2Red);
 		mat4 S = mat4::Scale(objectData.scale);
-		blas[i] = new BVH(objIdUsed, objectData.modelLocation, T, S);
+		blas[i] = new BLASBVH(objIdUsed, objectData.modelLocation, T, S);
 		blas[i]->matIdx = objectData.materialIdx;
 		objIdUsed++;
 	}
 	tlas = TLASBVH(blas);
 #endif // TLAS_USE_BVH
 #ifdef TLAS_USE_Grid
-	std::vector<Grid*> blas;
+	std::vector<BLASGrid*> blas;
 	blas.resize(objCount);
 	for (int i = 0; i < objCount; i++)
 	{
@@ -64,7 +64,7 @@ TLASFileScene::TLASFileScene(const string& filePath)
 			* mat4::RotateY(objectData.rotation.y * Deg2Red)
 			* mat4::RotateZ(objectData.rotation.z * Deg2Red);
 		mat4 S = mat4::Scale(objectData.scale);
-		blas[i] = new Grid(objIdUsed, objectData.modelLocation, T, S);
+		blas[i] = new BLASGrid(objIdUsed, objectData.modelLocation, T, S);
 		blas[i]->matIdx = objectData.materialIdx;
 		objIdUsed++;
 	}
@@ -233,16 +233,16 @@ HitInfo TLASFileScene::GetHitInfo(const Ray& ray, const float3 I)
 		break;
 	default:
 #ifdef TLAS_USE_BVH
-		BVH* bvh = tlas.blas[ray.objIdx - 2];
+		BLASBVH* bvh = tlas.blas[ray.objIdx - 2];
 		hitInfo.normal = bvh->GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = bvh->GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = materials[bvh->material];
+		hitInfo.material = materials[bvh->matIdx];
 #endif // USE_BVH
 #ifdef TLAS_USE_Grid
-		Grid* grid = tlas.blas[ray.objIdx - 2];
+		BLASGrid* grid = tlas.blas[ray.objIdx - 2];
 		hitInfo.normal = grid->GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = grid->GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = materials[grid->material];
+		hitInfo.material = materials[grid->matIdx];
 #endif // USE_Grid
 #ifdef TLAS_USE_KDTree
 		BLASKDTree* kdtree = tlas.blas[ray.objIdx - 2];
