@@ -15,7 +15,7 @@
         <!-- Object 1 -->
         <object>
             <model_location>../assets/urna.obj</model_location>
-            <texture_location>../assets/textures/urna.jpg</texture_location>
+            <material_idx>0</material_idx>
             <position>
                 <x>0.0</x>
                 <y>1</y>
@@ -35,4 +35,17 @@
 
         <!-- Add more objects as needed -->
     </objects>
+	<materials>
+		<!-- Material 0 -->
+		<material>
+			<reflectivity>0.0</reflectivity>
+			<refractivity>0.0</refractivity>
+			<absorption>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+            </absorption>
+			<texture_location>../assets/textures/urna.jpg</texture_location>
+		</material>
+	</materials>
 </scene>

@@ -47,11 +47,11 @@ namespace Tmpl8
 		int m_maxBuildDepth = 20;
 	public:
 		int objIdx = -1;
+		int matIdx = -1;
 		KDTreeNode* rootNode;
 		std::vector<Tri> triangles;
 		std::vector<aabb> triangleBounds;
 		uint rootNodeIdx = 0, nodesUsed = 1;
-		Material material;
 		aabb localBounds;
 		aabb worldBounds;
 		mat4 T, invT;

@@ -46,11 +46,11 @@ namespace Tmpl8
 	private:
 	public:
 		int objIdx = -1;
+		int matIdx = -1;
 		std::vector<BVHNode> bvhNodes;
 		std::vector<Tri> triangles;
 		std::vector<uint> triangleIndices;
 		uint rootNodeIdx = 0, nodesUsed = 1;
-		Material material;
 		aabb worldBounds;
 		mat4 T, invT;
 		std::chrono::microseconds buildTime;

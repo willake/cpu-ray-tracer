@@ -11,9 +11,9 @@ namespace Tmpl8
         void AppendTriangles(std::vector<Tri>& triangles);
     public:
         int objIdx = -1;
+        int matIdx = -1;
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
-        Material material;
         mat4 T, invT;
     };
 }

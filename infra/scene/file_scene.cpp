@@ -7,13 +7,13 @@ FileScene::FileScene(const string& filePath)
 
 	SceneData sceneData = LoadSceneFile(filePath);
 
-	materials[0].isLight = true;
+	primitiveMaterials[0].isLight = true;
 	//materials[1].isAlbedoOverridden = true;
-	materials[1].textureDiffuse = std::make_unique<Texture>(sceneData.planeTextureLocation);
+	primitiveMaterials[1].textureDiffuse = std::make_unique<Texture>(sceneData.planeTextureLocation);
 	objIdUsed = 2;
 
 	light = Quad(0, 1);
-	floor = Plane(1, float3(0, 1, 0), 1, materials[1].textureDiffuse.get()->width / 100);
+	floor = Plane(1, float3(0, 1, 0), 1, primitiveMaterials[1].textureDiffuse.get()->width / 100);
 
 	mat4 M1base = mat4::Translate(sceneData.lightPos);// *mat4::RotateZ(sinf(animTime * 0.6f) * 0.1f);
 	light.T = M1base, light.invT = M1base.FastInvertedTransformNoScale();
@@ -25,6 +25,19 @@ FileScene::FileScene(const string& filePath)
 
 	models.resize(objCount);
 
+	materialCount = sceneData.materials.size();
+
+	materials.resize(materialCount);
+
+	for (int i = 0; i < materialCount; i++)
+	{
+		materials[i] = new Material();
+		materials[i]->reflectivity = sceneData.materials[i].reflectivity;
+		materials[i]->refractivity = sceneData.materials[i].refractivity;
+		materials[i]->absorption = sceneData.materials[i].absorption;
+		materials[i]->textureDiffuse = std::make_unique<Texture>(sceneData.materials[i].textureLocation);
+	}
+
 	for (int i = 0; i < objCount; i++)
 	{
 		ObjectData& objectData = sceneData.objects[i];
@@ -33,7 +46,7 @@ FileScene::FileScene(const string& filePath)
 			* mat4::RotateY(objectData.rotation.y * Deg2Red)
 			* mat4::RotateZ(objectData.rotation.z * Deg2Red) * mat4::Scale(objectData.scale);
 		models[i] = new Model(objIdUsed, objectData.modelLocation, T);
-		models[i]->material.textureDiffuse = std::make_unique<Texture>(objectData.textureLocation);
+		models[i]->matIdx = objectData.materialIdx;
 		objIdUsed++;
 	}
 
@@ -76,7 +89,7 @@ SceneData FileScene::LoadSceneFile(const string& filePath)
 	{
 		ObjectData obj;
 		obj.modelLocation = objNode->first_node("model_location")->value();
-		obj.textureLocation = objNode->first_node("texture_location")->value();
+		obj.materialIdx = std::stoi(objNode->first_node("material_idx")->value());
 
 		for (rapidxml::xml_node<>* posNode = objNode->first_node("position")->first_node(); posNode; posNode = posNode->next_sibling())
 		{
@@ -97,6 +110,24 @@ SceneData FileScene::LoadSceneFile(const string& filePath)
 		}
 
 		sceneData.objects.push_back(obj);
+	}
+
+	// Extract material information
+	for (rapidxml::xml_node<>* matNode = root->first_node("materials")->first_node("material"); matNode; matNode = matNode->next_sibling())
+	{
+		MaterialData material;
+		material.reflectivity = std::stof(matNode->first_node("reflectivity")->value());
+		material.refractivity = std::stof(matNode->first_node("refractivity")->value());
+
+		for (rapidxml::xml_node<>* absNode = matNode->first_node("absorption")->first_node(); absNode; absNode = absNode->next_sibling())
+		{
+			int index = absNode->name()[0] - 'x'; // 'x', 'y', 'z' map to 0, 1, 2
+			material.absorption[index] = std::stof(absNode->value());
+		}
+
+		material.textureLocation = matNode->first_node("texture_location")->value();
+
+		sceneData.materials.push_back(material);
 	}
 
 	return sceneData;
@@ -162,17 +193,17 @@ HitInfo FileScene::GetHitInfo(const Ray& ray, const float3 I)
 	case 0:
 		hitInfo.normal = light.GetNormal(I);
 		hitInfo.uv = float2(0);
-		hitInfo.material = &materials[0];
+		hitInfo.material = &primitiveMaterials[0];
 		break;
 	case 1:
 		hitInfo.normal = floor.GetNormal(I);
 		hitInfo.uv = floor.GetUV(I);
-		hitInfo.material = &materials[1];
+		hitInfo.material = &primitiveMaterials[1];
 		break;
 	default:
 		hitInfo.normal = acc.GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = acc.GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &models[acc.triangles[ray.triIdx].objIdx - 2]->material;
+		hitInfo.material = materials[models[acc.triangles[ray.triIdx].objIdx - 2]->matIdx];
 		break;
 	}
 
