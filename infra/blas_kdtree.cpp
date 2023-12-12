@@ -330,7 +330,7 @@ void BLASKDTree::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
     const float t = f * dot(edge2, q);
     if (t > 0.0001f)
     {
-        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = tri.objIdx, ray.triIdx = triIdx, ray.barycentric = float2(u, v);
+        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = objIdx, ray.triIdx = triIdx, ray.barycentric = float2(u, v);
     }
 }
 

@@ -1,7 +1,85 @@
 #include "precomp.h"
 #include "grid.h"
 
-void Grid::Build()
+BLASGrid::BLASGrid(const int idx, const std::string& modelPath, const mat4 transform, const mat4 scaleMat)
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
+    {
+        throw std::runtime_error(warn + err);
+    }
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    for (const auto& shape : shapes)
+    {
+        for (const auto& index : shape.mesh.indices)
+        {
+            Vertex vertex{};
+
+            if (index.vertex_index >= 0)
+            {
+                vertex.position = {
+                    attrib.vertices[3 * index.vertex_index + 0],
+                    attrib.vertices[3 * index.vertex_index + 1],
+                    attrib.vertices[3 * index.vertex_index + 2] };
+            }
+
+            if (index.normal_index >= 0)
+            {
+                vertex.normal = {
+                    attrib.normals[3 * index.normal_index + 0],
+                    attrib.normals[3 * index.normal_index + 1],
+                    attrib.normals[3 * index.normal_index + 2] };
+            }
+
+            if (index.texcoord_index >= 0)
+            {
+                vertex.uv = {
+                    attrib.texcoords[2 * index.texcoord_index + 0],
+                    attrib.texcoords[2 * index.texcoord_index + 1] };
+            }
+
+            if (uniqueVertices.count(vertex) == 0)
+            {
+                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                vertices.push_back(vertex);
+            }
+            indices.push_back(uniqueVertices[vertex]);
+        }
+    }
+
+    objIdx = idx;
+
+    for (int i = 0; i < indices.size(); i += 3)
+    {
+        Tri tri(
+            TransformPosition(vertices[indices[i]].position, scaleMat),
+            TransformPosition(vertices[indices[i + 1]].position, scaleMat),
+            TransformPosition(vertices[indices[i + 2]].position, scaleMat),
+            vertices[indices[i]].normal,
+            vertices[indices[i + 1]].normal,
+            vertices[indices[i + 2]].normal,
+            vertices[indices[i]].uv,
+            vertices[indices[i + 1]].uv,
+            vertices[indices[i + 2]].uv,
+            float3(0), objIdx);
+        tri.centroid = (tri.vertex0 + tri.vertex1 + tri.vertex2) * 0.3333f;
+        triangles.push_back(tri);
+    }
+
+    Build();
+    SetTransform(transform);
+}
+
+void BLASGrid::Build()
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     // Determine scene bound
@@ -52,7 +130,7 @@ void Grid::Build()
     buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
 
-bool Grid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
+bool BLASGrid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
     float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
     float tmin = min(tx1, tx2), tmax = max(tx1, tx2);
@@ -63,7 +141,7 @@ bool Grid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
     return tmax >= tmin && tmin < ray.t && tmax > 0;
 }
 
-bool Grid::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
+bool BLASGrid::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
 {
     const float3 edge1 = tri.vertex1 - tri.vertex0;
     const float3 edge2 = tri.vertex2 - tri.vertex0;
@@ -80,18 +158,18 @@ bool Grid::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
     const float t = f * dot(edge2, q);
     if (t > 0.0001f)
     {
-        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = tri.objIdx, ray.triIdx = triIdx, ray.barycentric = float2(u, v);
+        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = objIdx, ray.triIdx = triIdx, ray.barycentric = float2(u, v);
         return true;
     }
     return false;
 }
 
-int Grid::GetTriangleCount() const
+int BLASGrid::GetTriangleCount() const
 {
     return triangles.size();
 }
 
-void Grid::IntersectGrid(Ray& ray, long uid)
+void BLASGrid::IntersectGrid(Ray& ray, long uid)
 {
     // Calculate tmin and tmax
     if (!IntersectAABB(ray, localBounds.bmin3, localBounds.bmax3)) return;
@@ -152,27 +230,49 @@ void Grid::IntersectGrid(Ray& ray, long uid)
     }
 }
 
-void Grid::Intersect(Ray& ray)
+void BLASGrid::Intersect(Ray& ray)
 {
+    Ray tRay = Ray(ray);
     incremental++;
     if (incremental >= 2147483647) incremental = 0;
+    tRay.O = TransformPosition_SSE(ray.O4, invT);
+    tRay.D = TransformVector_SSE(ray.D4, invT);
+    tRay.rD = float3(1 / tRay.D.x, 1 / tRay.D.y, 1 / tRay.D.z);
 
-    IntersectGrid(ray, incremental);
+    IntersectGrid(tRay, incremental);
+
+    tRay.O = ray.O;
+    tRay.D = ray.D;
+    tRay.rD = ray.rD;
+    ray = tRay;
 }
 
-float3 Grid::GetNormal(const uint triIdx, const float2 barycentric) const
+float3 BLASGrid::GetNormal(const uint triIdx, const float2 barycentric) const
 {
     float3 n0 = triangles[triIdx].normal0;
     float3 n1 = triangles[triIdx].normal1;
     float3 n2 = triangles[triIdx].normal2;
     float3 N = (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
-    return N;
+    return normalize(TransformVector(N, T));
 }
 
-float2 Grid::GetUV(const uint triIdx, const float2 barycentric) const
+float2 BLASGrid::GetUV(const uint triIdx, const float2 barycentric) const
 {
     float2 uv0 = triangles[triIdx].uv0;
     float2 uv1 = triangles[triIdx].uv1;
     float2 uv2 = triangles[triIdx].uv2;
     return (1 - barycentric.x - barycentric.y) * uv0 + barycentric.x * uv1 + barycentric.y * uv2;
+}
+
+void BLASGrid::SetTransform(mat4 transform)
+{
+    T = transform;
+    invT = transform.FastInvertedTransformNoScale();
+    // update bvh bound
+    // calculate world-space bounds using the new matrix
+    float3 bmin = localBounds.bmin3, bmax = localBounds.bmax3;
+    worldBounds = aabb();
+    for (int i = 0; i < 8; i++)
+        worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
+            i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
 }

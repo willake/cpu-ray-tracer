@@ -127,8 +127,9 @@
   <!-- END Custom section -->
   <ItemGroup>
     <ClCompile Include="..\infra\bvh.cpp" />
-    <ClCompile Include="..\infra\grid.cpp" />
+    <ClCompile Include="..\infra\blas_grid.cpp" />
     <ClCompile Include="..\infra\blas_kdtree.cpp" />
+    <ClCompile Include="..\infra\grid.cpp" />
     <ClCompile Include="..\infra\kdtree.cpp" />
     <ClCompile Include="..\infra\model.cpp" />
     <ClCompile Include="..\infra\scene\file_scene.cpp" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\infra\bvh.h" />
+    <ClInclude Include="..\infra\blas_grid.h" />
     <ClInclude Include="..\infra\grid.h" />
     <ClInclude Include="..\infra\helper.h" />
     <ClInclude Include="..\infra\hit_info.h" />

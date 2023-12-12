@@ -8,8 +8,8 @@
 #include "rapidxml.hpp"
 
 //#define USE_BVH
-//#define USE_Grid
-#define USE_KDTree
+#define USE_Grid
+//#define USE_KDTree
 
 #include "tlas_file_scene.h"
 
@@ -37,7 +37,7 @@ namespace Tmpl8
 		BVH bvh;
 #endif
 #ifdef USE_Grid
-		Grid grid;
+		Grid acc;
 #endif
 #ifdef USE_KDTree
 		KDTree acc;

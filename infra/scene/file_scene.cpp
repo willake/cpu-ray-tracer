@@ -61,26 +61,6 @@ FileScene::FileScene(const string& filePath)
 	}
 	tlas = TLASBVH(blas);
 #endif // USE_BVH
-#ifdef USE_Grid
-	std::vector<Grid*> blas;
-	blas.resize(objCount);
-	for (int i = 0; i < objCount; i++)
-	{
-		ObjectData& objectData = sceneData.objects[i];
-		mat4 T = mat4::Translate(objectData.position)
-			* mat4::RotateX(objectData.rotation.x * Deg2Red)
-			* mat4::RotateY(objectData.rotation.y * Deg2Red)
-			* mat4::RotateZ(objectData.rotation.z * Deg2Red);
-		mat4 S = mat4::Scale(objectData.scale);
-		blas[i] = new Grid(objIdUsed, objectData.modelLocation, T, S);
-		blas[i]->material.textureDiffuse = std::make_unique<Texture>(objectData.textureLocation);
-		objIdUsed++;
-	}
-	tlas = TLASGrid(blas);
-#endif // USE_Grid
-#ifdef USE_KDTree
-	
-#endif // USE_KDTree
 
 	SetTime(0);
 }
@@ -214,17 +194,9 @@ HitInfo FileScene::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.uv = bvh->GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &bvh->material;
 #endif // USE_BVH
-#ifdef USE_Grid
-		Grid* grid = tlas.blas[ray.objIdx - 2];
-		hitInfo.normal = grid->GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = grid->GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &grid->material;
-#endif // USE_Grid
-#ifdef USE_KDTree
 		hitInfo.normal = acc.GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = acc.GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &models[acc.triangles[ray.triIdx].objIdx - 2]->material;
-#endif // USE_KDTree
 		break;
 	}
 

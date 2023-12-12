@@ -65,6 +65,9 @@
     <ClCompile Include="..\infra\blas_kdtree.cpp">
       <Filter>infra\kdtree</Filter>
     </ClCompile>
+    <ClCompile Include="..\infra\scene\file_scene.cpp">
+      <Filter>infra\scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -166,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="..\infra\blas_kdtree.h">
       <Filter>infra\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\scene\file_scene.h">
+      <Filter>infra\scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

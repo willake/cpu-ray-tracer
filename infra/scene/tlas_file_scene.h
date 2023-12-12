@@ -2,16 +2,16 @@
 
 #include "base_scene.h"
 #include "bvh.h"
-#include "grid.h"
+#include "blas_grid.h"
 #include "blas_kdtree.h"
 #include "tlas_bvh.h"
 #include "tlas_grid.h"
 #include "tlas_kdtree.h"
 #include "rapidxml.hpp"
 
-//#define USE_BVH
-//#define USE_Grid
-#define USE_KDTree
+//#define TLAS_USE_BVH
+//#define TLAS__Grid
+#define TLAS__KDTree
 
 namespace Tmpl8
 {

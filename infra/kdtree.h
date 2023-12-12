@@ -32,7 +32,6 @@ namespace Tmpl8
 		std::vector<Tri> triangles;
 		std::vector<aabb> triangleBounds;
 		uint rootNodeIdx = 0, nodesUsed = 1;
-		Material material;
 		aabb localBounds;
 		std::chrono::microseconds buildTime;
 	};

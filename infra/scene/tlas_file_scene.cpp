@@ -23,7 +23,7 @@ TLASFileScene::TLASFileScene(const string& filePath)
 
 	objCount = sceneData.objects.size();
 
-#ifdef USE_BVH
+#ifdef TLAS_USE_BVH
 	std::vector<BVH*> blas;
 	blas.resize(objCount);
 	for (int i = 0; i < objCount; i++)
@@ -39,8 +39,8 @@ TLASFileScene::TLASFileScene(const string& filePath)
 		objIdUsed++;
 	}
 	tlas = TLASBVH(blas);
-#endif // USE_BVH
-#ifdef USE_Grid
+#endif // TLAS_USE_BVH
+#ifdef TLAS_USE_Grid
 	std::vector<Grid*> blas;
 	blas.resize(objCount);
 	for (int i = 0; i < objCount; i++)
@@ -56,8 +56,8 @@ TLASFileScene::TLASFileScene(const string& filePath)
 		objIdUsed++;
 	}
 	tlas = TLASGrid(blas);
-#endif // USE_Grid
-#ifdef USE_KDTree
+#endif // TLAS_USE_Grid
+#ifdef TLAS_USE_KDTree
 	std::vector<BLASKDTree*> blas;
 	blas.resize(objCount);
 	for (int i = 0; i < objCount; i++)
@@ -203,19 +203,19 @@ HitInfo TLASFileScene::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.material = &materials[1];
 		break;
 	default:
-#ifdef USE_BVH
+#ifdef TLAS_USE_BVH
 		BVH* bvh = tlas.blas[ray.objIdx - 2];
 		hitInfo.normal = bvh->GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = bvh->GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &bvh->material;
 #endif // USE_BVH
-#ifdef USE_Grid
+#ifdef TLAS_USE_Grid
 		Grid* grid = tlas.blas[ray.objIdx - 2];
 		hitInfo.normal = grid->GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = grid->GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &grid->material;
 #endif // USE_Grid
-#ifdef USE_KDTree
+#ifdef TLAS_USE_KDTree
 		BLASKDTree* kdtree = tlas.blas[ray.objIdx - 2];
 		hitInfo.normal = kdtree->GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = kdtree->GetUV(ray.triIdx, ray.barycentric);
@@ -258,7 +258,7 @@ std::chrono::microseconds TLASFileScene::GetBuildTime() const
 
 uint TLASFileScene::GetMaxTreeDepth() const
 {
-#ifdef USE_BVH
+#ifdef TLAS_USE_BVH
 	uint maxDepth = 0;
 	for (int i = 0; i < objCount; i++)
 	{
