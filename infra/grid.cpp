@@ -166,7 +166,7 @@ float3 Grid::GetNormal(const uint triIdx, const float2 barycentric) const
     float3 n1 = triangles[triIdx].normal1;
     float3 n2 = triangles[triIdx].normal2;
     float3 N = (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
-    return N;
+    return normalize(N);
 }
 
 float2 Grid::GetUV(const uint triIdx, const float2 barycentric) const

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base_scene.h"
-#include "bvh.h"
+#include "blas_bvh.h"
 #include "blas_grid.h"
 #include "blas_kdtree.h"
 #include "tlas_bvh.h"

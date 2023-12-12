@@ -7,8 +7,8 @@
 #include "kdtree.h"
 #include "rapidxml.hpp"
 
-//#define USE_BVH
-#define USE_Grid
+#define USE_BVH
+//#define USE_Grid
 //#define USE_KDTree
 
 #include "tlas_file_scene.h"
@@ -34,7 +34,7 @@ namespace Tmpl8
 	public:
 		float animTime = 0;
 #ifdef USE_BVH
-		BVH bvh;
+		BVH acc;
 #endif
 #ifdef USE_Grid
 		Grid acc;

@@ -44,24 +44,6 @@ FileScene::FileScene(const string& filePath)
 
 	acc.Build();
 
-#ifdef USE_BVH
-	std::vector<BVH*> blas;
-	blas.resize(objCount);
-	for (int i = 0; i < objCount; i++)
-	{
-		ObjectData& objectData = sceneData.objects[i];
-		mat4 T = mat4::Translate(objectData.position)
-			* mat4::RotateX(objectData.rotation.x * Deg2Red)
-			* mat4::RotateY(objectData.rotation.y * Deg2Red)
-			* mat4::RotateZ(objectData.rotation.z * Deg2Red);
-		mat4 S = mat4::Scale(objectData.scale);
-		blas[i] = new BVH(objIdUsed, objectData.modelLocation, T, S);
-		blas[i]->material.textureDiffuse = std::make_unique<Texture>(objectData.textureLocation);
-		objIdUsed++;
-	}
-	tlas = TLASBVH(blas);
-#endif // USE_BVH
-
 	SetTime(0);
 }
 
@@ -188,12 +170,6 @@ HitInfo FileScene::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.material = &materials[1];
 		break;
 	default:
-#ifdef USE_BVH
-		BVH* bvh = tlas.blas[ray.objIdx - 2];
-		hitInfo.normal = bvh->GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = bvh->GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &bvh->material;
-#endif // USE_BVH
 		hitInfo.normal = acc.GetNormal(ray.triIdx, ray.barycentric);
 		hitInfo.uv = acc.GetUV(ray.triIdx, ray.barycentric);
 		hitInfo.material = &models[acc.triangles[ray.triIdx].objIdx - 2]->material;
@@ -229,12 +205,7 @@ std::chrono::microseconds FileScene::GetBuildTime() const
 uint FileScene::GetMaxTreeDepth() const
 {
 #ifdef USE_BVH
-	uint maxDepth = 0;
-	for (int i = 0; i < objCount; i++)
-	{
-		if (tlas.blas[i]->maxDepth > maxDepth) maxDepth = tlas.blas[i]->maxDepth;
-	}
-	return maxDepth;
+	return acc.maxDepth;
 #endif
 	return 0;
 }
