@@ -38,7 +38,7 @@ namespace Tmpl8
 	public:
 		// game flow methods
 		void Init();
-		float3 Trace( Ray& ray , int depth);
+		float3 Trace( Ray& ray , int depth); 
 		float3 DirectIllumination(float3 I, float3 N);
 		void Tick( float deltaTime );
 		void UI();
@@ -53,7 +53,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		FileScene scene = FileScene("../assets/scenes/wok_scene.xml");
+		FileScene scene = FileScene("../assets/scenes/tower_scene.xml");
 		Camera camera;
 		bool animating = false;
 		float anim_time = 0;

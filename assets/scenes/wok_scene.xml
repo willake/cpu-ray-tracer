@@ -4,7 +4,7 @@
     <scene_name>wok scene</scene_name>
 	<light_position>
 		<x>0.0</x>
-		<y>3.0</y>
+		<y>5.0</y>
 		<z>2.0</z>
 	</light_position>
 	<plane_texture_location>../assets/textures/Stylized_Wood_basecolor.tga</plane_texture_location>

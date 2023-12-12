@@ -7,7 +7,7 @@
 		<y>1</y>
 		<z>2.0</z>
 	</light_position>
-	<plane_texture_location>../assets/textures/Stylized_Wood_basecolor.tga</plane_texture_location>
+	<plane_texture_location>../assets/textures/Stylized_Brick_basecolor.png</plane_texture_location>
     <skydome_location>../assets/industrial_sunset_puresky_4k.hdr</skydome_location>
 
     <!-- Object List -->
@@ -32,7 +32,7 @@
                 <z>0.5</z>
             </scale>
         </object>
-		        <object>
+		<object>
             <model_location>../assets/watch-tower.obj</model_location>
             <texture_location>../assets/textures/Wood_Tower_Col.jpg</texture_location>
             <position>
@@ -51,7 +51,177 @@
                 <z>1.5</z>
             </scale>
         </object>
-
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>-5</x>
+                <y>0.5</y>
+                <z>2</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>90.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>-5</x>
+                <y>0.5</y>
+                <z>5</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>90.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>-5</x>
+                <y>0.5</y>
+                <z>8</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>90.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>5</x>
+                <y>0.5</y>
+                <z>2</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>-90.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>5</x>
+                <y>0.5</y>
+                <z>5</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>-90.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>5</x>
+                <y>0.5</y>
+                <z>8</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>-90.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>-3</x>
+                <y>0.5</y>
+                <z>8</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>180.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>0</x>
+                <y>0.5</y>
+                <z>8</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>180.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
+		<object>
+            <model_location>../assets/log_fence.obj</model_location>
+            <texture_location>../assets/textures/log_fence.png</texture_location>
+            <position>
+                <x>3</x>
+                <y>0.5</y>
+                <z>8</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>180.0</y>
+                <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1.5</x>
+                <y>1.5</y>
+                <z>1.5</z>
+            </scale>
+        </object>
         <!-- Add more objects as needed -->
     </objects>
 </scene>

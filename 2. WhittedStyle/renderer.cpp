@@ -74,7 +74,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	if (diffuseness > 0)
 	{
 		float3 irradiance = DirectIllumination(I, N);
-		float3 ambient = float3(0.2f, 0.2f, 0.2f);
+		float3 ambient = float3(0.3f, 0.3f, 0.3f);
 		float3 brdf = albedo * INVPI;
 		out_radiance += diffuseness * brdf * (irradiance + ambient);
 	}
