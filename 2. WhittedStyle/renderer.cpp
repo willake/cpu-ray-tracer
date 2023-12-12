@@ -145,7 +145,7 @@ void Renderer::Tick(float deltaTime)
 			float4 pixel = float4(Trace(primaryRay, 0), 0);
 
 			// for metrics
-			if (primaryRay.objIdx > 1) m_rayHitCount++;
+			if (primaryRay.traversed > 0) m_rayHitCount++;
 			if (primaryRay.traversed > m_peakTraversal) m_peakTraversal = primaryRay.traversed;
 			if (primaryRay.tested > m_peakTests) m_peakTests = primaryRay.tested;
 			m_totalTraversal += primaryRay.traversed;
