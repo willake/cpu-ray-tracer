@@ -7,6 +7,7 @@
 #include "base_scene.h"
 #include "primitive_scene.h"
 #include "file_scene.h"
+#include "tlas_file_scene.h"
 
 #define EPSILON	0.001f
 

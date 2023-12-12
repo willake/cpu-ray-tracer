@@ -1,7 +1,85 @@
 #include "precomp.h"
-#include "bvh.h"
+#include "blas_bvh.h"
 
-void BVH::Build()
+BLASBVH::BLASBVH(const int idx, const std::string& modelPath, const mat4 transform, const mat4 scaleMat)
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
+    {
+        throw std::runtime_error(warn + err);
+    }
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    for (const auto& shape : shapes)
+    {
+        for (const auto& index : shape.mesh.indices)
+        {
+            Vertex vertex{};
+
+            if (index.vertex_index >= 0)
+            {
+                vertex.position = {
+                    attrib.vertices[3 * index.vertex_index + 0],
+                    attrib.vertices[3 * index.vertex_index + 1],
+                    attrib.vertices[3 * index.vertex_index + 2] };
+            }
+
+            if (index.normal_index >= 0)
+            {
+                vertex.normal = {
+                    attrib.normals[3 * index.normal_index + 0],
+                    attrib.normals[3 * index.normal_index + 1],
+                    attrib.normals[3 * index.normal_index + 2] };
+            }
+
+            if (index.texcoord_index >= 0)
+            {
+                vertex.uv = {
+                    attrib.texcoords[2 * index.texcoord_index + 0],
+                    attrib.texcoords[2 * index.texcoord_index + 1] };
+            }
+
+            if (uniqueVertices.count(vertex) == 0)
+            {
+                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                vertices.push_back(vertex);
+            }
+            indices.push_back(uniqueVertices[vertex]);
+        }
+    }
+
+    objIdx = idx;
+
+    for (int i = 0; i < indices.size(); i += 3)
+    {
+        Tri tri(
+            TransformPosition(vertices[indices[i]].position, scaleMat),
+            TransformPosition(vertices[indices[i + 1]].position, scaleMat),
+            TransformPosition(vertices[indices[i + 2]].position, scaleMat),
+            vertices[indices[i]].normal,
+            vertices[indices[i + 1]].normal,
+            vertices[indices[i + 2]].normal,
+            vertices[indices[i]].uv,
+            vertices[indices[i + 1]].uv,
+            vertices[indices[i + 2]].uv,
+            float3(0), objIdx);
+        tri.centroid = (tri.vertex0 + tri.vertex1 + tri.vertex2) * 0.3333f;
+        triangles.push_back(tri);
+    }
+
+    Build();
+    SetTransform(transform);
+}
+
+void BLASBVH::Build()
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     triangleIndices.resize(triangles.size());
@@ -23,7 +101,7 @@ void BVH::Build()
     buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
 
-void BVH::Refit()
+void BLASBVH::Refit()
 {
     for (int i = nodesUsed - 1; i >= 0; i--) if (i != 1)
     {
@@ -42,7 +120,7 @@ void BVH::Refit()
     }
 }
 
-void BVH::UpdateNodeBounds(uint nodeIdx)
+void BLASBVH::UpdateNodeBounds(uint nodeIdx)
 {
     BVHNode& node = bvhNodes[nodeIdx];
     node.aabbMin = float3(1e30f);
@@ -60,13 +138,13 @@ void BVH::UpdateNodeBounds(uint nodeIdx)
     }
 }
 
-void BVH::Subdivide(uint nodeIdx, uint depth)
+void BLASBVH::Subdivide(uint nodeIdx, uint depth)
 {
     // terminate recursion
     BVHNode& node = bvhNodes[nodeIdx];
     if (node.triCount <= 2) return;
 
-#ifdef BVH_SAH
+#ifdef BLAS_BVH_SAH
     // determine split axis using SAH
     int axis;
     float splitPos;
@@ -114,14 +192,14 @@ void BVH::Subdivide(uint nodeIdx, uint depth)
     Subdivide(rightChildIdx, depth + 1);
 }
 
-float BVH::CalculateNodeCost(BVHNode& node)
+float BLASBVH::CalculateNodeCost(BVHNode& node)
 {
     float3 e = node.aabbMax - node.aabbMin; // extent of the node
     float surfaceArea = e.x * e.y + e.y * e.z + e.z * e.x;
     return node.triCount * surfaceArea;
 }
 
-float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
+float BLASBVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
 {
     float bestCost = 1e30f;
     for (int a = 0; a < 3; a++)
@@ -135,12 +213,12 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
         }
         if (boundsMin == boundsMax) continue;
         // populate the bins
-        Bin bin[BVH_BINS];
-        float scale = BVH_BINS / (boundsMax - boundsMin);
+        Bin bin[BLAS_BVH_BINS];
+        float scale = BLAS_BVH_BINS / (boundsMax - boundsMin);
         for (uint i = 0; i < node.triCount; i++)
         {
             Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
-            int binIdx = min(BVH_BINS - 1,
+            int binIdx = min(BLAS_BVH_BINS - 1,
                 (int)((triangle.centroid[a] - boundsMin) * scale));
             bin[binIdx].triCount++;
             bin[binIdx].bounds.Grow(triangle.vertex0);
@@ -148,24 +226,24 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
             bin[binIdx].bounds.Grow(triangle.vertex2);
         }
         // gather data for the 7 planes between the 8 bins
-        float leftArea[BVH_BINS - 1], rightArea[BVH_BINS - 1];
-        int leftCount[BVH_BINS - 1], rightCount[BVH_BINS - 1];
+        float leftArea[BLAS_BVH_BINS - 1], rightArea[BLAS_BVH_BINS - 1];
+        int leftCount[BLAS_BVH_BINS - 1], rightCount[BLAS_BVH_BINS - 1];
         aabb leftBox, rightBox;
         int leftSum = 0, rightSum = 0;
-        for (int i = 0; i < BVH_BINS - 1; i++)
+        for (int i = 0; i < BLAS_BVH_BINS - 1; i++)
         {
             leftSum += bin[i].triCount;
             leftCount[i] = leftSum;
             leftBox.Grow(bin[i].bounds);
             leftArea[i] = leftBox.Area();
-            rightSum += bin[BVH_BINS - 1 - i].triCount;
-            rightCount[BVH_BINS - 2 - i] = rightSum;
-            rightBox.Grow(bin[BVH_BINS - 1 - i].bounds);
-            rightArea[BVH_BINS - 2 - i] = rightBox.Area();
+            rightSum += bin[BLAS_BVH_BINS - 1 - i].triCount;
+            rightCount[BLAS_BVH_BINS - 2 - i] = rightSum;
+            rightBox.Grow(bin[BLAS_BVH_BINS - 1 - i].bounds);
+            rightArea[BLAS_BVH_BINS - 2 - i] = rightBox.Area();
         }
         // calculate SAH cost for the 7 planes
-        scale = (boundsMax - boundsMin) / BVH_BINS;
-        for (int i = 0; i < BVH_BINS - 1; i++)
+        scale = (boundsMax - boundsMin) / BLAS_BVH_BINS;
+        for (int i = 0; i < BLAS_BVH_BINS - 1; i++)
         {
             float planeCost =
                 leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
@@ -177,8 +255,8 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
     return bestCost;
 }
 
-#ifdef BVH_FASTER_RAY
-float BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
+#ifdef BLAS_BVH_FASTER_RAY
+float BLASBVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
     float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
     float tmin = min(tx1, tx2), tmax = max(tx1, tx2);
@@ -189,7 +267,7 @@ float BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
     if (tmax >= tmin && tmin < ray.t && tmax > 0) return tmin; else return 1e30f;
 }
 #else
-bool BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
+bool BLASBVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
     float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
     float tmin = min(tx1, tx2), tmax = max(tx1, tx2);
@@ -200,7 +278,7 @@ bool BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
     return tmax >= tmin && tmin < ray.t && tmax > 0;
 }
 #endif
-void BVH::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
+void BLASBVH::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
 {
     const float3 edge1 = tri.vertex1 - tri.vertex0;
     const float3 edge2 = tri.vertex2 - tri.vertex0;
@@ -217,13 +295,13 @@ void BVH::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
     const float t = f * dot(edge2, q);
     if (t > 0.0001f)
     {
-        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = tri.objIdx, ray.triIdx = triIdx, ray.barycentric = float2(u, v);
+        if (t < ray.t) ray.t = min(ray.t, t), ray.objIdx = objIdx, ray.triIdx = triIdx, ray.barycentric = float2(u, v);
     }
 }
 
-void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
+void BLASBVH::IntersectBVH(Ray& ray, const uint nodeIdx)
 {
-#ifdef BVH_FASTER_RAY
+#ifdef BLAS_BVH_FASTER_RAY
     BVHNode* node = &bvhNodes[rootNodeIdx], * stack[64];
     uint stackPtr = 0;
     while (1)
@@ -257,7 +335,7 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
         }
     }
 #else
-    BVH& node = bvhNodes[nodeIdx];
+    BVHNode& node = bvhNodes[nodeIdx];
     ray.traversed++;
     if (!IntersectAABB(ray, node.aabbMin, node.aabbMax)) return;
     if (node.isLeaf())
@@ -277,26 +355,49 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
 #endif
 }
 
-int BVH::GetTriangleCount() const
+int BLASBVH::GetTriangleCount() const
 {
     return triangles.size();
 }
 
-void BVH::Intersect(Ray& ray)
+void BLASBVH::SetTransform(mat4 transform)
 {
-    IntersectBVH(ray, rootNodeIdx);
+    T = transform;
+    invT = transform.FastInvertedTransformNoScale();
+    // update bvh bound
+    // calculate world-space bounds using the new matrix
+    float3 bmin = bvhNodes[0].aabbMin, bmax = bvhNodes[0].aabbMax;
+    worldBounds = aabb();
+    for (int i = 0; i < 8; i++)
+        worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
+            i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
 }
 
-float3 BVH::GetNormal(const uint triIdx, const float2 barycentric) const
+void BLASBVH::Intersect(Ray& ray)
+{
+    Ray tRay = Ray(ray);
+    tRay.O = TransformPosition_SSE(ray.O4, invT);
+    tRay.D = TransformVector_SSE(ray.D4, invT);
+    tRay.rD = float3(1 / tRay.D.x, 1 / tRay.D.y, 1 / tRay.D.z);
+
+    IntersectBVH(tRay, rootNodeIdx);
+
+    tRay.O = ray.O;
+    tRay.D = ray.D;
+    tRay.rD = ray.rD;
+    ray = tRay;
+}
+
+float3 BLASBVH::GetNormal(const uint triIdx, const float2 barycentric) const
 {
     float3 n0 = triangles[triIdx].normal0;
     float3 n1 = triangles[triIdx].normal1;
     float3 n2 = triangles[triIdx].normal2;
     float3 N = (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
-    return normalize(N);
+    return normalize(TransformVector(N, T));
 }
 
-float2 BVH::GetUV(const uint triIdx, const float2 barycentric) const
+float2 BLASBVH::GetUV(const uint triIdx, const float2 barycentric) const
 {
     float2 uv0 = triangles[triIdx].uv0;
     float2 uv1 = triangles[triIdx].uv1;

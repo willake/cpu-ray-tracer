@@ -1,24 +1,42 @@
 #pragma once
 
 #include "base_scene.h"
-#include "bvh.h"
-#include "grid.h"
-#include "model.h"
-#include "kdtree.h"
+#include "blas_bvh.h"
+#include "blas_grid.h"
+#include "blas_kdtree.h"
+#include "tlas_bvh.h"
+#include "tlas_grid.h"
+#include "tlas_kdtree.h"
 #include "rapidxml.hpp"
 
-#define USE_BVH
-//#define USE_Grid
-//#define USE_KDTree
-
-#include "tlas_file_scene.h"
+//#define TLAS_USE_BVH
+//#define TLAS_USE_Grid
+#define TLAS_USE_KDTree
 
 namespace Tmpl8
 {
-	class FileScene : BaseScene
+	struct ObjectData {
+		std::string modelLocation;
+		std::string textureLocation;
+		float3 position;
+		float3 rotation;
+		float3 scale;
+	};
+
+	// Define a structure to hold scene information
+	struct SceneData {
+		std::string name;
+		float3 lightPos;
+		std::string planeTextureLocation;
+		std::string skydomeLocation;
+		std::vector<ObjectData> objects;
+	};
+
+
+	class TLASFileScene : BaseScene
 	{
 	public:
-		FileScene(const string& filePath);
+		TLASFileScene(const string& filePath);
 		SceneData LoadSceneFile(const string& filePath);
 		void SetTime(float t);
 		float3 GetSkyColor(const Ray& ray) const;
@@ -33,19 +51,19 @@ namespace Tmpl8
 		uint GetMaxTreeDepth() const;
 	public:
 		float animTime = 0;
-#ifdef USE_BVH
-		BVH acc;
+#ifdef TLAS_USE_BVH
+		TLASBVH tlas;
 #endif
-#ifdef USE_Grid
-		Grid acc;
+#ifdef TLAS_USE_Grid
+		TLASGrid tlas;
 #endif
-#ifdef USE_KDTree
-		KDTree acc;
+#ifdef TLAS_USE_KDTree
+		TLASKDTree tlas;
 #endif
-		std::vector<Model*> models;
 		string sceneName;
 		Texture skydome;
 		Plane floor;
+		Sphere sphere;
 		Quad light;
 		int objIdUsed = 2;
 		int objCount = 0;

@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "tlas_kdtree.h"
 
-TLASKDTree::TLASKDTree(std::vector<KDTree*> blasList)
+TLASKDTree::TLASKDTree(std::vector<BLASKDTree*> blasList)
 {
 	blasCount = blasList.size();
 	// copy a pointer to the array of bottom level accstructs

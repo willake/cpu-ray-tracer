@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "tlas_grid.h"
 
-TLASGrid::TLASGrid(std::vector<Grid*> blasList)
+TLASGrid::TLASGrid(std::vector<BLASGrid*> blasList)
 {
 	blasCount = blasList.size();
 	// copy a pointer to the array of bottom level accstructs
