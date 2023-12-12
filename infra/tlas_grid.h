@@ -11,10 +11,16 @@ namespace Tmpl8
         bool isLeaf() { return leftRight == 0; }
     };
 
+    struct TLASGridCell
+    {
+        std::vector<int> blasIndices = {};
+    };
+
     class TLASGrid
     {
     private:
-        float IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
+        bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
+        void IntersectGrid(Ray& ray, long uid);
         int FindBestMatch(int* list, int N, int A);
     public:
         TLASGrid() = default;
@@ -22,10 +28,16 @@ namespace Tmpl8
         void Build();
         void Intersect(Ray& ray);
     private:
+        int3 resolution = 0;
+        float3 cellSize = 0;
         TLASGridNode* tlasNode;
         uint nodesUsed = 0, blasCount;
+        aabb localBounds;
+        std::vector<long> mailbox;
+        long incremental = 0;
     public:
         std::vector<Grid*> blas;
+        std::vector<TLASGridCell> gridCells;
         std::chrono::microseconds buildTime;
     };
 }

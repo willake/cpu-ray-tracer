@@ -17,39 +17,48 @@ TLASGrid::TLASGrid(std::vector<Grid*> blasList)
 void TLASGrid::Build()
 {
 	auto startTime = std::chrono::high_resolution_clock::now();
-	// assign a TLASleaf node to each BLAS
-	int nodeIdx[256], nodeIndices = blasCount;
-	nodesUsed = 1;
-	for (uint i = 0; i < blasCount; i++)
+	for (size_t i = 0; i < blas.size(); i++)
 	{
-		nodeIdx[i] = nodesUsed;
-		tlasNode[nodesUsed].aabbMin = blas[i]->worldBounds.bmin3;
-		tlasNode[nodesUsed].aabbMax = blas[i]->worldBounds.bmax3;
-		tlasNode[nodesUsed].BLAS = i;
-		tlasNode[nodesUsed++].leftRight = 0; // makes it a leaf
+		localBounds.Grow(blas[i]->worldBounds);
 	}
 
-	// use agglomerative clustering to build the TLAS
-	int A = 0, B = FindBestMatch(nodeIdx, nodeIndices, A);
-	while (nodeIndices > 1)
+	float3 gridSize = localBounds.bmax3 - localBounds.bmin3;
+
+	// dynamically calculate resolution
+	float cubeRoot = powf(5 * blas.size() / (gridSize.x * gridSize.y * gridSize.z), 1 / 3.f);
+	for (int i = 0; i < 3; i++)
 	{
-		int C = FindBestMatch(nodeIdx, nodeIndices, B);
-		if (A == C)
-		{
-			int nodeIdxA = nodeIdx[A], nodeIdxB = nodeIdx[B];
-			TLASGridNode& nodeA = tlasNode[nodeIdxA];
-			TLASGridNode& nodeB = tlasNode[nodeIdxB];
-			TLASGridNode& newNode = tlasNode[nodesUsed];
-			newNode.leftRight = nodeIdxA + (nodeIdxB << 16);
-			newNode.aabbMin = fminf(nodeA.aabbMin, nodeB.aabbMin);
-			newNode.aabbMax = fmaxf(nodeA.aabbMax, nodeB.aabbMax);
-			nodeIdx[A] = nodesUsed++;
-			nodeIdx[B] = nodeIdx[nodeIndices - 1];
-			B = FindBestMatch(nodeIdx, --nodeIndices, A);
-		}
-		else A = B, B = C;
+		resolution[i] = static_cast<int>(floor(gridSize[i] * cubeRoot));
+		resolution[i] = max(1, min(resolution[i], 128));
 	}
-	tlasNode[0] = tlasNode[nodeIdx[A]];
+
+	gridCells.resize(resolution.x * resolution.y * resolution.z);
+
+	cellSize = float3(gridSize.x / resolution.x, gridSize.y / resolution.y, gridSize.z / resolution.z);
+
+	// Put triangles into grids
+	for (size_t blasIdx = 0; blasIdx < blas.size(); blasIdx++)
+	{
+		aabb bounds = blas[blasIdx]->worldBounds;
+
+		// Determine grid cell range for the object
+		int minX = clamp(static_cast<int>((bounds.bmin3.x - localBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
+		int minY = clamp(static_cast<int>((bounds.bmin3.y - localBounds.bmin3.y) / cellSize.y), 0, resolution.y - 1);
+		int minZ = clamp(static_cast<int>((bounds.bmin3.z - localBounds.bmin3.z) / cellSize.z), 0, resolution.z - 1);
+		int maxX = clamp(static_cast<int>((bounds.bmax3.x - localBounds.bmin3.x) / cellSize.x), 0, resolution.x - 1);
+		int maxY = clamp(static_cast<int>((bounds.bmax3.y - localBounds.bmin3.y) / cellSize.y), 0, resolution.y - 1);
+		int maxZ = clamp(static_cast<int>((bounds.bmax3.z - localBounds.bmin3.z) / cellSize.z), 0, resolution.z - 1);
+
+		// Assign the object to the corresponding grid cells
+		for (int iz = minZ; iz <= maxZ; ++iz) {
+			for (int iy = minY; iy <= maxY; ++iy) {
+				for (int ix = minX; ix <= maxX; ++ix) {
+					int cellIndex = ix + iy * resolution.x + iz * resolution.x * resolution.y;
+					gridCells[cellIndex].blasIndices.push_back(blasIdx);
+				}
+			}
+		}
+	}
 	auto endTime = std::chrono::high_resolution_clock::now();
 	buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
@@ -69,7 +78,7 @@ int TLASGrid::FindBestMatch(int* list, int N, int A)
 	return bestB;
 }
 
-float TLASGrid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
+bool TLASGrid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
 	float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
 	float tmin = min(tx1, tx2), tmax = max(tx1, tx2);
@@ -77,35 +86,67 @@ float TLASGrid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bm
 	tmin = max(tmin, min(ty1, ty2)), tmax = min(tmax, max(ty1, ty2));
 	float tz1 = (bmin.z - ray.O.z) * ray.rD.z, tz2 = (bmax.z - ray.O.z) * ray.rD.z;
 	tmin = max(tmin, min(tz1, tz2)), tmax = min(tmax, max(tz1, tz2));
-	if (tmax >= tmin && tmin < ray.t && tmax > 0) return tmin; else return 1e30f;
+	return tmax >= tmin && tmin < ray.t && tmax > 0;
+}
+
+void TLASGrid::IntersectGrid(Ray& ray, long uid)
+{
+	ray.tested++;
+	ray.traversed++;
+	// Calculate tmin and tmax
+	if (!IntersectAABB(ray, localBounds.bmin3, localBounds.bmax3)) return;
+
+	// Determine the cell indices that the ray traverses
+	int3 exit, step, cell;
+	float3 deltaT, nextCrossingT;
+	for (int i = 0; i < 3; ++i)
+	{
+		float rayOrigCell = ray.O[i] - localBounds.bmin3[i];
+		cell[i] = clamp(static_cast<int>(std::floor(rayOrigCell / cellSize[i])), 0, resolution[i] - 1);
+		if (ray.D[i] < 0)
+		{
+			deltaT[i] = -cellSize[i] * ray.rD[i];
+			nextCrossingT[i] = (cell[i] * cellSize[i] - rayOrigCell) * ray.rD[i];
+			exit[i] = -1;
+			step[i] = -1;
+		}
+		else
+		{
+			deltaT[i] = cellSize[i] * ray.rD[i];
+			nextCrossingT[i] = ((cell[i] + 1) * cellSize[i] - rayOrigCell) * ray.rD[i];
+			exit[i] = resolution[i];
+			step[i] = 1;
+		}
+	}
+
+	while (true)
+	{
+		ray.traversed++;
+		uint index = cell.x + cell.y * resolution.x + cell.z * resolution.x * resolution.y;
+		for (int blasIdx : gridCells[index].blasIndices)
+		{
+			ray.tested++;
+			if (IntersectAABB(ray, blas[blasIdx]->worldBounds.bmin3, blas[blasIdx]->worldBounds.bmax3))
+			{
+				blas[blasIdx]->Intersect(ray);
+			}
+		}
+
+		uint k =
+			((nextCrossingT.x < nextCrossingT.y) << 2) +
+			((nextCrossingT.x < nextCrossingT.z) << 1) +
+			((nextCrossingT.y < nextCrossingT.z));
+		static const uint8_t map[8] = { 2, 1, 2, 1, 2, 2, 0, 0 };
+		uint8_t axis = map[k];
+
+		if (ray.t < nextCrossingT[axis]) break;
+		cell[axis] += step[axis];
+		if (cell[axis] == exit[axis]) break;
+		nextCrossingT[axis] += deltaT[axis];
+	}
 }
 
 void TLASGrid::Intersect(Ray& ray)
 {
-	TLASGridNode* node = &tlasNode[0], * stack[64];
-	uint stackPtr = 0;
-	while (1)
-	{
-		ray.traversed++;
-		if (node->isLeaf())
-		{
-			blas[node->BLAS]->Intersect(ray);
-			if (stackPtr == 0) break; else node = stack[--stackPtr];
-			continue;
-		}
-		TLASGridNode* child1 = &tlasNode[node->leftRight & 0xffff];
-		TLASGridNode* child2 = &tlasNode[node->leftRight >> 16];
-		float dist1 = IntersectAABB(ray, child1->aabbMin, child1->aabbMax);
-		float dist2 = IntersectAABB(ray, child2->aabbMin, child2->aabbMax);
-		if (dist1 > dist2) { swap(dist1, dist2); swap(child1, child2); }
-		if (dist1 == 1e30f)
-		{
-			if (stackPtr == 0) break; else node = stack[--stackPtr];
-		}
-		else
-		{
-			node = child1;
-			if (dist2 != 1e30f) stack[stackPtr++] = child2;
-		}
-	}
+	IntersectGrid(ray, 0);
 }
