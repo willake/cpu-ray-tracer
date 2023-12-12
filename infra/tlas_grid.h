@@ -21,7 +21,6 @@ namespace Tmpl8
     private:
         bool IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax);
         void IntersectGrid(Ray& ray, long uid);
-        int FindBestMatch(int* list, int N, int A);
     public:
         TLASGrid() = default;
         TLASGrid(std::vector<Grid*> blasList);

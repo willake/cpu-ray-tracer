@@ -63,21 +63,6 @@ void TLASGrid::Build()
 	buildTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 }
 
-int TLASGrid::FindBestMatch(int* list, int N, int A)
-{
-	float smallest = 1e30f;
-	int bestB = -1;
-	for (int B = 0; B < N; B++) if (B != A)
-	{
-		float3 bmax = fmaxf(tlasNode[list[A]].aabbMax, tlasNode[list[B]].aabbMax);
-		float3 bmin = fminf(tlasNode[list[A]].aabbMin, tlasNode[list[B]].aabbMin);
-		float3 e = bmax - bmin;
-		float surfaceArea = e.x * e.y + e.y * e.z + e.z * e.x;
-		if (surfaceArea < smallest) smallest = surfaceArea, bestB = B;
-	}
-	return bestB;
-}
-
 bool TLASGrid::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
 	float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
@@ -148,5 +133,5 @@ void TLASGrid::IntersectGrid(Ray& ray, long uid)
 
 void TLASGrid::Intersect(Ray& ray)
 {
-	IntersectGrid(ray, 0);
+	IntersectGrid(ray, incremental);
 }
