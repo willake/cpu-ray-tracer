@@ -1,5 +1,5 @@
 #pragma once
-#include "kdtree.h"
+#include "blas_kdtree.h"
 
 namespace Tmpl8
 {
@@ -19,14 +19,14 @@ namespace Tmpl8
         int FindBestMatch(int* list, int N, int A);
     public:
         TLASKDTree() = default;
-        TLASKDTree(std::vector<KDTree*> blasList);
+        TLASKDTree(std::vector<BLASKDTree*> blasList);
         void Build();
         void Intersect(Ray& ray);
     private:
         TLASKDTreeNode* tlasNode;
         uint nodesUsed = 0, blasCount;
     public:
-        std::vector<KDTree*> blas;
+        std::vector<BLASKDTree*> blas;
         std::chrono::microseconds buildTime;
     };
 }
