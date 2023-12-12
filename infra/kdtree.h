@@ -1,5 +1,6 @@
 #pragma once
 
+#include "blas_kdtree.h"
 // reference: course slides
 // reference: https://www.youtube.com/watch?v=TrqK-atFfWY&ab_channel=JustinSolomon
 // reference: https://github.com/reddeupenn/kdtreePathTracerOptimization

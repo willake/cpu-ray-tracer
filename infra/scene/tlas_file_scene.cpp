@@ -1,7 +1,7 @@
 #include "precomp.h"
-#include "file_scene.h"
+#include "tlas_file_scene.h"
 
-FileScene::FileScene(const string& filePath)
+TLASFileScene::TLASFileScene(const string& filePath)
 {
 	errorMaterial.albedo = float3(255, 192, 203) / 255.f;
 
@@ -22,27 +22,6 @@ FileScene::FileScene(const string& filePath)
 	skydome = Texture(sceneData.skydomeLocation);
 
 	objCount = sceneData.objects.size();
-
-	models.resize(objCount);
-
-	for (int i = 0; i < objCount; i++)
-	{
-		ObjectData& objectData = sceneData.objects[i];
-		mat4 T = mat4::Translate(objectData.position)
-			* mat4::RotateX(objectData.rotation.x * Deg2Red)
-			* mat4::RotateY(objectData.rotation.y * Deg2Red)
-			* mat4::RotateZ(objectData.rotation.z * Deg2Red) * mat4::Scale(objectData.scale);
-		models[i] = new Model(objIdUsed, objectData.modelLocation, T);
-		models[i]->material.textureDiffuse = std::make_unique<Texture>(objectData.textureLocation);
-		objIdUsed++;
-	}
-
-	for (int i = 0; i < objCount; i++)
-	{
-		models[i]->AppendTriangles(acc.triangles);
-	}
-
-	acc.Build();
 
 #ifdef USE_BVH
 	std::vector<BVH*> blas;
@@ -79,13 +58,27 @@ FileScene::FileScene(const string& filePath)
 	tlas = TLASGrid(blas);
 #endif // USE_Grid
 #ifdef USE_KDTree
-	
+	std::vector<BLASKDTree*> blas;
+	blas.resize(objCount);
+	for (int i = 0; i < objCount; i++)
+	{
+		ObjectData& objectData = sceneData.objects[i];
+		mat4 T = mat4::Translate(objectData.position)
+			* mat4::RotateX(objectData.rotation.x * Deg2Red)
+			* mat4::RotateY(objectData.rotation.y * Deg2Red)
+			* mat4::RotateZ(objectData.rotation.z * Deg2Red);
+		mat4 S = mat4::Scale(objectData.scale);
+		blas[i] = new BLASKDTree(objIdUsed, objectData.modelLocation, T, S);
+		blas[i]->material.textureDiffuse = std::make_unique<Texture>(objectData.textureLocation);
+		objIdUsed++;
+	}
+	tlas = TLASKDTree(blas);
 #endif // USE_KDTree
 
 	SetTime(0);
 }
 
-SceneData FileScene::LoadSceneFile(const string& filePath)
+SceneData TLASFileScene::LoadSceneFile(const string& filePath)
 {
 	SceneData sceneData;
 	// Read the XML file into a string
@@ -110,19 +103,19 @@ SceneData FileScene::LoadSceneFile(const string& filePath)
 	sceneData.skydomeLocation = root->first_node("skydome_location")->value();
 
 	// Extract object information
-	for (rapidxml::xml_node<>* objNode = root->first_node("objects")->first_node("object"); objNode; objNode = objNode->next_sibling())
+	for (rapidxml::xml_node<>* objNode = root->first_node("objects")->first_node("object"); objNode; objNode = objNode->next_sibling()) 
 	{
 		ObjectData obj;
 		obj.modelLocation = objNode->first_node("model_location")->value();
 		obj.textureLocation = objNode->first_node("texture_location")->value();
 
-		for (rapidxml::xml_node<>* posNode = objNode->first_node("position")->first_node(); posNode; posNode = posNode->next_sibling())
+		for (rapidxml::xml_node<>* posNode = objNode->first_node("position")->first_node(); posNode; posNode = posNode->next_sibling()) 
 		{
 			int index = posNode->name()[0] - 'x'; // 'x', 'y', 'z' map to 0, 1, 2
 			obj.position[index] = std::stof(posNode->value());
 		}
 
-		for (rapidxml::xml_node<>* rotNode = objNode->first_node("rotation")->first_node(); rotNode; rotNode = rotNode->next_sibling())
+		for (rapidxml::xml_node<>* rotNode = objNode->first_node("rotation")->first_node(); rotNode; rotNode = rotNode->next_sibling()) 
 		{
 			int index = rotNode->name()[0] - 'x'; // 'x', 'y', 'z' map to 0, 1, 2
 			obj.rotation[index] = std::stof(rotNode->value());
@@ -140,12 +133,12 @@ SceneData FileScene::LoadSceneFile(const string& filePath)
 	return sceneData;
 }
 
-void FileScene::SetTime(float t)
+void TLASFileScene::SetTime(float t)
 {
 	animTime = t;
 }
 
-float3 FileScene::GetSkyColor(const Ray& ray) const
+float3 TLASFileScene::GetSkyColor(const Ray& ray) const
 {
 	// Convert ray direction to texture coordinates, assuming a spherical skydome
 	float phi = atan2(-ray.D.z, ray.D.x) + PI;
@@ -159,7 +152,7 @@ float3 FileScene::GetSkyColor(const Ray& ray) const
 	return color;
 }
 
-float3 FileScene::GetLightPos() const
+float3 TLASFileScene::GetLightPos() const
 {
 	// light point position is the middle of the swinging quad
 	float3 corner1 = TransformPosition(float3(-0.5f, 0, -0.5f), light.T);
@@ -167,32 +160,34 @@ float3 FileScene::GetLightPos() const
 	return (corner1 + corner2) * 0.5f - float3(0, 0.01f, 0);
 }
 
-float3 FileScene::GetLightColor() const
+float3 TLASFileScene::GetLightColor() const
 {
 	return float3(24, 24, 22);
 }
 
 
-void FileScene::FindNearest(Ray& ray)
+void TLASFileScene::FindNearest(Ray& ray)
 {
 	light.Intersect(ray);
 	floor.Intersect(ray);
-	acc.Intersect(ray);
+	sphere.Intersect(ray);
+	tlas.Intersect(ray);
 }
 
-bool FileScene::IsOccluded(const Ray& ray)
+bool TLASFileScene::IsOccluded(const Ray& ray)
 {
 	// from tmpl8rt_IGAD
+	if (sphere.IsOccluded(ray)) return true;
 	if (light.IsOccluded(ray)) return true;
 	Ray shadow = Ray(ray);
 	shadow.t = 1e34f;
-	acc.Intersect(shadow);
+	tlas.Intersect(shadow);
 	if (shadow.objIdx > -1) return true;
 	// skip planes
 	return false;
 }
 
-HitInfo FileScene::GetHitInfo(const Ray& ray, const float3 I)
+HitInfo TLASFileScene::GetHitInfo(const Ray& ray, const float3 I)
 {
 	HitInfo hitInfo = HitInfo(float3(0), float2(0), &errorMaterial);
 	switch (ray.objIdx)
@@ -221,9 +216,10 @@ HitInfo FileScene::GetHitInfo(const Ray& ray, const float3 I)
 		hitInfo.material = &grid->material;
 #endif // USE_Grid
 #ifdef USE_KDTree
-		hitInfo.normal = acc.GetNormal(ray.triIdx, ray.barycentric);
-		hitInfo.uv = acc.GetUV(ray.triIdx, ray.barycentric);
-		hitInfo.material = &models[acc.triangles[ray.triIdx].objIdx - 2]->material;
+		BLASKDTree* kdtree = tlas.blas[ray.objIdx - 2];
+		hitInfo.normal = kdtree->GetNormal(ray.triIdx, ray.barycentric);
+		hitInfo.uv = kdtree->GetUV(ray.triIdx, ray.barycentric);
+		hitInfo.material = &kdtree->material;
 #endif // USE_KDTree
 		break;
 	}
@@ -233,28 +229,34 @@ HitInfo FileScene::GetHitInfo(const Ray& ray, const float3 I)
 	return hitInfo;
 }
 
-float3 FileScene::GetAlbedo(int objIdx, float3 I) const
+float3 TLASFileScene::GetAlbedo(int objIdx, float3 I) const
 {
 	if (objIdx == 1) return floor.GetAlbedo(I);
 	return float3(0);
 }
 
-int FileScene::GetTriangleCount() const
+int TLASFileScene::GetTriangleCount() const
 {
 	int count = 0;
 	for (int i = 0; i < objCount; i++)
 	{
-		count += acc.GetTriangleCount();
+		count += tlas.blas[i]->GetTriangleCount();
 	}
 	return count;
 }
 
-std::chrono::microseconds FileScene::GetBuildTime() const
+std::chrono::microseconds TLASFileScene::GetBuildTime() const
 {
-	return acc.buildTime;
+	std::chrono::microseconds time(0);
+	for (int i = 0; i < objCount; i++)
+	{
+		time += tlas.blas[i]->buildTime;
+	}
+	time += tlas.buildTime;
+	return time;
 }
 
-uint FileScene::GetMaxTreeDepth() const
+uint TLASFileScene::GetMaxTreeDepth() const
 {
 #ifdef USE_BVH
 	uint maxDepth = 0;

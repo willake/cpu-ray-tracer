@@ -59,8 +59,11 @@
     <ClCompile Include="..\infra\tlas_kdtree.cpp">
       <Filter>infra\kdtree</Filter>
     </ClCompile>
-    <ClCompile Include="..\infra\scene\file_scene.cpp">
+    <ClCompile Include="..\infra\scene\tlas_file_scene.cpp">
       <Filter>infra\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\infra\blas_kdtree.cpp">
+      <Filter>infra\kdtree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,8 +161,11 @@
     <ClInclude Include="..\infra\tlas_kdtree.h">
       <Filter>infra\kdtree</Filter>
     </ClInclude>
-    <ClInclude Include="..\infra\scene\file_scene.h">
+    <ClInclude Include="..\infra\scene\tlas_file_scene.h">
       <Filter>infra\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\blas_kdtree.h">
+      <Filter>infra\kdtree</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
