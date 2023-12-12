@@ -106,11 +106,11 @@ void TLASGrid::IntersectGrid(Ray& ray, long uid)
 
 	while (true)
 	{
-		ray.traversed++;
+		//ray.traversed++;
 		uint index = cell.x + cell.y * resolution.x + cell.z * resolution.x * resolution.y;
 		for (int blasIdx : gridCells[index].blasIndices)
 		{
-			ray.tested++;
+			//ray.tested++;
 			if (IntersectAABB(ray, blas[blasIdx]->worldBounds.bmin3, blas[blasIdx]->worldBounds.bmax3))
 			{
 				blas[blasIdx]->Intersect(ray);
