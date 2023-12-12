@@ -10,8 +10,8 @@
 #include "rapidxml.hpp"
 
 //#define TLAS_USE_BVH
-//#define TLAS__Grid
-#define TLAS__KDTree
+//#define TLAS_USE_Grid
+#define TLAS_USE_KDTree
 
 namespace Tmpl8
 {
@@ -51,13 +51,13 @@ namespace Tmpl8
 		uint GetMaxTreeDepth() const;
 	public:
 		float animTime = 0;
-#ifdef USE_BVH
+#ifdef TLAS_USE_BVH
 		TLASBVH tlas;
 #endif
-#ifdef USE_Grid
+#ifdef TLAS_USE_Grid
 		TLASGrid tlas;
 #endif
-#ifdef USE_KDTree
+#ifdef TLAS_USE_KDTree
 		TLASKDTree tlas;
 #endif
 		string sceneName;
