@@ -29,6 +29,16 @@ Open `tmpl_2022-rt.sln` with Visual Studio. Select a project (either WhittedStyl
 Toggle `Inspect Traversal` checkbox in the panel will turn into traversal debug mode.
 ![Traversal](./assets/readme/traversal.jpg)
 ## How to configure
+
+### Aceleration struture
+There are several acceleration structure available. To support both pure acceleration structure and top level assceleration strcture, there are two type of scene. To switch between different scenes, in `renderer.h`, replace the scene class to either `TLASFileScene` or `FileScene`. 
+
+The first one is `FileScene` class, which supports adding all triangles into a single acceleration structure. In `file_scene.h`, there are three definitions: `USE_BVH`, `USE_Grid`, and `USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
+
+The second is `TLASFileScene` class, which supports each model as an acceleation structure. A top-level acceleration structures will includes all of them. In `tlas_fil_scene.h`, there are three definitions: `TLAS_USE_BVH`, `TLAS_USE_Grid`, and `TLAS_USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
+
+For configuring BVH, in `bvh.h` or `tlas_bvh.h`, there is a definition called `SAH`. Uncomment it will enable SAH for finding spliting planes for BVH. 
+
 ### Scene
 There are several scenes available in `assets` folder. In `renderer.h`, the user can set the path to the scene file and start the program. The scene will be loaded automatically.
 A scene template looks like the following
@@ -94,14 +104,7 @@ A scene template looks like the following
 	</materials>
 </scene>
 ```
-### Aceleration struture
-There are several acceleration structure available. To support both pure acceleration structure and top level assceleration strcture, there are two type of scene. To switch between different scenes, in `renderer.h`, replace the scene class to either `TLASFileScene` or `FileScene`. 
 
-The first one is `FileScene` class, which supports adding all triangles into a single acceleration structure. In `file_scene.h`, there are three definitions: `USE_BVH`, `USE_Grid`, and `USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
-
-The second is `TLASFileScene` class, which supports each model as an acceleation structure. A top-level acceleration structures will includes all of them. In `tlas_fil_scene.h`, there are three definitions: `TLAS_USE_BVH`, `TLAS_USE_Grid`, and `TLAS_USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
-
-For configuring BVH, in `bvh.h` or `tlas_bvh.h`, there is a definition called `SAH`. Uncomment it will enable SAH for finding spliting planes for BVH. 
 ## Original README.md from template
 
 This template is intended for students of Utrecht University.
