@@ -132,6 +132,7 @@
     <ClCompile Include="..\infra\bvh.cpp" />
     <ClCompile Include="..\infra\grid.cpp" />
     <ClCompile Include="..\infra\kdtree.cpp" />
+    <ClCompile Include="..\infra\model.cpp" />
     <ClCompile Include="..\infra\scene\file_scene.cpp" />
     <ClCompile Include="..\infra\scene\primitive_scene.cpp" />
     <ClCompile Include="..\infra\scene\tlas_file_scene.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="..\infra\helper.h" />
     <ClInclude Include="..\infra\hit_info.h" />
     <ClInclude Include="..\infra\kdtree.h" />
+    <ClInclude Include="..\infra\model.h" />
     <ClInclude Include="..\infra\scene\base_scene.h" />
     <ClInclude Include="..\infra\scene\file_scene.h" />
     <ClInclude Include="..\infra\scene\primitive_scene.h" />

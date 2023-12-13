@@ -257,7 +257,7 @@ void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
         }
     }
 #else
-    BVH& node = bvhNodes[nodeIdx];
+    BVHNode& node = bvhNodes[nodeIdx];
     ray.traversed++;
     if (!IntersectAABB(ray, node.aabbMin, node.aabbMax)) return;
     if (node.isLeaf())

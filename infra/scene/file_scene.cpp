@@ -35,7 +35,8 @@ FileScene::FileScene(const string& filePath)
 		materials[i]->reflectivity = sceneData.materials[i].reflectivity;
 		materials[i]->refractivity = sceneData.materials[i].refractivity;
 		materials[i]->absorption = sceneData.materials[i].absorption;
-		materials[i]->textureDiffuse = std::make_unique<Texture>(sceneData.materials[i].textureLocation);
+		if (!sceneData.materials[i].textureLocation.empty())
+			materials[i]->textureDiffuse = std::make_unique<Texture>(sceneData.materials[i].textureLocation);
 	}
 
 	for (int i = 0; i < objCount; i++)
@@ -236,6 +237,9 @@ std::chrono::microseconds FileScene::GetBuildTime() const
 uint FileScene::GetMaxTreeDepth() const
 {
 #ifdef USE_BVH
+	return acc.maxDepth;
+#endif
+#ifdef USE_KDTree
 	return acc.maxDepth;
 #endif
 	return 0;

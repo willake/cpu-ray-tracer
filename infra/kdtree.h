@@ -34,5 +34,6 @@ namespace Tmpl8
 		uint rootNodeIdx = 0, nodesUsed = 1;
 		aabb localBounds;
 		std::chrono::microseconds buildTime;
+		uint maxDepth = 0;
 	};
 }

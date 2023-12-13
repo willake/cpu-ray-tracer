@@ -45,7 +45,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		TLASFileScene scene = TLASFileScene("../assets/scenes/wok_scene.xml");
+		TLASFileScene scene = TLASFileScene("../assets/scenes/inside_scene.xml");
 		Camera camera;
 		int spp = 1, passes = 1;
 		bool animating = false;

@@ -33,7 +33,8 @@ TLASFileScene::TLASFileScene(const string& filePath)
 		materials[i]->reflectivity = sceneData.materials[i].reflectivity;
 		materials[i]->refractivity = sceneData.materials[i].refractivity;
 		materials[i]->absorption = sceneData.materials[i].absorption;
-		materials[i]->textureDiffuse = std::make_unique<Texture>(sceneData.materials[i].textureLocation);
+		if (!sceneData.materials[i].textureLocation.empty())
+			materials[i]->textureDiffuse = std::make_unique<Texture>(sceneData.materials[i].textureLocation);
 	}
 
 #ifdef TLAS_USE_BVH
@@ -289,6 +290,13 @@ uint TLASFileScene::GetMaxTreeDepth() const
 {
 #ifdef TLAS_USE_BVH
 	uint maxDepth = 0;
+	for (int i = 0; i < objCount; i++)
+	{
+		if (tlas.blas[i]->maxDepth > maxDepth) maxDepth = tlas.blas[i]->maxDepth;
+	}
+	return maxDepth;
+#endif
+#ifdef TLAS_KDTree
 	for (int i = 0; i < objCount; i++)
 	{
 		if (tlas.blas[i]->maxDepth > maxDepth) maxDepth = tlas.blas[i]->maxDepth;

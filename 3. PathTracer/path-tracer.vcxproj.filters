@@ -74,6 +74,9 @@
     <ClCompile Include="..\infra\blas_bvh.cpp">
       <Filter>infra\bvh</Filter>
     </ClCompile>
+    <ClCompile Include="..\infra\model.cpp">
+      <Filter>infra</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="renderer.h" />
@@ -184,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="..\infra\blas_bvh.h">
       <Filter>infra\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infra\model.h">
+      <Filter>infra</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

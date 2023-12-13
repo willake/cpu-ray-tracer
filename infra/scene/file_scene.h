@@ -8,8 +8,8 @@
 #include "rapidxml.hpp"
 
 //#define USE_BVH
-#define USE_Grid
-//#define USE_KDTree
+//#define USE_Grid
+#define USE_KDTree
 
 #include "tlas_file_scene.h"
 

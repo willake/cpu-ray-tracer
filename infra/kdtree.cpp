@@ -48,6 +48,7 @@ void KDTree::Subdivide(KDTreeNode* node, int depth)
     if (depth >= m_maxBuildDepth) return;
     uint triCount = node->triIndices.size();
     if (triCount <= 2) return;
+    if (depth > maxDepth) maxDepth = depth;
 
     // split plane axis and position
     float3 extent = node->aabbMax - node->aabbMin;

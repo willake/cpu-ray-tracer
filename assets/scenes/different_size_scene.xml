@@ -4,10 +4,10 @@
     <scene_name>wok scene</scene_name>
 	<light_position>
 		<x>0.0</x>
-		<y>4.5</y>
-		<z>2.0</z>
+		<y>3</y>
+		<z>1.0</z>
 	</light_position>
-	<plane_texture_location>../assets/textures/Stylized_Wood_basecolor.tga</plane_texture_location>
+	<plane_texture_location>../assets/textures/Stylized_Pavement_basecolor.png</plane_texture_location>
     <skydome_location>../assets/industrial_sunset_puresky_4k.hdr</skydome_location>
 
     <!-- Object List -->
@@ -17,9 +17,28 @@
             <model_location>../assets/teapot.obj</model_location>
             <material_idx>0</material_idx>
             <position>
-                <x>-3.0</x>
+                <x>0.0</x>
                 <y>-0.5</y>
+                <z>1.0</z>
+            </position>
+            <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
                 <z>0.0</z>
+            </rotation>
+			<scale>
+                <x>1</x>
+                <y>1</y>
+                <z>1</z>
+            </scale>
+        </object>
+		        <object>
+            <model_location>../assets/teapot.obj</model_location>
+            <material_idx>0</material_idx>
+            <position>
+                <x>-3</x>
+                <y>-0.5</y>
+                <z>4.0</z>
             </position>
             <rotation>
                 <x>0.0</x>
@@ -34,11 +53,11 @@
         </object>
 		<object>
             <model_location>../assets/japanese_torii_gate.obj</model_location>
-            <material_idx>0</material_idx>
+            <material_idx>1</material_idx>
             <position>
                 <x>0.0</x>
-                <y>-0.5</y>
-                <z>0.0</z>
+                <y>-1</y>
+                <z>3.0</z>
             </position>
             <rotation>
                 <x>0.0</x>
@@ -46,15 +65,25 @@
                 <z>0.0</z>
             </rotation>
 			<scale>
-                <x>0.5</x>
-                <y>0.5</y>
-                <z>0.5</z>
+                <x>2</x>
+                <y>2</y>
+                <z>2</z>
             </scale>
         </object>
         <!-- Add more objects as needed -->
     </objects>
 	<materials>
 		<!-- Material 0 -->
+		<material>
+			<reflectivity>1.0</reflectivity>
+			<refractivity>0.0</refractivity>
+			<absorption>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+            </absorption>
+			<texture_location></texture_location>
+		</material>
 		<material>
 			<reflectivity>0.0</reflectivity>
 			<refractivity>0.0</refractivity>
@@ -63,7 +92,7 @@
                 <y>0.0</y>
                 <z>0.0</z>
             </absorption>
-			<texture_location>../assets/textures/Defuse_wok.png</texture_location>
+			<texture_location>../assets/textures/T_Trim_01_BaseColor.png</texture_location>
 		</material>
 	</materials>
 </scene>
