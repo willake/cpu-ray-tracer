@@ -49,7 +49,7 @@ A scene template looks like the following
         <!-- Object 1 -->
         <object>
             <model_location>../assets/wok.obj</model_location>
-            <texture_location>../assets/textures/Defuse_wok.png</texture_location>
+            <material_idx>0</material_idx>
             <position>
                 <x>-1.0</x>
                 <y>-0.5</y>
@@ -69,11 +69,39 @@ A scene template looks like the following
 
         <!-- Add more objects as needed -->
     </objects>
+    <materials>
+		<!-- Material 0 -->
+		<material>
+			<reflectivity>1.0</reflectivity>
+			<refractivity>0.0</refractivity>
+			<absorption>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+            </absorption>
+			<texture_location></texture_location>
+		</material>
+		<material>
+			<reflectivity>0.0</reflectivity>
+			<refractivity>0.0</refractivity>
+			<absorption>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+            </absorption>
+			<texture_location>../assets/textures/T_Trim_01_BaseColor.png</texture_location>
+		</material>
+	</materials>
 </scene>
 ```
 ### Aceleration struture
-There are several acceleration structure available. In `file_scene.h`, there are three definitions: `USE_BVH`, `USE_Grid`, and `USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
+There are several acceleration structure available. To support both pure acceleration structure and top level assceleration strcture, there are two type of scene. To switch between different scenes, in `renderer.h`, replace the scene class to either `TLASFileScene` or `FileScene`. 
 
+The first one is `FileScene` class, which supports adding all triangles into a single acceleration structure. In `file_scene.h`, there are three definitions: `USE_BVH`, `USE_Grid`, and `USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
+
+The second is `TLASFileScene` class, which supports each model as an acceleation structure. A top-level acceleration structures will includes all of them. In `tlas_fil_scene.h`, there are three definitions: `TLAS_USE_BVH`, `TLAS_USE_Grid`, and `TLAS_USE_KDTree`. Uncomment one of them, then the `FileScene` class will load the scene in certain acceleration structure.
+
+For configuring BVH, in `bvh.h` or `tlas_bvh.h`, there is a definition called `SAH`. Uncomment it will enable SAH for finding spliting planes for BVH. 
 ## Original README.md from template
 
 This template is intended for students of Utrecht University.
