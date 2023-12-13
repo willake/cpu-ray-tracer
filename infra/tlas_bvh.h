@@ -1,5 +1,7 @@
 #pragma once
 
+#include "blas_bvh.h"
+
 namespace Tmpl8
 {
     struct TLASBVHNode
@@ -18,14 +20,14 @@ namespace Tmpl8
         int FindBestMatch(int* list, int N, int A);
     public:
         TLASBVH() = default;
-        TLASBVH(std::vector<BVH*> bvhList);
+        TLASBVH(std::vector<BLASBVH*> bvhList);
         void Build();
         void Intersect(Ray& ray);
     private:
         TLASBVHNode* tlasNode;
         uint nodesUsed = 0, blasCount;
     public:
-        std::vector<BVH*> blas;
+        std::vector<BLASBVH*> blas;
         std::chrono::microseconds buildTime;
     };
 }

@@ -184,6 +184,7 @@ void Renderer::UI()
 	if (ImGui::Button("Set Camera")) {
 		// Button was clicked, perform action (e.g., reset values)
 		camera.SetCameraState(m_camPositionToSet, m_camTargetToSet);
+		ClearAccumulator();
 	}
 	// ray query on mouse
 	Ray r = camera.GetPrimaryRay((float)mousePos.x, (float)mousePos.y);

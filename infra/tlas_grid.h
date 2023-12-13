@@ -1,5 +1,7 @@
 #pragma once
 
+#include "blas_grid.h"
+
 namespace Tmpl8
 {
     struct TLASGridNode
@@ -18,14 +20,14 @@ namespace Tmpl8
         int FindBestMatch(int* list, int N, int A);
     public:
         TLASGrid() = default;
-        TLASGrid(std::vector<Grid*> blasList);
+        TLASGrid(std::vector<BLASGrid*> blasList);
         void Build();
         void Intersect(Ray& ray);
     private:
         TLASGridNode* tlasNode;
         uint nodesUsed = 0, blasCount;
     public:
-        std::vector<Grid*> blas;
+        std::vector<BLASGrid*> blas;
         std::chrono::microseconds buildTime;
     };
 }

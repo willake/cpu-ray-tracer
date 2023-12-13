@@ -1,84 +1,6 @@
 #include "precomp.h"
 #include "bvh.h"
 
-BVH::BVH(const int idx, const std::string& modelPath, const mat4 transform, const mat4 scaleMat)
-{
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
-
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
-    {
-        throw std::runtime_error(warn + err);
-    }
-
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
-
-    for (const auto& shape : shapes)
-    {
-        for (const auto& index : shape.mesh.indices)
-        {
-            Vertex vertex{};
-
-            if (index.vertex_index >= 0)
-            {
-                vertex.position = {
-                    attrib.vertices[3 * index.vertex_index + 0],
-                    attrib.vertices[3 * index.vertex_index + 1],
-                    attrib.vertices[3 * index.vertex_index + 2] };
-            }
-
-            if (index.normal_index >= 0)
-            {
-                vertex.normal = {
-                    attrib.normals[3 * index.normal_index + 0],
-                    attrib.normals[3 * index.normal_index + 1],
-                    attrib.normals[3 * index.normal_index + 2] };
-            }
-
-            if (index.texcoord_index >= 0)
-            {
-                vertex.uv = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    attrib.texcoords[2 * index.texcoord_index + 1] };
-            }
-
-            if (uniqueVertices.count(vertex) == 0)
-            {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
-            }
-            indices.push_back(uniqueVertices[vertex]);
-        }
-    }
-
-    objIdx = idx;
-
-    for (int i = 0; i < indices.size(); i += 3)
-    {
-        Tri tri(
-            TransformPosition(vertices[indices[i]].position, scaleMat),
-            TransformPosition(vertices[indices[i + 1]].position, scaleMat),
-            TransformPosition(vertices[indices[i + 2]].position, scaleMat),
-            vertices[indices[i]].normal,
-            vertices[indices[i + 1]].normal,
-            vertices[indices[i + 2]].normal,
-            vertices[indices[i]].uv,
-            vertices[indices[i + 1]].uv,
-            vertices[indices[i + 2]].uv,
-            float3(0), objIdx);
-        tri.centroid = (tri.vertex0 + tri.vertex1 + tri.vertex2) * 0.3333f;
-        triangles.push_back(tri);
-    }
-
-    Build();
-    SetTransform(transform);
-}
-
 void BVH::Build()
 {
     auto startTime = std::chrono::high_resolution_clock::now();
@@ -144,7 +66,7 @@ void BVH::Subdivide(uint nodeIdx, uint depth)
     BVHNode& node = bvhNodes[nodeIdx];
     if (node.triCount <= 2) return;
 
-#ifdef SAH
+#ifdef BVH_SAH
     // determine split axis using SAH
     int axis;
     float splitPos;
@@ -213,12 +135,12 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
         }
         if (boundsMin == boundsMax) continue;
         // populate the bins
-        Bin bin[BINS];
-        float scale = BINS / (boundsMax - boundsMin);
+        Bin bin[BVH_BINS];
+        float scale = BVH_BINS / (boundsMax - boundsMin);
         for (uint i = 0; i < node.triCount; i++)
         {
             Tri& triangle = triangles[triangleIndices[node.leftFirst + i]];
-            int binIdx = min(BINS - 1,
+            int binIdx = min(BVH_BINS - 1,
                 (int)((triangle.centroid[a] - boundsMin) * scale));
             bin[binIdx].triCount++;
             bin[binIdx].bounds.Grow(triangle.vertex0);
@@ -226,24 +148,24 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
             bin[binIdx].bounds.Grow(triangle.vertex2);
         }
         // gather data for the 7 planes between the 8 bins
-        float leftArea[BINS - 1], rightArea[BINS - 1];
-        int leftCount[BINS - 1], rightCount[BINS - 1];
+        float leftArea[BVH_BINS - 1], rightArea[BVH_BINS - 1];
+        int leftCount[BVH_BINS - 1], rightCount[BVH_BINS - 1];
         aabb leftBox, rightBox;
         int leftSum = 0, rightSum = 0;
-        for (int i = 0; i < BINS - 1; i++)
+        for (int i = 0; i < BVH_BINS - 1; i++)
         {
             leftSum += bin[i].triCount;
             leftCount[i] = leftSum;
             leftBox.Grow(bin[i].bounds);
             leftArea[i] = leftBox.Area();
-            rightSum += bin[BINS - 1 - i].triCount;
-            rightCount[BINS - 2 - i] = rightSum;
-            rightBox.Grow(bin[BINS - 1 - i].bounds);
-            rightArea[BINS - 2 - i] = rightBox.Area();
+            rightSum += bin[BVH_BINS - 1 - i].triCount;
+            rightCount[BVH_BINS - 2 - i] = rightSum;
+            rightBox.Grow(bin[BVH_BINS - 1 - i].bounds);
+            rightArea[BVH_BINS - 2 - i] = rightBox.Area();
         }
         // calculate SAH cost for the 7 planes
-        scale = (boundsMax - boundsMin) / BINS;
-        for (int i = 0; i < BINS - 1; i++)
+        scale = (boundsMax - boundsMin) / BVH_BINS;
+        for (int i = 0; i < BVH_BINS - 1; i++)
         {
             float planeCost =
                 leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
@@ -255,7 +177,7 @@ float BVH::FindBestSplitPlane(BVHNode& node, int& axis, float& splitPos)
     return bestCost;
 }
 
-#ifdef FASTER_RAY
+#ifdef BVH_FASTER_RAY
 float BVH::IntersectAABB(const Ray& ray, const float3 bmin, const float3 bmax)
 {
     float tx1 = (bmin.x - ray.O.x) * ray.rD.x, tx2 = (bmax.x - ray.O.x) * ray.rD.x;
@@ -301,7 +223,7 @@ void BVH::IntersectTri(Ray& ray, const Tri& tri, const uint triIdx)
 
 void BVH::IntersectBVH(Ray& ray, const uint nodeIdx)
 {
-#ifdef FASTER_RAY
+#ifdef BVH_FASTER_RAY
     BVHNode* node = &bvhNodes[rootNodeIdx], * stack[64];
     uint stackPtr = 0;
     while (1)
@@ -360,32 +282,9 @@ int BVH::GetTriangleCount() const
     return triangles.size();
 }
 
-void BVH::SetTransform(mat4 transform)
-{
-    T = transform;
-    invT = transform.FastInvertedTransformNoScale();
-    // update bvh bound
-    // calculate world-space bounds using the new matrix
-    float3 bmin = bvhNodes[0].aabbMin, bmax = bvhNodes[0].aabbMax;
-    worldBounds = aabb();
-    for (int i = 0; i < 8; i++)
-        worldBounds.Grow(TransformPosition(float3(i & 1 ? bmax.x : bmin.x,
-            i & 2 ? bmax.y : bmin.y, i & 4 ? bmax.z : bmin.z), transform));
-}
-
 void BVH::Intersect(Ray& ray)
 {
-    Ray tRay = Ray(ray);
-    tRay.O = TransformPosition_SSE(ray.O4, invT);
-    tRay.D = TransformVector_SSE(ray.D4, invT);
-    tRay.rD = float3(1 / tRay.D.x, 1 / tRay.D.y, 1 / tRay.D.z);
-
-    IntersectBVH(tRay, rootNodeIdx);
-
-    tRay.O = ray.O;
-    tRay.D = ray.D;
-    tRay.rD = ray.rD;
-    ray = tRay;
+    IntersectBVH(ray, rootNodeIdx);
 }
 
 float3 BVH::GetNormal(const uint triIdx, const float2 barycentric) const
@@ -394,7 +293,7 @@ float3 BVH::GetNormal(const uint triIdx, const float2 barycentric) const
     float3 n1 = triangles[triIdx].normal1;
     float3 n2 = triangles[triIdx].normal2;
     float3 N = (1 - barycentric.x - barycentric.y) * n0 + barycentric.x * n1 + barycentric.y * n2;
-    return normalize(TransformVector(N, T));
+    return normalize(N);
 }
 
 float2 BVH::GetUV(const uint triIdx, const float2 barycentric) const

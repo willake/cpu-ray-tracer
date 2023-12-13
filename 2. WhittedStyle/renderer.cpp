@@ -74,7 +74,7 @@ float3 Renderer::Trace(Ray& ray, int depth)
 	if (diffuseness > 0)
 	{
 		float3 irradiance = DirectIllumination(I, N);
-		float3 ambient = float3(0.2f, 0.2f, 0.2f);
+		float3 ambient = float3(0.3f, 0.3f, 0.3f);
 		float3 brdf = albedo * INVPI;
 		out_radiance += diffuseness * brdf * (irradiance + ambient);
 	}
@@ -206,6 +206,10 @@ void Renderer::UI()
 	if (ImGui::Button("Set Camera")) {
 		// Button was clicked, perform action (e.g., reset values)
 		camera.SetCameraState(m_camPositionToSet, m_camTargetToSet);
+		m_averageTraversal = 0;
+		m_averageTests = 0;
+		m_peakTraversal = 0;
+		m_peakTests = 0;
 	}
 	// ray query on mouse
 	Ray r = camera.GetPrimaryRay((float)mousePos.x, (float)mousePos.y);

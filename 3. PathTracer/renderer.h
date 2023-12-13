@@ -7,6 +7,7 @@
 #include "base_scene.h"
 #include "primitive_scene.h"
 #include "file_scene.h"
+#include "tlas_file_scene.h"
 
 #define EPSILON	0.001f
 
@@ -44,7 +45,7 @@ namespace Tmpl8
 		// data members
 		int2 mousePos;
 		float4* accumulator;
-		FileScene scene = FileScene("../assets/scenes/wok_scene.xml");
+		TLASFileScene scene = TLASFileScene("../assets/scenes/inside_scene.xml");
 		Camera camera;
 		int spp = 1, passes = 1;
 		bool animating = false;
