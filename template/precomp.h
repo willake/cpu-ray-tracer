@@ -2,6 +2,7 @@
 // IGAD/NHTV/UU - Jacco Bikker - 2006-2022
 
 // C++ headers
+#pragma once
 #include <chrono>
 #include <fstream>
 #include <vector>
@@ -366,7 +367,20 @@ public:
 	void Tick() {}
 };
 
-#include "scene.h"
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_PSD
+#define STBI_NO_PIC
+#define STBI_NO_PNM
+#include "stb_image.h"
+
+
+#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
+// Optional. define TINYOBJLOADER_USE_MAPBOX_EARCUT gives robust trinagulation. Requires C++11
+// #define TINYOBJLOADER_USE_MAPBOX_EARCUT
+#include "tiny_obj_loader.h"
+
+#include "ray.h"
+#include "primitives.h"
 #include "camera.h"
 #include "renderer.h"
 

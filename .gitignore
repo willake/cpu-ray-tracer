@@ -396,3 +396,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea/
+
+# But don't ignore .obj files in the assets/ folder
+!assets/*.obj

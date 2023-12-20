@@ -30,6 +30,7 @@ struct ALIGN( 8 ) float2
 	float2( const int2 a ) : x( (float)a.x ), y( (float)a.y ) {}
 	union { struct { float x, y; }; float cell[2]; };
 	float& operator [] ( const int n ) { return cell[n]; }
+	bool operator==(const float2& other) const { return x == other.x && y == other.y; }
 };
 struct int3;
 struct ALIGN( 16 ) int4
@@ -91,6 +92,7 @@ struct float3
 	float2 yz() { return float2( y, z ); }
 	union { struct { float x, y, z; }; float cell[3]; };
 	float& operator [] ( const int n ) { return cell[n]; }
+	bool operator==(const float3& other) const { return x == other.x && y == other.y && z == other.z; }
 };
 struct ALIGN( 4 ) uchar4
 {

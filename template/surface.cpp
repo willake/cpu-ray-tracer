@@ -1,11 +1,5 @@
 #include "precomp.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_NO_PSD
-#define STBI_NO_PIC
-#define STBI_NO_PNM
-#include "stb_image.h"
-
 using namespace Tmpl8;
 
 // surface implementation

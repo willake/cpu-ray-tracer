@@ -1,5 +1,4 @@
 #include "precomp.h"
-
 // -----------------------------------------------------------
 // Initialize the renderer
 // -----------------------------------------------------------
@@ -20,6 +19,7 @@ float3 Renderer::Trace( Ray& ray )
 	float3 I = ray.O + ray.t * ray.D;
 	float3 N = scene.GetNormal( ray.objIdx, I, ray.D );
 	float3 albedo = scene.GetAlbedo( ray.objIdx, I );
+
 	/* visualize normal */ // return (N + 1) * 0.5f;
 	/* visualize distance */ // return 0.1f * float3( ray.t, ray.t, ray.t );
 	/* visualize albedo */ return albedo;
