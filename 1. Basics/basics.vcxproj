@@ -85,6 +85,7 @@
     <Link>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ForceFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiplyDefinedSymbolOnly</ForceFileOutput>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -119,6 +120,9 @@
       <OpenMPSupport>true</OpenMPSupport>
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
+    <Link>
+      <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
+    </Link>
   </ItemDefinitionGroup>
   <!-- END Custom section -->
   <ItemGroup>
