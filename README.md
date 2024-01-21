@@ -1,4 +1,4 @@
-# Hui CPU Renderer Renderer
+# Hui CPU Ray Tracing Renderer
 
 This renderer is based on the [template project](https://github.com/jbikker/tmpl8rt_UU) of [Dr. Jacco Bikker](https://github.com/jbikker). By extending the template, the following features are developed:
 
