@@ -16,7 +16,7 @@ This renderer is based on the [template project](https://github.com/jbikker/tmpl
 - instruments (only available for whitted style ray tracer)
 - scene file loading
 
-# Known issues that can be improved
+### Known issues that can be improved
 - implement enhanced version of path tracer with more rendering features
 - unbind triangle data with acceleration structures so that they can share mesh memory
 
